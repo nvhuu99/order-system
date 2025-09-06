@@ -1,8 +1,4 @@
 spring:
-  config:
-    import: file:./commons.yaml
-#    import: configserver:http://centralized-config:8888/commons.yaml
-
   grpc:
     client:
       product-service:

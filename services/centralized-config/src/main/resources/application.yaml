@@ -2,11 +2,11 @@ server:
   port: 8888
 
 spring:
+  config:
+    import: classpath:configs/.env.docker[.properties]
+
   application:
     name: centralized-config
-
-  config:
-    import: classpath:configs/commons.yaml
 
   cloud:
     config:
@@ -15,3 +15,8 @@ spring:
           uri: https://github.com/nvhuu99/order-processing-system
           search-paths:
             - services/centralized-config/src/main/resources/configs
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka/

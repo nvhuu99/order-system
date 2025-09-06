@@ -1,6 +1,6 @@
 spring:
   config:
-    import: classpath:commons.yaml
+    import: classpath:application.yaml
 
 grpc:
   server:
