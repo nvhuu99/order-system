@@ -6,7 +6,7 @@ spring:
     name: centralized-config
 
   config:
-    import: classpath:commons.yaml
+    import: classpath:configs/commons.yaml
 
   cloud:
     config:
@@ -14,4 +14,4 @@ spring:
         git:
           uri: https://github.com/nvhuu99/order-processing-system
           search-paths:
-            - services/centralized-config/src/main/java/resources
+            - services/centralized-config/src/main/resources/configs
