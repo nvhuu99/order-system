@@ -1,9 +1,7 @@
 spring:
-  application:
-    name: shop-app
-
   config:
-    import: configserver:http://centralized-config:8888/commons.yaml
+    import: classpath:commons.yaml
+#    import: configserver:http://centralized-config:8888/commons.yaml
 
   grpc:
     client:
