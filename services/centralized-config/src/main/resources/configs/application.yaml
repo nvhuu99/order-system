@@ -1,6 +1,6 @@
 spring:
   config:
-    import: file:./.env.docker[.properties]
+    import: classpath:.env.docker[.properties]
 
 eureka:
   client:
