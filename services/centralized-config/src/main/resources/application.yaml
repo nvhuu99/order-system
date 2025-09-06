@@ -1,0 +1,15 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: centralized-config
+
+  config:
+    import: classpath:service.commons.yaml
+
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/configs

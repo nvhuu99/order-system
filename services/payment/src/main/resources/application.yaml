@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: payment
+
+  config:
+    import: configserver:service.payment.yaml

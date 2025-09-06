@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: shop-app
+
+  config:
+    import: configserver:service.shop-app.yaml

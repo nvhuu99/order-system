@@ -1,0 +1,14 @@
+spring:
+  config:
+    import: optional:classpath:.env[.properties]
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh
