@@ -1,9 +1,10 @@
 server:
   port: 8081
 
-grpc:
-  client:
-    channels:
-      product-service:
-        address: ${INVENTORY_HOST}:${INVENTORY_GRPC_PORT}
-        plaintext: true
+spring:
+  grpc:
+    client:
+      channels:
+        product-service:
+          address: ${INVENTORY_HOST}:${INVENTORY_GRPC_PORT}
+          plaintext: true

@@ -2,8 +2,8 @@ spring:
   config:
     import: classpath:application.yaml
 
-grpc:
-  server:
-    port: 9091
-    security:
-      enabled: false
+  grpc:
+    server:
+      port: 9091
+      ssl:
+        secure: false

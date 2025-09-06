@@ -1,5 +1,6 @@
 package com.example.shop_app.api.configs;
 
+import io.grpc.netty.NettyChannelBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.grpc.client.GrpcChannelFactory;
@@ -15,5 +16,15 @@ public class GrpcClientConfig {
         var channel = channelFactory.createChannel("product-service");
         return ProductServiceGrpc.newBlockingStub(channel);
     }
+
+//    @Bean
+//    public ProductServiceGrpc.ProductServiceBlockingStub productServiceStub() {
+//        var channel = NettyChannelBuilder
+//            .forAddress("inventory", 9091)
+//            .usePlaintext()
+//            .build();
+//
+//        return ProductServiceGrpc.newBlockingStub(channel);
+//    }
 }
 
