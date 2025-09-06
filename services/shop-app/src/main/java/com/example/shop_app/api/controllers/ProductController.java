@@ -9,13 +9,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/product")
+@RequestMapping("api/v1/products")
 public class ProductController {
 
     @Autowired
     private ProductServiceGrpc.ProductServiceBlockingStub productSvc;
 
-    @GetMapping("products")
+    @GetMapping("test")
+    public ResponseEntity<?> test() {
+        return ResponseEntity.ok("test");
+    }
+
+    @GetMapping("")
     public ResponseEntity<?> shop() {
         var request = ListProductsRequest.newBuilder().build();
         var result = productSvc.listProducts(request);

@@ -31,19 +31,21 @@ services:
     depends_on:
       - eureka-server
 
-#  inventory:
-#    container_name: inventory
-#    build:
-#      context: ./services/inventory
-#      dockerfile: Dockerfile
-#    restart: unless-stopped
-#    ports:
-#      - "9091:9091"
-#    networks:
-#      - order-processing-system
-#    depends_on:
-#      - eureka-server
-#      - centralized-config
+  inventory:
+    container_name: inventory
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/inventory
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "9091:9091"
+    networks:
+      - order-processing-system
+    depends_on:
+      - eureka-server
+      - centralized-config
 
   shop-app:
     container_name: shop-app
