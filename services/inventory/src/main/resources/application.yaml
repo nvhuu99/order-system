@@ -3,4 +3,4 @@ spring:
     name: inventory
 
   config:
-    import: configserver:service.inventory.yaml
+    import: configserver:http://centralized-config:8888

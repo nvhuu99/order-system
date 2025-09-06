@@ -1,23 +1,10 @@
 name: order-processing-system
 
-volumes:
-
 networks:
   order-processing-system:
     driver: bridge
 
 services:
-  centralized-config:
-    container_name: centralized-config
-    build:
-      context: ./services/centralized-config
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    ports:
-      - "8888:8888"
-    networks:
-      - order-processing-system
-
   eureka-server:
     container_name: eureka-server
     build:
@@ -29,6 +16,33 @@ services:
     networks:
       - order-processing-system
 
+  centralized-config:
+    container_name: centralized-config
+    build:
+      context: ./services/centralized-config
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    networks:
+      - order-processing-system
+    depends_on:
+      - eureka-server
+
+#  inventory:
+#    container_name: inventory
+#    build:
+#      context: ./services/inventory
+#      dockerfile: Dockerfile
+#    restart: unless-stopped
+#    ports:
+#      - "9091:9091"
+#    networks:
+#      - order-processing-system
+#    depends_on:
+#      - eureka-server
+#      - centralized-config
+
   shop-app:
     container_name: shop-app
     build:
@@ -39,3 +53,6 @@ services:
       - "8081:8081"
     networks:
       - order-processing-system
+    depends_on:
+      - eureka-server
+      - centralized-config

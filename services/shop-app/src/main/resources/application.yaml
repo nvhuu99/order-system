@@ -1,6 +1,3 @@
 spring:
-  application:
-    name: shop-app
-
   config:
-    import: configserver:service.shop-app.yaml
+    import: configserver:http://centralized-config:8888

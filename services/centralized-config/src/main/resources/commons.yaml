@@ -1,11 +1,11 @@
 spring:
   config:
-    import: optional:classpath:.env[.properties]
+    import: classpath:.env.docker[.properties]
 
 eureka:
   client:
     service-url:
-      defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
+      defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka/
 
 management:
   endpoints:

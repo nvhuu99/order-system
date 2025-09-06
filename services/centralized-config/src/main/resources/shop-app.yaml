@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: shop-app
+
+  config:
+    import: configserver:http://centralized-config:8888/commons.yaml
+
+  grpc:
+    client:
+      product-service:
+        address: static://${INVENTORY_HOST}:${INVENTORY_GRPC_PORT}
+        negotiation-type: plaintext

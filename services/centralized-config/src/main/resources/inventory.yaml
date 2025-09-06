@@ -1,0 +1,9 @@
+spring:
+  config:
+    import: classpath:commons.yaml
+
+grpc:
+  server:
+    port: 9091
+    security:
+      enabled: false

@@ -7,6 +7,12 @@
         <option value="$PROJECT_DIR$/services/eureka-server/pom.xml" />
         <option value="$PROJECT_DIR$/services/centralized-config/pom.xml" />
         <option value="$PROJECT_DIR$/services/shop-app/pom.xml" />
+        <option value="$PROJECT_DIR$/services/checkout/pom.xml" />
+        <option value="$PROJECT_DIR$/services/fulfillment/pom.xml" />
+        <option value="$PROJECT_DIR$/services/inventory/pom.xml" />
+        <option value="$PROJECT_DIR$/services/notification/pom.xml" />
+        <option value="$PROJECT_DIR$/services/order/pom.xml" />
+        <option value="$PROJECT_DIR$/services/payment/pom.xml" />
       </list>
     </option>
   </component>
