@@ -1,7 +1,3 @@
-spring:
-  config:
-    import: file:.env.docker[.properties]
-
 eureka:
   client:
     service-url:

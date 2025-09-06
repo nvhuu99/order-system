@@ -18,6 +18,8 @@ services:
 
   centralized-config:
     container_name: centralized-config
+    env_file:
+      - .env.docker
     build:
       context: ./services/centralized-config
       dockerfile: Dockerfile
@@ -45,6 +47,8 @@ services:
 
   shop-app:
     container_name: shop-app
+    env_file:
+      - .env.docker
     build:
       context: ./services/shop-app
       dockerfile: Dockerfile
