@@ -1,10 +1,9 @@
 server:
   port: 8081
 
-spring:
-  grpc:
-    client:
-      product-service:
-        address: static://inventory:9091
 #        address: static://${INVENTORY_HOST}:${INVENTORY_GRPC_PORT}
-        negotiation-type: plaintext
+grpc:
+  client:
+    product-service:
+      address: dns://inventory:9091
+      plaintext: true
