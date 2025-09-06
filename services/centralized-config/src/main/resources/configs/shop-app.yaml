@@ -1,10 +1,9 @@
 server:
   port: 8081
 
-#        address: static://${INVENTORY_HOST}:${INVENTORY_GRPC_PORT}
 grpc:
   client:
     channels:
       product-service:
-        address: inventory:9091
+        address: ${INVENTORY_HOST}:${INVENTORY_GRPC_PORT}
         plaintext: true
