@@ -4,6 +4,7 @@ server:
 #        address: static://${INVENTORY_HOST}:${INVENTORY_GRPC_PORT}
 grpc:
   client:
-    product-service:
-      address: dns://inventory:9091
-      plaintext: true
+    channels:
+      product-service:
+        address: inventory:9091
+        plaintext: true
