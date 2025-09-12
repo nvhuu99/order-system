@@ -1,0 +1,125 @@
+Perfect, you’re zooming in on one of the trickiest parts: **reserve stock**. This is critical in checkout because you don’t want to oversell (common in flash sales), but you also don’t want to block stock forever if someone abandons their cart.
+
+Here’s how Amazon, Shopee, and other marketplaces typically handle it:
+
+---
+
+# 🏷️ **Reserve Stock Process**
+
+### 1. **When Reservation Happens**
+
+* Triggered at **checkout / order creation** (before payment).
+* The system checks:
+
+  * Stock availability (from `Inventory Service`).
+  * If available, create a **reservation** record.
+* Reservation reduces the *available-to-sell* count, but does not deduct from physical stock yet.
+
+👉 Example:
+
+* Inventory for product A = 10
+* User adds 2 and places order → 2 reserved
+* **Available-to-sell** = 8
+* Physical stock still = 10
+
+---
+
+### 2. **How Reservation is Stored**
+
+* `Inventory Service` keeps:
+
+  * `total_stock`
+  * `reserved_stock`
+  * `available_stock = total_stock - reserved_stock`
+* Reservation is tied to:
+
+  * `order_id` (or `checkout_session_id`)
+  * Expiration time (e.g., 15 minutes)
+
+👉 Example schema:
+
+```sql
+Inventory (product_id, warehouse_id, total_qty, reserved_qty)
+
+Reservation (reservation_id, product_id, order_id, qty, expires_at, status)
+```
+
+---
+
+### 3. **Reservation Lifecycle**
+
+1. **Reserve (Pending Payment)**
+
+   * Order created with status = `PENDING_PAYMENT`.
+   * Reservation created in Inventory.
+2. **Payment Success**
+
+   * Reservation confirmed.
+   * `reserved_qty` is permanently deducted from stock.
+   * Order status → `CONFIRMED`.
+3. **Payment Fail / Timeout**
+
+   * Reservation released.
+   * `reserved_qty` decreased.
+   * Stock returned to pool.
+   * Order status → `CANCELLED`.
+
+---
+
+### 4. **Expiration & Release**
+
+* Reservations **must expire automatically** if payment not completed.
+* Typical timeout: **15–30 minutes** (Amazon) or even shorter during flash sales (Shopee).
+* Release happens via:
+
+  * Background job (cron) scanning expired reservations.
+  * Or event-driven: Order Service emits “payment failed/expired” event.
+
+---
+
+### 5. **Concurrency Handling**
+
+* To prevent overselling:
+
+  * Reservation creation must be **atomic** in `Inventory Service`.
+  * Use database locks / optimistic concurrency (versioning) / Redis atomic counters.
+* Example logic:
+
+  ```sql
+  UPDATE inventory
+  SET reserved_qty = reserved_qty + :reserve
+  WHERE product_id = :id 
+    AND (total_qty - reserved_qty) >= :reserve;
+  ```
+
+  * If no rows updated → stock not available.
+
+---
+
+### 6. **Special Cases**
+
+* **Cash on Delivery (Shopee)**:
+
+  * Stock reserved immediately when order is placed, even without upfront payment.
+  * Risk of higher cancellations → shorter reservation time or dynamic release policies.
+* **Digital Goods (Amazon Kindle, eBooks)**:
+
+  * No reservation needed, since stock is infinite.
+* **Flash Sales (Shopee 9.9, Amazon Prime Day)**:
+
+  * Reservation windows are much shorter (1–5 minutes).
+
+---
+
+# ✅ Summary Best Practice
+
+1. Reserve stock at **order creation** (not at add-to-cart).
+2. Store reservations separately with **expiry times**.
+3. Deduct stock **only after payment success**.
+4. Auto-release expired/cancelled reservations.
+5. Use **atomic updates** to avoid overselling.
+6. Tune reservation duration depending on product type and sales event.
+
+---
+
+Do you want me to draw a **flow diagram (Reserve → Payment Success/Fail → Confirm/Release)** so it’s easier to visualize the stock movement?

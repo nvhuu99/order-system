@@ -1,3 +1,9 @@
+order-processing-system:
+  messaging:
+    cart-update-requests:
+      topic-name: cart-update-requests
+      consumer-group-name: cart-manager.cart-update-requests
+
 eureka:
   client:
     service-url:

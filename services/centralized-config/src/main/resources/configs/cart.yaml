@@ -1,0 +1,34 @@
+order-processing-system:
+  cart:
+    lock-repository:
+      grace-wait-ms: 300
+
+spring:
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+
+  grpc:
+    client:
+      channels:
+        product-service:
+          address: ${INVENTORY_HOST}:${INVENTORY_GRPC_PORT}
+          plaintext: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+    admin:
+      auto-create: true
+    listener:
+      ack-mode: manual
+    consumer:
+      group-id: cart-manager.cart-update-requests
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      enable-auto-commit: false
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

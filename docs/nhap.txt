@@ -1,0 +1,16 @@
+Amazon – Order Processing: 
+    OrderPlaced event → , Shipping Service, Email Service all consume independently.
+	
+Order Processing System:
+
+    + Auth Service
+    + User Service
+    + Frontend
+    + Checkout & Payment service
+    + Order service
+    + Inventory Service 
+    + Fulfillment service
+    + Warehouse service
+    + Noti service
+
+
