@@ -1,7 +1,6 @@
-package com.example.cart.entities;
+package com.example.inventory.entities;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
