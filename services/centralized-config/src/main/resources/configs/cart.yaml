@@ -1,5 +1,16 @@
 server:
   port: 8082
+  error:
+    include-stacktrace: never
+    include-message: always
+logging:
+  level:
+    root: INFO                        # default: only INFO, WARN, ERROR
+    org.springframework: WARN
+    org.springframework.web: INFO
+    org.springframework.kafka: WARN
+    org.apache.kafka: ERROR
+    reactor.netty: WARN
 
 spring:
   redis:
@@ -9,7 +20,7 @@ spring:
   grpc:
     client:
       channels:
-        product-service:
+        inventory-service:
           address: ${INVENTORY_HOST:inventory}:${INVENTORY_GRPC_PORT:9091}
           plaintext: true
 

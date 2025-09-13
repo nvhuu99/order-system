@@ -3,4 +3,4 @@ spring:
     name: cart
 
   config:
-    import: configserver:${CENTRALIZED_CONFIG_SERVER_URL}
+    import: configserver:${CENTRALIZED_CONFIG_SERVER_URL:http://centralized-config:8888}
