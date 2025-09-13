@@ -1,7 +1,5 @@
-order-processing-system:
-  cart:
-    lock-repository:
-      grace-wait-ms: 300
+server:
+  port: 8082
 
 spring:
   redis:
