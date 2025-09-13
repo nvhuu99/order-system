@@ -3,18 +3,18 @@ server:
 
 spring:
   redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
+    host: ${REDIS_HOST:redis}
+    port: ${REDIS_PORT:6379}
 
   grpc:
     client:
       channels:
         product-service:
-          address: ${INVENTORY_HOST}:${INVENTORY_GRPC_PORT}
+          address: ${INVENTORY_HOST:inventory}:${INVENTORY_GRPC_PORT:9091}
           plaintext: true
 
   kafka:
-    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+    bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
     admin:
       auto-create: true
     listener:
