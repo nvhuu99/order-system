@@ -1,6 +1,6 @@
 spring:
   application:
-    name: inventory
+    name: inventory_service
 
   config:
     import: configserver:http://centralized-config:8888

@@ -1,11 +1,10 @@
 package com.example.cart.controllers;
 
-import com.example.cart.repositories.cart_cache_repo.CartCacheRepository;
-import com.example.cart.services.cartmanager.entities.CartUpdateRequest;
-import com.example.cart.services.cartmanager.internal.CartEventsPublisher;
+import com.example.cart.repositories.cart_repo.CartRepository;
+import com.example.cart.services.cart_service.CartRequestHandler;
+import com.example.cart.services.cart_service.entities.CartRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -14,23 +13,21 @@ import reactor.core.publisher.Mono;
 public class CartController {
 
     @Autowired
-    private CartEventsPublisher cartEventsPublisher;
+    private CartRequestHandler cartRequestHandler;
 
     @Autowired
-    private CartCacheRepository cartCache;
+    private CartRepository cartRepo;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @GetMapping("{userId}")
     public Mono<?> getCart(@PathVariable String userId) {
-        return cartCache.getCartByUserId(userId);
+        return cartRepo.getCartByUserId(userId);
     }
 
     @PutMapping("{userId}")
-    public Mono<?> updateCart(@RequestBody CartUpdateRequest request) {
-        return cartEventsPublisher.publishCartUpdateRequest(request)
-            .map(ok -> ResponseEntity.ok("requested"))
-            .onErrorMap(err -> err);
+    public Mono<?> updateCart(@RequestBody CartRequest request) {
+        return cartRequestHandler.handle(request);
     }
 }

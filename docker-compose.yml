@@ -14,50 +14,6 @@ services:
     networks:
         - order-processing-system
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.4
-    container_name: zookeeper
-    hostname: zookeeper
-    ports:
-      - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    networks:
-      - order-processing-system
-
-  kafka:
-    image: confluentinc/cp-kafka:7.4.4
-    container_name: kafka
-    hostname: kafka
-    ports:
-      - "9092:9092"
-    depends_on:
-      - zookeeper
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://kafka:29092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-    networks:
-      - order-processing-system
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
-    ports:
-      - "8090:8080"
-    depends_on:
-      - kafka
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-    networks:
-      - order-processing-system
-
   eureka-server:
     container_name: eureka-server
     build:
@@ -85,7 +41,7 @@ services:
       - eureka-server
 
   inventory:
-    container_name: inventory
+    container_name: inventory_service
     env_file:
       - .env.docker
     build:
@@ -99,7 +55,6 @@ services:
     depends_on:
       - eureka-server
       - centralized-config
-      - kafka
 
 #  cart:
 #    container_name: cart
@@ -118,22 +73,4 @@ services:
 #      - centralized-config
 #      - kafka
 #      - redis
-#      - inventory
-
-#  shop-app:
-#    container_name: shop-app
-#    env_file:
-#      - .env.docker
-#    build:
-#      context: ./services/shop-app
-#      dockerfile: Dockerfile
-#    restart: unless-stopped
-#    ports:
-#      - "8081:8081"
-#    networks:
-#      - order-processing-system
-#    depends_on:
-#      - kafka
-#      - redis
-#      - eureka-server
-#      - centralized-config
+#      - inventory_service

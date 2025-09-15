@@ -1,14 +1,7 @@
 order-processing-system:
-  storages:
-    cart-cache:
-      prefix: "order-processing-system:carts:"
-  messaging:
-    cart-update-requests:
-      topic-name: cart-update-requests
-      consumer-group-name: cart-manager.cart-update-requests
   handlers:
     cart-update-requests:
-      timeout-sec: 10
+      timeout-sec: 300
 
 eureka:
   client:
