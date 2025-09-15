@@ -1,6 +1,0 @@
-spring:
-  application:
-    name: order
-
-  config:
-    import: configserver:service.order.yaml
