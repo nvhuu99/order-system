@@ -1,10 +1,8 @@
 package com.example.cart.entities;
 
 import com.example.cart.entities.properties.CartValidation;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.HashMap;
@@ -12,6 +10,8 @@ import java.util.Map;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cart {
 
     @Data
@@ -22,22 +22,21 @@ public class Cart {
         private Integer quantity;
     }
 
-    public record CartUserInfo(String userId) {}
-
-    String cartId;
+    String userId;
     Integer versionNumber;
-    CartUserInfo userInfo;
     Map<String, CartItem> items;
     Map<String, ProductAvailability> productAvailabilities;
     Map<String, CartValidation> validations;
 
-    public Cart(String cartId, String userId) {
-        this.cartId = cartId;
-        userInfo = new CartUserInfo(userId);
+    public Cart(String userId) {
+        this.userId = userId;
+        this.versionNumber = 0;
+        items = new HashMap<>();
         productAvailabilities = new HashMap<>();
         validations = new HashMap<>();
     }
 
+    @JsonIgnore
     public ProductAvailability getProductAvailability(String productId) {
         return productAvailabilities.get(productId);
     }

@@ -1,31 +1,44 @@
 package com.example.cart.services.cartmanager.entities;
 
-import com.example.cart.entities.properties.CartAction;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartUpdateRequest {
 
-    public record CartUpdateRequestEntry(
-        String productId,
-        String productName,
-        Integer qtyAdjustment,
-        CartAction action
-    ) {}
+    public enum CartAction {
+        INCREASE,
+        DECREASE,
+        DROP_ITEM,
+        ABANDON_CART
+    }
 
-    final String cartId;
-    final Integer versionNumber;
-    final Long timestamp;
-    final List<CartUpdateRequestEntry> entries;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class CartUpdateRequestEntry {
+        String productId;
+        String productName;
+        Integer qtyAdjustment;
+        CartAction action;
+    }
 
+    String userId;
+    Integer versionNumber;
+    List<CartUpdateRequestEntry> entries;
+
+    @JsonIgnore
     public List<String> getProductIds() {
-        return entries.stream().map(CartUpdateRequestEntry::productId).toList();
+        return entries.stream().map(CartUpdateRequestEntry::getProductId).toList();
     }
 }

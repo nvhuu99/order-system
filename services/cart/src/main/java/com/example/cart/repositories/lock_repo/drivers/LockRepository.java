@@ -1,6 +1,6 @@
 package com.example.cart.repositories.lock_repo.drivers;
 
-import com.example.cart.repositories.lock_repo.exceptions.LockAcquireFailure;
+import com.example.cart.repositories.lock_repo.exceptions.LockUnavailable;
 import com.example.cart.repositories.lock_repo.exceptions.LockValueMismatch;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +12,6 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class LockRepository implements com.example.cart.repositories.lock_repo.LockRepository {
@@ -35,21 +33,20 @@ public class LockRepository implements com.example.cart.repositories.lock_repo.L
     }
 
     @Override
-    public Mono<String> acquireLock(String target, Duration ttl) {
-        var lockValue = UUID.randomUUID().toString();
+    public Mono<Void> acquireLock(String target, String lockValue, Duration ttl) {
         return redisTemplate
             .execute(acquireScript, key(target), lockValue, String.valueOf(ttl.toMillis()))
             .next()
             .flatMap(r -> r == 0
-                ? Mono.error(new LockAcquireFailure(target))
-                : Mono.just(lockValue)
+                ? Mono.error(new LockUnavailable(target))
+                : Mono.empty()
             );
     }
 
     @Override
-    public Mono<Void> releaseLock(String target, AtomicReference<String> lockValue) {
+    public Mono<Void> releaseLock(String target, String lockValue) {
         return redisTemplate
-            .execute(releaseScript, key(target), lockValue.get())
+            .execute(releaseScript, key(target), lockValue)
             .next()
             .flatMap(r -> r == 0
                 ? Mono.error(new LockValueMismatch(target))

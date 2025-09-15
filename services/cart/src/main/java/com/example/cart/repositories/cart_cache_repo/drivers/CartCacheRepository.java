@@ -14,18 +14,18 @@ public class CartCacheRepository implements com.example.cart.repositories.cart_c
     @Autowired
     private ReactiveRedisTemplate<String, Cart> redisTemplate;
 
-    @Value("${order-processing-system.cart.cart-cache-prefix}")
+    @Value("${order-processing-system.storages.cart-cache.prefix}")
     private String cartCachePrefix;
 
     @Override
-    public Mono<Cart> getCartById(String id) {
-        return redisTemplate.opsForValue().get(cartCachePrefix + id);
+    public Mono<Cart> getCartByUserId(String userId) {
+        return redisTemplate.opsForValue().get(cartCachePrefix + userId);
     }
 
     @Override
     public Mono<Cart> saveCart(Cart cart) {
         return redisTemplate.opsForValue()
-            .set(cartCachePrefix + cart.getCartId(), cart)
+            .set(cartCachePrefix + cart.getUserId(), cart)
             .flatMap(ok -> ok ? Mono.just(cart) : Mono.error(new SaveCartFailed()));
     }
 }

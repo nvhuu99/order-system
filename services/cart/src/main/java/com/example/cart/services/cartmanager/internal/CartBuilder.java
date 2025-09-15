@@ -4,7 +4,6 @@ import com.example.cart.entities.Cart;
 import com.example.cart.entities.ProductAvailability;
 import com.example.cart.services.cartmanager.entities.CartUpdateRequest;
 import com.example.cart.entities.properties.CartValidation;
-import com.example.cart.services.cartmanager.exceptions.InvalidCartUpdateRequestVersionNumber;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -45,16 +44,17 @@ public class CartBuilder {
 
     public CartBuilder build() {
         if (cartUpdateRequest != null) {
+            cart.setVersionNumber(cartUpdateRequest.getVersionNumber());
             var items = cart.getItems();
             cartUpdateRequest.getEntries().forEach(entry -> {
-                var prodId = entry.productId();
+                var prodId = entry.getProductId();
                 var currentQty = items.get(prodId).getQuantity();
                 if (! items.containsKey(prodId)) {
-                    items.put(prodId, new Cart.CartItem(prodId, entry.productName(), 0));
+                    items.put(prodId, new Cart.CartItem(prodId, entry.getProductName(), 0));
                 }
-                var adjustment = switch (entry.action()) {
-                    case DECREASE -> currentQty - entry.qtyAdjustment();
-                    case INCREASE -> currentQty + entry.qtyAdjustment();
+                var adjustment = switch (entry.getAction()) {
+                    case DECREASE -> currentQty - entry.getQtyAdjustment();
+                    case INCREASE -> currentQty + entry.getQtyAdjustment();
                     default -> currentQty;
                 };
                 if (adjustment <= 0) {

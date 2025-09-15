@@ -1,0 +1,23 @@
+Cart Service - Manual Test#1
+
+TODO:
+=> lets ready more about kafka usage (specific when order is matter)
+- review the configurations, deploy with docker
+
+REFACTOR:
+- rename kafka topic
+
+TESTS:
+
+- test add, increase, decrease, remove
+- test inventory changes: out of stock, insufficient, unavailable
+- test service unavailable: redis, kafka, inventory
+- test every logic branches based on the flow chart
+
+RESULT:
+
+- stuck in development-phase, did not be able to test at all,
+  but a question arise. What is the actual workflow, why am I trying to scale it at the very beginning
+  => I need approach gradually
+
+	  

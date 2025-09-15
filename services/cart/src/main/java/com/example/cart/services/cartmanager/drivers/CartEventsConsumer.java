@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+
+import java.time.Duration;
 
 @Service
 public class CartEventsConsumer {
@@ -21,14 +24,17 @@ public class CartEventsConsumer {
         groupId = "${order-processing-system.messaging.cart-update-requests.consumer-group-name}"
     )
     public void cartUpdateRequests(CartUpdateRequest request, Acknowledgment ack) {
+        log.info("Handling cart update request");
         cartUpdateRequestHandler.handle(request)
             .doOnError(ex ->
-                log.error("CartID: {} - Message: {}", request.getCartId(), ex.getMessage())
+                log.error("Cart update request failed - UserID: {} - Message: {}", request.getUserId(), ex.getMessage())
             )
             .doOnSuccess(ok -> {
-                log.info("CartID: {} - Message: {}", request.getCartId(), "OK");
+                log.info("Cart update request success - UserID: {}", request.getUserId());
                 ack.acknowledge();
             })
+            .doOn
+            .onErrorResume(ex -> Mono .delay(Duration.ofSeconds(1)).then(Mono.error(ex))) // grace wait
             .block();
     }
 }

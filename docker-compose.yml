@@ -101,24 +101,24 @@ services:
       - centralized-config
       - kafka
 
-  cart:
-    container_name: cart
-    env_file:
-      - .env.docker
-    build:
-      context: ./services/cart
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    ports:
-      - "8082:8082"
-    networks:
-      - order-processing-system
-    depends_on:
-      - eureka-server
-      - centralized-config
-      - kafka
-      - redis
-      - inventory
+#  cart:
+#    container_name: cart
+#    env_file:
+#      - .env.docker
+#    build:
+#      context: ./services/cart
+#      dockerfile: Dockerfile
+#    restart: unless-stopped
+#    ports:
+#      - "8082:8082"
+#    networks:
+#      - order-processing-system
+#    depends_on:
+#      - eureka-server
+#      - centralized-config
+#      - kafka
+#      - redis
+#      - inventory
 
 #  shop-app:
 #    container_name: shop-app

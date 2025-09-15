@@ -3,7 +3,7 @@ package com.example.cart.services.cartmanager.drivers;
 import com.example.cart.entities.Cart;
 import com.example.cart.entities.properties.CartValidation;
 import com.example.cart.services.cartmanager.entities.CartUpdateRequest;
-import com.example.cart.services.cartmanager.exceptions.InvalidCartUpdateRequestVersionNumber;
+import com.example.cart.services.cartmanager.exceptions.InvalidCartUpdateRequestVersion;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.Optional;
 public class CartValidator implements com.example.cart.services.cartmanager.internal.CartValidator {
 
     @Override
-    public void validateCartUpdateRequest(Cart cart, CartUpdateRequest request) throws InvalidCartUpdateRequestVersionNumber {
-        if (cart.getVersionNumber() != request.getVersionNumber() + 1) {
-            throw new InvalidCartUpdateRequestVersionNumber(request.getVersionNumber(), cart.getVersionNumber());
+    public void validateCartUpdateRequest(Cart cart, CartUpdateRequest request) throws InvalidCartUpdateRequestVersion {
+        if (cart.getVersionNumber() + 1 != request.getVersionNumber()) {
+            throw new InvalidCartUpdateRequestVersion(request.getVersionNumber(), cart.getVersionNumber());
         }
     }
 
