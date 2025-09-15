@@ -26,3 +26,4 @@ management:
   otlp:
     tracing:
       endpoint: "http://alloy:4318/v1/traces"
+      transport: http
