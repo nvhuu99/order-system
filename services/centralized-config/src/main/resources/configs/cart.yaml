@@ -10,5 +10,5 @@ spring:
     client:
       channels:
         inventory-service:
-          address: ${INVENTORY_HOST:inventory_service}:${INVENTORY_GRPC_PORT:9091}
+          address: ${INVENTORY_HOST:inventory}:${INVENTORY_GRPC_PORT:9091}
           plaintext: true
