@@ -1,21 +1,12 @@
 order-processing-system:
   handlers:
     cart-update-requests:
-      timeout-sec: 300
+      timeout-sec: 30
 
 eureka:
   client:
     service-url:
       defaultZone: http://${EUREKA_HOST:eureka-server}:${EUREKA_PORT:8761}/eureka/
 
-management:
-  tracing:
-    enabled: true
-    sampling:
-      probability: 1.0
-  otlp:
-    tracing:
-      endpoint: ${TRACING_ENDPOINT:http://alloy:4318/v1/traces}
-    metrics:
-      export:
-        enabled: false
+
+
