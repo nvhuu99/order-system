@@ -10,9 +10,9 @@ spring:
       server:
         git:
           uri: ${GIT_CONFIG_REPO_URI}
+          label: shopping_cart_stage_1
           search-paths:
             - services/centralized-config/src/main/resources/configs
-
 eureka:
   client:
     service-url:
