@@ -12,15 +12,3 @@ spring:
         inventory-service:
           address: ${INVENTORY_HOST:inventory_service}:${INVENTORY_GRPC_PORT:9091}
           plaintext: true
-
-management:
-  tracing:
-    enabled: true
-    sampling:
-      probability: 1.0
-  otlp:
-    tracing:
-      endpoint: asdasd${TRACING_ENDPOINT}
-    metrics:
-      export:
-        enabled: false
