@@ -4,3 +4,15 @@ spring:
 
   config:
     import: configserver:${CENTRALIZED_CONFIG_SERVER_URL:http://centralized-config:8888}
+
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: asdasd${TRACING_ENDPOINT}
+    metrics:
+      export:
+        enabled: false
