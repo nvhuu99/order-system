@@ -18,14 +18,3 @@ eureka:
     service-url:
       defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka/
 
-management:
-  tracing:
-    enabled: true
-    sampling:
-      probability: 1.0
-  otlp:
-    tracing:
-      endpoint: asdasd${TRACING_ENDPOINT}
-    metrics:
-      export:
-        enabled: false
