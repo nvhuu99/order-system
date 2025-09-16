@@ -10,7 +10,9 @@ spring:
       server:
         git:
           uri: ${GIT_CONFIG_REPO_URI}
-          label: shopping_cart_stage_1
+          default-label: shopping_cart_stage_1
+          refresh-rate: 30
+          clone-on-start: true
           search-paths:
             - services/centralized-config/src/main/resources/configs
 eureka:
