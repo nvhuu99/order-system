@@ -15,7 +15,7 @@ management:
       probability: 1.0
   otlp:
     tracing:
-      endpoint: ${TRACING_ENDPOINT}
+      endpoint: ${TRACING_ENDPOINT:http://alloy:4318/v1/traces}
     metrics:
       export:
         enabled: false
