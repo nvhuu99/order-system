@@ -15,7 +15,7 @@ management:
       probability: 1.0
   otlp:
     tracing:
-      endpoint: ${TRACING_ENDPOINT}
+      endpoint: asdasd${TRACING_ENDPOINT}
     metrics:
       export:
         enabled: false
