@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CartRequest {
+public class CartUpdateRequest {
 
     public enum CartAction {
         QTY_CHANGE,
@@ -25,7 +25,7 @@ public class CartRequest {
     @AllArgsConstructor
     @NoArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class CartRequestEntry {
+    public static class CartUpdateRequestEntry {
         String productId;
         String productName;
         Integer qtyAdjustment;
@@ -34,10 +34,10 @@ public class CartRequest {
 
     String userId;
     Integer versionNumber;
-    List<CartRequestEntry> entries;
+    List<CartUpdateRequestEntry> entries;
 
     @JsonIgnore
     public List<String> getProductIds() {
-        return entries.stream().map(CartRequestEntry::getProductId).toList();
+        return entries.stream().map(CartUpdateRequestEntry::getProductId).toList();
     }
 }

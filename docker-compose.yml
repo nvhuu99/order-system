@@ -5,10 +5,90 @@ networks:
     driver: bridge
 
 services:
+  alloy:
+    container_name: alloy
+    hostname: alloy
+    image: grafana/alloy:v1.9.1
+    ports:
+      - "12350:12350"
+      - "12347:12345"
+      - "12348:12348"
+      - "6832:6832"
+      - "4317:4317" # OLTP GRPC
+      - "4318:4318" # OLTP HTTP
+      - "3110:3100" # Loki HTTP API
+    volumes:
+      - "./observability/alloy/config.alloy:/etc/alloy/config.alloy"
+      - "./observability/alloy/endpoints.json:/etc/alloy/endpoints.json"
+    networks:
+      - order-processing-system
+    command: [
+      "run",
+      "--server.http.listen-addr=0.0.0.0:12345",
+      "--stability.level=public-preview",
+      "/etc/alloy/config.alloy",
+    ]
+
+  grafana:
+    container_name: grafana
+    hostname: grafana
+    image: grafana/grafana:12.0.2
+    volumes:
+      - "./observability/grafana/dashboards:/var/lib/grafana/dashboards"
+      - "./observability/grafana/provisioning:/etc/grafana/provisioning"
+    ports:
+      - "3000:3000"
+    networks:
+      - order-processing-system
+    environment:
+      - GF_FEATURE_TOGGLES_ENABLE=flameGraph traceqlSearch traceQLStreaming correlations metricsSummary traceqlEditor traceToMetrics traceToProfiles datatrails
+      - GF_INSTALL_PLUGINS=grafana-lokiexplore-app,grafana-exploretraces-app,grafana-pyroscope-app
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+
+  tempo:
+    container_name: tempo
+    hostname: tempo
+    image: grafana/tempo:2.8.1
+    ports:
+      - "3200:3200"
+      - "9411:9411"
+      - "14250:14250"
+    networks:
+      - order-processing-system
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - "./observability/tempo/tempo.yaml:/etc/tempo.yaml"
+
+  loki:
+    container_name: loki
+    hostname: loki
+    image: grafana/loki:3.5.1
+    command: [ "--pattern-ingester.enabled=true", "-config.file=/etc/loki/loki.yaml" ]
+    ports:
+      - "3100:3100"
+    networks:
+      - order-processing-system
+    volumes:
+      - "./observability/loki/loki.yaml:/etc/loki/loki.yaml"
+
+  mimir:
+    container_name: mimir
+    hostname: mimir
+    image: grafana/mimir:2.16.0
+    command: [ "-ingester.native-histograms-ingestion-enabled=true", "-config.file=/etc/mimir.yaml" ]
+    ports:
+      - "9009:9009"
+    networks:
+      - order-processing-system
+    volumes:
+      - "./observability/mimir/mimir.yaml:/etc/mimir.yaml"
+
   redis:
-    image: redis:7.4.2-alpine
     container_name: redis
     hostname: redis
+    image: redis:7.4.2-alpine
     ports:
       - "6379:6379"
     networks:
@@ -16,6 +96,7 @@ services:
 
   eureka-server:
     container_name: eureka-server
+    hostname: eureka-server
     build:
       context: ./services/eureka-server
       dockerfile: Dockerfile
@@ -27,6 +108,7 @@ services:
 
   centralized-config:
     container_name: centralized-config
+    hostname: centralized-config
     env_file:
       - .env.docker
     build:
@@ -41,7 +123,8 @@ services:
       - eureka-server
 
   inventory:
-    container_name: inventory_service
+    container_name: inventory
+    hostname: inventory
     env_file:
       - .env.docker
     build:
@@ -58,6 +141,7 @@ services:
 
 #  cart:
 #    container_name: cart
+#    hostname: cart
 #    env_file:
 #      - .env.docker
 #    build:
@@ -71,6 +155,5 @@ services:
 #    depends_on:
 #      - eureka-server
 #      - centralized-config
-#      - kafka
 #      - redis
-#      - inventory_service
+#      - inventory

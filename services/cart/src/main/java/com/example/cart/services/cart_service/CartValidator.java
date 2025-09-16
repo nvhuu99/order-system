@@ -2,8 +2,9 @@ package com.example.cart.services.cart_service;
 
 import com.example.cart.entities.Cart;
 import com.example.cart.entities.properties.CartValidation;
-import com.example.cart.services.cart_service.entities.CartRequest;
-import com.example.cart.services.cart_service.exceptions.InvalidCartRequestVersion;
+import com.example.cart.services.cart_service.entities.CartUpdateRequest;
+import com.example.cart.services.cart_service.exceptions.InvalidCartUpdateRequestVersion;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,16 +14,18 @@ import java.util.Optional;
 @Component
 public class CartValidator {
 
-    public void validateCartRequest(Cart cart, CartRequest request) throws InvalidCartRequestVersion {
+    @Observed(name = "cart_validator.validate_cart_update_request")
+    public void validateCartUpdateRequest(Cart cart, CartUpdateRequest request) throws InvalidCartUpdateRequestVersion {
         if (cart.getVersionNumber() + 1 != request.getVersionNumber()) {
-            throw new InvalidCartRequestVersion(request.getVersionNumber(), cart.getVersionNumber());
+            throw new InvalidCartUpdateRequestVersion(request.getVersionNumber(), cart.getVersionNumber());
         }
     }
 
+    @Observed(name = "cart_validator.validate_cart")
     public List<CartValidation> validateCart(Cart cart) {
         return cart.getItems().values().stream()
             .map(cartItem -> checkProductAvailabilities(cart, cartItem))
-            .filter(Objects::isNull)
+            .filter(Objects::nonNull)
             .toList();
     }
 

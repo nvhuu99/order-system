@@ -10,7 +10,7 @@ public class GrpcClientConfig {
 
     @Bean
     public InventoryServiceGrpc.InventoryServiceStub stub(GrpcChannelFactory channelFactory) {
-        var channel = channelFactory.createChannel("inventory_service-service");
+        var channel = channelFactory.createChannel("inventory-service");
         return InventoryServiceGrpc.newStub(channel);
     }
 }

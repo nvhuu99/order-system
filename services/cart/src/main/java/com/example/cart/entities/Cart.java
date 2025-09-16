@@ -16,6 +16,7 @@ public class Cart {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static final class CartItem {
         private String productId;
         private String productName;

@@ -2,7 +2,7 @@ package com.example.cart.services.cart_service;
 
 import com.example.cart.entities.Cart;
 import com.example.cart.entities.ProductAvailability;
-import com.example.cart.services.cart_service.entities.CartRequest;
+import com.example.cart.services.cart_service.entities.CartUpdateRequest;
 import com.example.cart.entities.properties.CartValidation;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class CartBuilder {
 
     private Cart cart;
-    private CartRequest cartRequest;
+    private CartUpdateRequest cartRequest;
     private List<ProductAvailability> productAvailabilities;
     private List<CartValidation> cartValidations;
 
@@ -34,7 +34,7 @@ public class CartBuilder {
         return this;
     }
 
-    public CartBuilder setCartRequest(CartRequest request) {
+    public CartBuilder setCartUpdateRequest(CartUpdateRequest request) {
         this.cartRequest = request;
         return this;
     }
