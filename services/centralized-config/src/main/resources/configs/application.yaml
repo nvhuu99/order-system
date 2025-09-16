@@ -9,21 +9,13 @@ eureka:
       defaultZone: http://${EUREKA_HOST:eureka-server}:${EUREKA_PORT:8761}/eureka/
 
 management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,refresh,prometheus
-
-  observations:
-    annotations:
-      enabled: true
-
   tracing:
     enabled: true
     sampling:
-      probability: 1
-
+      probability: 1.0
   otlp:
     tracing:
-      endpoint: "http://alloy:4318/v1/traces"
-      transport: http
+      endpoint: ${TRACING_ENDPOINT}
+    metrics:
+      export:
+        enabled: false
