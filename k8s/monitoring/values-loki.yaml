@@ -1,0 +1,36 @@
+ingester:
+  replicas: 1
+  persistence: { enabled: true, type: pvc, size: 3Gi }
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+
+distributor:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+
+querier:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+
+queryFrontend:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+
+gateway:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+
+compactor:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }

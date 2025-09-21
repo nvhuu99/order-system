@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cart-request
+  namespace: app
+  labels:
+    app.kubernetes.io/name: cart-service
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: k6
+          image: grafana/k6:latest
+          command: ["k6", "run", "/scripts/cart-request.js"]
+          resources:
+            requests: { cpu: "20m", memory: "32Mi" }
+            limits: { cpu: "50m", memory: "64Mi" }
+          envFrom:
+            - configMapRef:
+                name: env-common
+          volumeMounts:
+            - name: k6-script
+              mountPath: /scripts
+      volumes:
+        - name: k6-script
+          configMap:
+            name: k6-script-cart-request
+            items:
+              - key: cart-request.js
+                path: cart-request.js

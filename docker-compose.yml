@@ -8,7 +8,10 @@ services:
   alloy:
     container_name: alloy
     hostname: alloy
+    restart: unless-stopped
     image: grafana/alloy:v1.9.1
+    cpus: "0.25"
+    mem_limit: "256M"
     ports:
       - "12350:12350"
       - "12347:12345"
@@ -32,7 +35,10 @@ services:
   grafana:
     container_name: grafana
     hostname: grafana
+    restart: unless-stopped
     image: grafana/grafana:12.0.2
+    cpus: "0.25"
+    mem_limit: "256M"
     volumes:
       - "./observability/grafana/dashboards:/var/lib/grafana/dashboards"
       - "./observability/grafana/provisioning:/etc/grafana/provisioning"
@@ -50,11 +56,10 @@ services:
   tempo:
     container_name: tempo
     hostname: tempo
+    restart: unless-stopped
     image: grafana/tempo:2.8.1
-    ports:
-      - "3200:3200"
-      - "9411:9411"
-      - "14250:14250"
+    cpus: "0.25"
+    mem_limit: "256M"
     networks:
       - order-processing-system
     command: [ "-config.file=/etc/tempo.yaml" ]
@@ -64,10 +69,11 @@ services:
   loki:
     container_name: loki
     hostname: loki
+    restart: unless-stopped
     image: grafana/loki:3.5.1
+    cpus: "0.25"
+    mem_limit: "256M"
     command: [ "--pattern-ingester.enabled=true", "-config.file=/etc/loki/loki.yaml" ]
-    ports:
-      - "3100:3100"
     networks:
       - order-processing-system
     volumes:
@@ -76,19 +82,38 @@ services:
   mimir:
     container_name: mimir
     hostname: mimir
+    restart: unless-stopped
     image: grafana/mimir:2.16.0
+    cpus: "0.25"
+    mem_limit: "256M"
     command: [ "-ingester.native-histograms-ingestion-enabled=true", "-config.file=/etc/mimir.yaml" ]
-    ports:
-      - "9009:9009"
     networks:
       - order-processing-system
     volumes:
       - "./observability/mimir/mimir.yaml:/etc/mimir.yaml"
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    hostname: cadvisor
+    restart: unless-stopped
+    cpus: "0.25"
+    mem_limit: "256M"
+    ports:
+      - "8090:8080"
+    networks:
+      - order-processing-system
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker:/var/lib/docker:ro
+
   redis:
     container_name: redis
     hostname: redis
+    restart: unless-stopped
     image: redis:7.4.2-alpine
+    cpus: "1"
+    mem_limit: "2G"
     ports:
       - "6379:6379"
     networks:
@@ -97,10 +122,12 @@ services:
   eureka-server:
     container_name: eureka-server
     hostname: eureka-server
+    restart: unless-stopped
     build:
       context: ./services/eureka-server
       dockerfile: Dockerfile
-    restart: unless-stopped
+    cpus: "0.25"
+    mem_limit: "256M"
     ports:
       - "8761:8761"
     networks:
@@ -109,12 +136,14 @@ services:
   centralized-config:
     container_name: centralized-config
     hostname: centralized-config
+    restart: unless-stopped
     env_file:
       - .env.docker
     build:
       context: ./services/centralized-config
       dockerfile: Dockerfile
-    restart: unless-stopped
+    cpus: "0.25"
+    mem_limit: "256M"
     ports:
       - "8888:8888"
     networks:
@@ -125,12 +154,14 @@ services:
   inventory:
     container_name: inventory
     hostname: inventory
+    restart: unless-stopped
     env_file:
       - .env.docker
     build:
       context: ./services/inventory
       dockerfile: Dockerfile
-    restart: unless-stopped
+    cpus: "1"
+    mem_limit: "1G"
     ports:
       - "9091:9091"
     networks:
@@ -139,21 +170,23 @@ services:
       - eureka-server
       - centralized-config
 
-#  cart:
-#    container_name: cart
-#    hostname: cart
-#    env_file:
-#      - .env.docker
-#    build:
-#      context: ./services/cart
-#      dockerfile: Dockerfile
-#    restart: unless-stopped
-#    ports:
-#      - "8082:8082"
-#    networks:
-#      - order-processing-system
-#    depends_on:
-#      - eureka-server
-#      - centralized-config
-#      - redis
-#      - inventory
+  cart:
+    container_name: cart
+    hostname: cart
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/cart
+      dockerfile: Dockerfile
+    cpus: "1"
+    mem_limit: "1G"
+    ports:
+      - "8082:8082"
+    networks:
+      - order-processing-system
+    depends_on:
+      - eureka-server
+      - centralized-config
+      - redis
+      - inventory

@@ -1,0 +1,62 @@
+overrides:
+  defaults:
+    metrics_generator:
+      processors:
+        - span-metrics
+        - service-graphs
+
+traces:
+  otlp:
+    http:
+      enabled: true
+    grpc:
+      enabled: true
+
+ingester:
+  replicas: 1
+  persistence: { enabled: true, type: pvc, size: 3Gi }
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+  config:
+    trace_idle_period: 30s
+    replication_factor: 1
+
+compactor:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+  config:
+    block_retention: 2d
+
+distributor:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+
+querier:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+
+queryFrontend:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+
+metricsGenerator:
+  enabled: true
+  replica: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+  config:
+    storage:
+      remote_write:
+        - name: prometheus
+          send_exemplars: true
+          url: http://prom-stack-kube-prometheus-prometheus:9090/api/v1/write

@@ -9,6 +9,7 @@ import io.micrometer.observation.annotation.Observed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
@@ -23,8 +24,10 @@ public class CartUpdateRequestHandler {
 
     private final Logger log = LoggerFactory.getLogger(CartUpdateRequestHandler.class);
 
-//    @Value("${order-processing-system.handlers.cart-update-requests.timeout-sec}")
-    private Long timeoutSeconds = 300L;
+    @Value("${order-processing-system.handlers.cart-update-requests.timeout-sec}")
+    private Long timeoutSeconds;
+    
+    private final Duration stepTimeout = Duration.ofSeconds(31);
 
     @Autowired
     private CartRepository cartRepo;
@@ -35,12 +38,9 @@ public class CartUpdateRequestHandler {
     @Autowired
     private CartValidator cartValidator;
 
-    private final RetryBackoffSpec exponentialRetrySpec = Retry.backoff(10, Duration.ofMillis(200)).jitter(0.5); // ~25–76 seconds before exhausted
-    private final RetryBackoffSpec weakRetrySpec = Retry.fixedDelay(3, Duration.ofMillis(100));
-
-    @Observed(name = "cart_update_request_handler.handle")
+    @Observed(name = "handle_cart_update_request")
     public Mono<Cart> handle(CartUpdateRequest request) {
-        log.info("Handling request");
+        log.info("Handling request - UserID: {}", request.getUserId());
         return Mono
             .zip(
                 getCart(request.getUserId()).defaultIfEmpty(new Cart(request.getUserId())),
@@ -58,8 +58,8 @@ public class CartUpdateRequestHandler {
     private Mono<Cart> getCart(String userId) {
         var execute = cartRepo
             .getCartByUserId(userId)
-            .retryWhen(exponentialRetrySpec)
-            .timeout(Duration.ofSeconds(1))
+            .retryWhen(exponentialRetrySpec())
+            .timeout(stepTimeout)
             .doOnSuccess(cart -> log.info(
                 cart == null || cart.getVersionNumber() == 0
                     ? "Cart not found"
@@ -74,8 +74,8 @@ public class CartUpdateRequestHandler {
         var execute = inventoryService
             .listProductAvailabilities(productIds)
             .collectList()
-            .retryWhen(weakRetrySpec)
-            .timeout(Duration.ofSeconds(1))
+            .retryWhen(weakRetrySpec())
+            .timeout(stepTimeout)
             .doOnSuccess(ok -> log.info("Get product infos success - IDs: {}", productIds))
             .doOnError(ex -> logExceptionCause(ex, "Get product infos failed - Message: {}"))
         ;
@@ -85,8 +85,8 @@ public class CartUpdateRequestHandler {
     private Mono<Cart> saveCart(Cart cart) {
         var execute = cartRepo
             .saveCart(cart)
-            .retryWhen(exponentialRetrySpec)
-            .timeout(Duration.ofSeconds(1))
+            .retryWhen(exponentialRetrySpec())
+            .timeout(stepTimeout)
             .doOnSuccess(ok -> log.info("Saved cart to cache success"))
             .doOnError(ex -> logExceptionCause(ex, "Saved cart to cache failed - Message: {}"))
         ;
@@ -110,6 +110,17 @@ public class CartUpdateRequestHandler {
         .doOnSuccess(ok -> log.info("Build cart success"))
         .doOnError(ex -> log.error("Build cart failed - Message: {}", ex.getMessage()));
         return Mono.defer(() -> execute);
+    }
+
+    private RetryBackoffSpec exponentialRetrySpec() {
+        return Retry.backoff(10, Duration.ofMillis(200)).jitter(0.5).doBeforeRetry(retrySignal -> {
+            log.warn("Retry attempt {} - Message: {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString());
+        });
+    }
+    private RetryBackoffSpec weakRetrySpec() {
+        return Retry.fixedDelay(3, Duration.ofMillis(100)).doBeforeRetry(retrySignal -> {
+            log.warn("Retry attempt {} - Message: {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString());
+        });
     }
 
     private void logExceptionCause(Throwable ex, String template) {

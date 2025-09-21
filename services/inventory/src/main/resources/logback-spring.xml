@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} - %-5level - %X{spanId} - %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>${LOKI_PUSH_API_ENDPOINT}</url>
+        </http>
+        <format>
+            <label>
+                <pattern>
+                    app=inventory-service, host=${HOSTNAME}, level=%level
+                </pattern>
+                <readMarkers>true</readMarkers>
+            </label>
+            <message>
+                <pattern>%-5level - %X{spanId} - %logger - %msg</pattern>
+            </message>
+        </format>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOKI"/>
+    </root>
+</configuration>

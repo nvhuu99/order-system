@@ -1,26 +1,48 @@
+server:
+  port: ${CART_SVC_API_PORT}
+
+#logging:
+#  level:
+#    io.lettuce.core.RedisClient: DEBUG
+#    io.lettuce.core.RedisURI: DEBUG
+#    io.lettuce.core.protocol: DEBUG
+
+order-processing-system:
+  handlers:
+    cart-update-requests:
+      timeout-sec: 60
+
 spring:
   application:
-    name: cart
+    name: cart-service
 
-  config:
-    import: configserver:${CENTRALIZED_CONFIG_SERVER_URL:http://centralized-config:8888}
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+  grpc:
+    client:
+      channels:
+        inventory-service:
+          address: ${INVENTORY_SVC_HOST:inventory-service}:${INVENTORY_SVC_GRPC_PORT:9090}
+          plaintext: true
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health, info
   endpoint:
     prometheus:
       enabled: true
-
   tracing:
     enabled: true
     sampling:
       probability: 1.0
   otlp:
     tracing:
-      endpoint: ${TRACING_ENDPOINT:http://alloy:4318/v1/traces}
+      endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo:4318/v1/traces}
     metrics:
       export:
         enabled: false

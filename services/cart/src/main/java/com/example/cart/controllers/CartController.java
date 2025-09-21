@@ -8,6 +8,7 @@ import io.micrometer.observation.annotation.Observed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping("api/v1/carts")
@@ -29,6 +30,6 @@ public class CartController {
 
     @PutMapping("{userId}")
     public Mono<?> updateCart(@RequestBody CartUpdateRequest request) {
-        return cartRequestHandler.handle(request);
+        return cartRequestHandler.handle(request).subscribeOn(Schedulers.boundedElastic());
     }
 }

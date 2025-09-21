@@ -1,0 +1,24 @@
+architecture: standalone
+
+auth:
+  enabled: false
+
+master:
+  resourcesPreset: "none"
+  persistence:
+    enabled: false
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { cpu: 100m, memory: 256Mi }
+
+metrics:
+  enabled: true
+  resourcesPreset: "none"
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 15s
+
