@@ -18,13 +18,19 @@ public class CartRepository implements com.example.cart.repositories.cart_repo.C
     private final String keyPrefix = "order-processing-system:carts:";
 
     @Override
-    @Observed(name = "cart_repository.get_cart_by_user_id")
+    @Observed(name = "get_cart_by_user_id", lowCardinalityKeyValues = {
+        "db.system", "redis",
+        "repository.name", "cart_repository"
+    })
     public Mono<Cart> getCartByUserId(String userId) {
         return redisTemplate.opsForValue().get(keyPrefix + userId);
     }
 
     @Override
-    @Observed(name = "cart_repository.save_cart")
+    @Observed(name = "save_cart", lowCardinalityKeyValues = {
+        "db.system", "redis",
+        "repository.name", "cart_repository"
+    })
     public Mono<Cart> saveCart(Cart cart) {
         return redisTemplate.opsForValue()
             .set(keyPrefix + cart.getUserId(), cart)

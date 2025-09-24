@@ -5,6 +5,7 @@
             <pattern>%d{HH:mm:ss.SSS} - %-5level - %X{spanId} - %logger{-30} - %msg%n</pattern>
         </encoder>
     </appender>
+
     <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
         <http>
             <url>${LOKI_PUSH_API_ENDPOINT}</url>
@@ -22,8 +23,24 @@
         </format>
     </appender>
 
-    <root level="INFO">
+    <!-- Async wrappers -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="CONSOLE"/>
+        <!-- optional tuning -->
+        <queueSize>8192</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+    </appender>
+
+    <appender name="ASYNC_LOKI" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="LOKI"/>
+        <queueSize>8192</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="ASYNC_CONSOLE"/>
+        <appender-ref ref="ASYNC_LOKI"/>
     </root>
 </configuration>

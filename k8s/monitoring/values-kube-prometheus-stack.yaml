@@ -1,19 +1,12 @@
 alertmanager:
   enabled: false
 
-prometheus:
-  prometheusSpec:
-    enableRemoteWriteReceiver: true
-    persistence: { enabled: true, type: pvc, size: 5Gi }
-    resources:
-      requests: { cpu: 100m, memory: 256Mi }
-      limits: { cpu: 200m, memory: 512Mi }
-
 grafana:
   persistence: { enabled: true, type: pvc, size: 3Gi }
+  initChownData: { enabled: false }
   resources:
-    requests: { cpu: 100m, memory: 256Mi }
-    limits: { cpu: 200m, memory: 512Mi }
+    requests: { cpu: 25m, memory: 256Mi }
+    limits: { cpu: 50m, memory: 512Mi }
   admin:
     existingSecret: grafana-admin
     userKey: admin-user
@@ -32,17 +25,25 @@ grafana:
       url: http://tempo-query-frontend:3200
       isDefault: false
 
+prometheus:
+  prometheusSpec:
+    enableRemoteWriteReceiver: true
+    persistence: { enabled: true, type: pvc, size: 5Gi }
+    resources:
+      requests: { cpu: 50m, memory: 256Mi }
+      limits: { cpu: 100m, memory: 512Mi }
+
 prometheusOperator:
   resources:
-    requests: { cpu: 50m, memory: 64Mi }
-    limits: { cpu: 100m, memory: 128Mi }
+    requests: { cpu: 20m, memory: 32Mi }
+    limits: { cpu: 40m, memory: 64Mi }
 
 kube-state-metrics:
   resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
+    requests: { cpu: 10m, memory: 32Mi }
+    limits: { cpu: 20m, memory: 64Mi }
 
 prometheus-node-exporter:
   resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
+    requests: { cpu: 10m, memory: 32Mi }
+    limits: { cpu: 20m, memory: 64Mi }

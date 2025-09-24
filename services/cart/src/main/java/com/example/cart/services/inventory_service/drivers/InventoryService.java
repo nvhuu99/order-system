@@ -20,7 +20,10 @@ public class InventoryService implements com.example.cart.services.inventory_ser
     private InventoryServiceGrpc.InventoryServiceStub inventoryGRPC;
 
     @Override
-    @Observed(name = "grpc.inventory_service.list_product_availabilities")
+    @Observed(name = "list_product_availabilities", lowCardinalityKeyValues = {
+        "rpc.system", "grpc",
+        "rpc.service", "inventory"
+    })
     public Flux<com.example.cart.entities.ProductAvailability> listProductAvailabilities(List<String> productIds) {
 
         Sinks.Many<com.example.cart.entities.ProductAvailability> sink = Sinks.many().unicast().onBackpressureBuffer();

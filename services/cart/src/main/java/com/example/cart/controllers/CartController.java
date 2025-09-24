@@ -1,11 +1,12 @@
 package com.example.cart.controllers;
 
+import com.example.cart.entities.Cart;
 import com.example.cart.repositories.cart_repo.CartRepository;
 import com.example.cart.services.cart_service.CartUpdateRequestHandler;
 import com.example.cart.services.cart_service.entities.CartUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micrometer.observation.annotation.Observed;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -29,7 +30,11 @@ public class CartController {
     }
 
     @PutMapping("{userId}")
-    public Mono<?> updateCart(@RequestBody CartUpdateRequest request) {
-        return cartRequestHandler.handle(request).subscribeOn(Schedulers.boundedElastic());
+    public Mono<ResponseEntity<Cart>> updateCart(@RequestBody CartUpdateRequest request) {
+        return cartRequestHandler
+            .handle(request)
+            .flatMap(cart -> Mono.just(ResponseEntity.ok(cart)))
+            .onErrorResume(ex -> Mono.just(ResponseEntity.badRequest().body(null)))
+            .subscribeOn(Schedulers.boundedElastic());
     }
 }

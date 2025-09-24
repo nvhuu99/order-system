@@ -1,16 +1,18 @@
 server:
-  port: ${CART_SVC_API_PORT}
+  port: ${CART_SVC_API_PORT:8080}
 
-#logging:
-#  level:
-#    io.lettuce.core.RedisClient: DEBUG
-#    io.lettuce.core.RedisURI: DEBUG
-#    io.lettuce.core.protocol: DEBUG
+logging:
+  level:
+    io.grpc: ERROR
+    io.opentelemetry.exporter: OFF
+    io.opentelemetry.exporter.internal.http.HttpExporter: OFF
+    io.lettuce.core: OFF
 
 order-processing-system:
   handlers:
     cart-update-requests:
-      timeout-sec: 60
+      timeout-sec: 15
+      wait-sec: 10
 
 spring:
   application:
@@ -18,6 +20,7 @@ spring:
 
   data:
     redis:
+      connect-timeout: 5
       host: ${REDIS_HOST:redis}
       port: ${REDIS_PORT:6379}
 

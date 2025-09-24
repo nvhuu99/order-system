@@ -3,44 +3,38 @@ overrides:
     metrics_generator:
       processors:
         - span-metrics
-        - service-graphs
 
 traces:
   otlp:
     http:
       enabled: true
     grpc:
-      enabled: true
+      enabled: false
 
 ingester:
   replicas: 1
-  persistence: { enabled: true, type: pvc, size: 3Gi }
+  persistence: { enabled: true, type: pvc, size: 5Gi }
   resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
+    requests: { cpu: 25m, memory: 128Mi }
+    limits: { cpu: 50m, memory: 256Mi }
   config:
     trace_idle_period: 30s
+    flush_check_period: 30s
     replication_factor: 1
-
-compactor:
-  replicas: 1
-  resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
-  config:
-    block_retention: 2d
+    max_block_bytes: 67108864
+    flush_all_on_shutdown: true
 
 distributor:
   replicas: 1
   resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
+    requests: { cpu: 25m, memory: 64Mi }
+    limits: { cpu: 50m, memory: 128Mi }
 
 querier:
   replicas: 1
   resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
+    requests: { cpu: 25m, memory: 64Mi }
+    limits: { cpu: 50m, memory: 128Mi }
 
 queryFrontend:
   replicas: 1
@@ -52,11 +46,33 @@ metricsGenerator:
   enabled: true
   replica: 1
   resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
+    requests: { cpu: 25m, memory: 64Mi }
+    limits: { cpu: 50m, memory: 128Mi }
   config:
+    processor:
+      span_metrics:
+        dimensions:
+          - status
+          - db.system
+          - db.collection.name
+          - rpc.system
+          - rpc.service
     storage:
       remote_write:
         - name: prometheus
           send_exemplars: true
           url: http://prom-stack-kube-prometheus-prometheus:9090/api/v1/write
+
+compactor:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+  config:
+    block_retention: 2d
+
+memcached:
+  replicas: 1
+  resources:
+    requests: { cpu: 25m, memory: 16Mi }
+    limits: { cpu: 50m, memory: 32Mi }

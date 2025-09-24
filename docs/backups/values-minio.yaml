@@ -1,0 +1,15 @@
+mode: standalone
+accessKey: minio
+secretKey: minio123
+replicas: 1
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: ""
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    cpu: 50m
+    memory: 128Mi

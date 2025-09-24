@@ -5,7 +5,6 @@ import com.example.cart.entities.ProductAvailability;
 import com.example.cart.repositories.cart_repo.CartRepository;
 import com.example.cart.services.cart_service.entities.CartUpdateRequest;
 import com.example.cart.services.inventory_service.InventoryService;
-import io.micrometer.observation.annotation.Observed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +25,9 @@ public class CartUpdateRequestHandler {
 
     @Value("${order-processing-system.handlers.cart-update-requests.timeout-sec}")
     private Long timeoutSeconds;
-    
-    private final Duration stepTimeout = Duration.ofSeconds(31);
+
+    @Value("${order-processing-system.handlers.cart-update-requests.wait-sec}")
+    private Long waitSeconds;
 
     @Autowired
     private CartRepository cartRepo;
@@ -38,7 +38,6 @@ public class CartUpdateRequestHandler {
     @Autowired
     private CartValidator cartValidator;
 
-    @Observed(name = "handle_cart_update_request")
     public Mono<Cart> handle(CartUpdateRequest request) {
         log.info("Handling request - UserID: {}", request.getUserId());
         return Mono
@@ -59,8 +58,8 @@ public class CartUpdateRequestHandler {
         var execute = cartRepo
             .getCartByUserId(userId)
             .retryWhen(exponentialRetrySpec())
-            .timeout(stepTimeout)
-            .doOnSuccess(cart -> log.info(
+            .timeout(Duration.ofSeconds(waitSeconds))
+            .doOnSuccess(cart -> log.debug(
                 cart == null || cart.getVersionNumber() == 0
                     ? "Cart not found"
                     : "Cart found"
@@ -75,8 +74,8 @@ public class CartUpdateRequestHandler {
             .listProductAvailabilities(productIds)
             .collectList()
             .retryWhen(weakRetrySpec())
-            .timeout(stepTimeout)
-            .doOnSuccess(ok -> log.info("Get product infos success - IDs: {}", productIds))
+            .timeout(Duration.ofSeconds(waitSeconds))
+            .doOnSuccess(ok -> log.debug("Get product infos success - IDs: {}", productIds))
             .doOnError(ex -> logExceptionCause(ex, "Get product infos failed - Message: {}"))
         ;
         return Mono.defer(() -> execute);
@@ -86,8 +85,8 @@ public class CartUpdateRequestHandler {
         var execute = cartRepo
             .saveCart(cart)
             .retryWhen(exponentialRetrySpec())
-            .timeout(stepTimeout)
-            .doOnSuccess(ok -> log.info("Saved cart to cache success"))
+            .timeout(Duration.ofSeconds(waitSeconds))
+            .doOnSuccess(ok -> log.debug("Saved cart to cache success"))
             .doOnError(ex -> logExceptionCause(ex, "Saved cart to cache failed - Message: {}"))
         ;
         return Mono.defer(() -> execute);
@@ -107,7 +106,7 @@ public class CartUpdateRequestHandler {
                 .build()
                 .getCart();
         })
-        .doOnSuccess(ok -> log.info("Build cart success"))
+        .doOnSuccess(ok -> log.debug("Build cart success"))
         .doOnError(ex -> log.error("Build cart failed - Message: {}", ex.getMessage()));
         return Mono.defer(() -> execute);
     }

@@ -1,21 +1,21 @@
 ingester:
   replicas: 1
-  persistence: { enabled: true, type: pvc, size: 3Gi }
+  persistence: { enabled: true, type: pvc, size: 5Gi }
   resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
+    requests: { cpu: 25m, memory: 128Mi }
+    limits: { cpu: 50m, memory: 256Mi }
 
 distributor:
   replicas: 1
   resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
+    requests: { cpu: 25m, memory: 64Mi }
+    limits: { cpu: 50m, memory: 128Mi }
 
 querier:
   replicas: 1
   resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
+    requests: { cpu: 25m, memory: 64Mi }
+    limits: { cpu: 50m, memory: 128Mi }
 
 queryFrontend:
   replicas: 1
