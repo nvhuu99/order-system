@@ -21,26 +21,15 @@
                 <pattern>%-5level - %X{spanId} - %logger{-30} - %msg</pattern>
             </message>
         </format>
-    </appender>
-
-    <!-- Async wrappers -->
-    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="CONSOLE"/>
-        <!-- optional tuning -->
-        <queueSize>8192</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>false</includeCallerData>
-    </appender>
-
-    <appender name="ASYNC_LOKI" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="LOKI"/>
-        <queueSize>8192</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>false</includeCallerData>
+        <batch>
+            <maxItems>1000</maxItems>
+            <maxBytes>4194304</maxBytes>
+            <timeoutMs>10000</timeoutMs>
+        </batch>
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="ASYNC_CONSOLE"/>
-        <appender-ref ref="ASYNC_LOKI"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOKI"/>
     </root>
 </configuration>

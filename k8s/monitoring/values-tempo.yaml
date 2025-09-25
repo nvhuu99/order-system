@@ -11,43 +11,43 @@ traces:
     grpc:
       enabled: false
 
-ingester:
-  replicas: 1
-  persistence: { enabled: true, type: pvc, size: 5Gi }
+querier:
+  replicas: 0
   resources:
-    requests: { cpu: 25m, memory: 128Mi }
-    limits: { cpu: 50m, memory: 256Mi }
-  config:
-    trace_idle_period: 30s
-    flush_check_period: 30s
-    replication_factor: 1
-    max_block_bytes: 67108864
-    flush_all_on_shutdown: true
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
+queryFrontend:
+  replicas: 0
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 50m, memory: 64Mi }
 
 distributor:
   replicas: 1
   resources:
-    requests: { cpu: 25m, memory: 64Mi }
-    limits: { cpu: 50m, memory: 128Mi }
+    requests: { cpu: 25m, memory: 256Mi }
+    limits: { cpu: 50m, memory: 640Mi }
+  config:
+    max_attribute_bytes: 2048
 
-querier:
+ingester:
   replicas: 1
   resources:
-    requests: { cpu: 25m, memory: 64Mi }
-    limits: { cpu: 50m, memory: 128Mi }
-
-queryFrontend:
-  replicas: 1
-  resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
+    requests: { cpu: 25m, memory: 256Mi }
+    limits: { cpu: 50m, memory: 640Mi }
+  config:
+    trace_idle_period: 10s
+    flush_check_period: 10s
+    replication_factor: 1
+    max_block_bytes: 67108864
+    flush_all_on_shutdown: true
 
 metricsGenerator:
   enabled: true
   replica: 1
   resources:
-    requests: { cpu: 25m, memory: 64Mi }
-    limits: { cpu: 50m, memory: 128Mi }
+    requests: { cpu: 25m, memory: 256Mi }
+    limits: { cpu: 50m, memory: 512Mi }
   config:
     processor:
       span_metrics:
@@ -55,6 +55,7 @@ metricsGenerator:
           - status
           - db.system
           - db.collection.name
+          - repository.name
           - rpc.system
           - rpc.service
     storage:
@@ -64,12 +65,7 @@ metricsGenerator:
           url: http://prom-stack-kube-prometheus-prometheus:9090/api/v1/write
 
 compactor:
-  replicas: 1
-  resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
-  config:
-    block_retention: 2d
+  replicas: 0
 
 memcached:
   replicas: 1

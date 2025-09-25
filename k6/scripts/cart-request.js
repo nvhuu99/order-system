@@ -5,14 +5,51 @@ export const options = {
   scenarios: {
     cart_test: {
       executor: "constant-arrival-rate",
-      rate: 5,
+      rate: 100,
       timeUnit: "1s",
-      duration: "1h",
-      preAllocatedVUs: 25,
-      maxVUs: 50,
+      duration: "10m",
+      preAllocatedVUs: 150,
+      maxVUs: 200,
     },
   },
 }
+
+//export const options = {
+//  scenarios: {
+//    // 5 req/sec for 15s
+//    ramp_phase_1: {
+//      executor: "constant-arrival-rate",
+//      rate: 5,
+//      timeUnit: "1s",
+//      duration: "15s",
+//      preAllocatedVUs: 10,
+//      maxVUs: 20,
+//      startTime: "0s",
+//    },
+//
+//    // 20 req/sec for 1m, starts after phase 1 (15s)
+//    ramp_phase_2: {
+//      executor: "constant-arrival-rate",
+//      rate: 20,
+//      timeUnit: "1s",
+//      duration: "1m",
+//      preAllocatedVUs: 50,
+//      maxVUs: 100,
+//      startTime: "15s",
+//    },
+//
+//    // 100 req/sec for 10m, starts after phase1+phase2 = 1m15s
+//    ramp_phase_3: {
+//      executor: "constant-arrival-rate",
+//      rate: 100,
+//      timeUnit: "1s",
+//      duration: "10m",
+//      preAllocatedVUs: 150,
+//      maxVUs: 300,
+//      startTime: "1m15s",
+//    },
+//  },
+//};
 
 const timestamp = Date.now()
 const cartVersions = {}
@@ -34,7 +71,7 @@ export default function () {
 
   var userId = `VU_${__VU}_${timestamp}`
   var cartVer = (cartVersions[userId] ?? 0) + 1;
-  if (Math.random() < 0.2) {
+  if (Math.random() < 0.15) {
       cartVer = -1; // simulate error rate of 10%
   }
   var product = products[randomInt(0, products.length - 1)]

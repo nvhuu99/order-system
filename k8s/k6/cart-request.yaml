@@ -14,8 +14,8 @@ spec:
           image: grafana/k6:latest
           command: ["k6", "run", "/scripts/cart-request.js"]
           resources:
-            requests: { cpu: "100m", memory: "32Mi" }
-            limits: { cpu: "200m", memory: "64Mi" }
+            requests: { cpu: "200m", memory: "128Mi" }
+            limits: { cpu: "200m", memory: "128Mi" }
           envFrom:
             - configMapRef:
                 name: env-common

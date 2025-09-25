@@ -174,6 +174,69 @@
         "x": 12,
         "y": 0
       },
+      "id": 5,
+      "interval": "1m",
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": true,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(container_memory_working_set_bytes{job=\"kubelet\", metrics_path=\"/metrics/cadvisor\", namespace=\"app\", container=\"cart-service\"}) / sum(kube_pod_container_resource_requests{job=\"kube-state-metrics\", namespace=\"app\", container=\"cart-service\", resource=\"memory\"})",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Memory Utilisation (from requests)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
       "id": 6,
       "interval": "1m",
       "options": {
@@ -212,11 +275,72 @@
     },
     {
       "datasource": {
-        "type": "datasource",
-        "uid": "-- Mixed --"
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 8,
+      "maxDataPoints": 500,
+      "options": {
+        "dedupStrategy": "signature",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "direction": "backward",
+          "editorMode": "code",
+          "expr": "{app=\"cart-service\", level=~\"ERROR|INFO\"} |~ \"(?i)$logs_search\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Cart Service Logs",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "id": 18,
+      "panels": [],
+      "title": "HTTP Endpoint Metrics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -226,25 +350,143 @@
                 "value": 0
               }
             ]
-          },
-          "unit": "percentunit"
+          }
         },
         "overrides": []
       },
       "gridPos": {
         "h": 3,
-        "w": 6,
-        "x": 18,
-        "y": 0
+        "w": 8,
+        "x": 0,
+        "y": 12
       },
-      "id": 5,
-      "interval": "1m",
+      "id": 9,
       "options": {
-        "colorMode": "none",
-        "graphMode": "none",
-        "justifyMode": "center",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
         "orientation": "auto",
-        "percentChangeColorMode": "standard",
+        "percentChangeColorMode": "same_as_value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": true,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum by (service, span_name) (traces_spanmetrics_calls_total{service=\"cart-service\", span_name=~\"$endpoint\"})",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "Error rate"
+        }
+      ],
+      "title": "Requests Total",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 8,
+        "y": 12
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "same_as_value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": true,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum by (service, span_name) (traces_spanmetrics_calls_total{\r\n        service=\"cart-service\", status=~\"4..|5..\", span_name=~\"$endpoint\"})",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "Error rate"
+        }
+      ],
+      "title": "Errors Total",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 16,
+        "y": 12
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "same_as_value",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -259,18 +501,14 @@
       "pluginVersion": "12.1.1",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{job=\"kubelet\", metrics_path=\"/metrics/cadvisor\", namespace=\"app\", container=\"cart-service\"}) / sum(kube_pod_container_resource_requests{job=\"kube-state-metrics\", namespace=\"app\", container=\"cart-service\", resource=\"memory\"})",
+          "expr": "100 * (\r\n    sum by (service, span_name) (rate(traces_spanmetrics_calls_total{\r\n        service=\"cart-service\", span_name=~\"$endpoint\", status=~\"4..|5..\"}[5m]))\r\n    /\r\n    sum by (service, span_name) (rate(traces_spanmetrics_calls_total{\r\n        service=\"cart-service\", span_name=~\"$endpoint\"}[5m]))\r\n)",
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "Error rate"
         }
       ],
-      "title": "Memory Utilisation (from requests)",
+      "title": "Errors Rate",
       "type": "stat"
     },
     {
@@ -337,7 +575,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 3
+        "y": 15
       },
       "id": 1,
       "options": {
@@ -368,6 +606,339 @@
         }
       ],
       "title": "HTTP Requests Per Second (by endpoints)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Miliseconds",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.9,
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "http put /api/v1/carts/{userId}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P50 - http put /api/v1/carts/{userId}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P5 - http put /api/v1/carts/{userId}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P75 - "
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 - http put /api/v1/carts/{userId}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "P95 - http put /api/v1/carts/{userId}"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 15
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.05, \r\n    sum by (service, span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", span_name=~\"$endpoint\"}[5m]))\r\n) * 1000",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "P5 - {{span_name}}",
+          "range": true,
+          "refId": "p5"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.5, \r\n    sum by (service, span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", span_name=~\"$endpoint\"}[5m]))\r\n) * 1000",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "P50 - {{span_name}}",
+          "range": true,
+          "refId": "p50"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.75, \r\n    sum by (service, span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", span_name=~\"$endpoint\"}[5m]))\r\n) * 1000",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "P75 - {{span_name}}",
+          "range": true,
+          "refId": "P75"
+        },
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "histogram_quantile(0.95, \r\n    sum by (service, span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", span_name=~\"$endpoint\"}[5m]))\r\n) * 1000",
+          "instant": false,
+          "legendFormat": "P95 - {{span_name}}",
+          "range": true,
+          "refId": "p95"
+        }
+      ],
+      "title": "HTTP Request Latency (by endpoint)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 19,
+      "panels": [],
+      "title": "Repository Metrics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 25
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum by (db_system, span_name) (rate(traces_spanmetrics_calls_total{service=\"cart-service\", repository_name=~\"$repo\"}[1m]))",
+          "legendFormat": "{{span_name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Repository Requests Per Second",
       "type": "timeseries"
     },
     {
@@ -500,6 +1071,135 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P5 - cart-repository#get-cart-by-user-id"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P5 - cart-repository#save-cart"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P50 - cart-repository#get-cart-by-user-id"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P50 - cart-repository#save-cart"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P75 - cart-repository#get-cart-by-user-id"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 - cart-repository#get-cart-by-user-id"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 - cart-repository#save-cart"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "P75 - cart-repository#save-cart"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
           }
         ]
       },
@@ -507,9 +1207,9 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 3
+        "y": 25
       },
-      "id": 2,
+      "id": 15,
       "options": {
         "legend": {
           "calcs": [],
@@ -531,7 +1231,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.05, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{span_name=~\"$endpoint\"}[5m]))\r\n) * 1000",
+          "expr": "histogram_quantile(0.05, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", repository_name=~\"$repo\", span_name=~\"$repo_span_name\"}[1m]))\r\n) * 1000",
           "hide": false,
           "instant": false,
           "legendFormat": "P5 - {{span_name}}",
@@ -544,7 +1244,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{span_name=~\"$endpoint\"}[5m]))\r\n) * 1000",
+          "expr": "histogram_quantile(0.5, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", repository_name=~\"$repo\", span_name=~\"$repo_span_name\"}[1m]))\r\n) * 1000",
           "hide": false,
           "instant": false,
           "legendFormat": "P50 - {{span_name}}",
@@ -557,7 +1257,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.75, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{span_name=~\"$endpoint\"}[5m]))\r\n) * 1000",
+          "expr": "histogram_quantile(0.75, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", repository_name=~\"$repo\", span_name=~\"$repo_span_name\"}[1m]))\r\n) * 1000",
           "hide": false,
           "instant": false,
           "legendFormat": "P75 - {{span_name}}",
@@ -567,15 +1267,28 @@
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.95, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{span_name=~\"$endpoint\"}[5m]))\r\n) * 1000",
+          "expr": "histogram_quantile(0.95, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", repository_name=~\"$repo\", span_name=~\"$repo_span_name\"}[1m]))\r\n) * 1000",
           "instant": false,
           "legendFormat": "P95 - {{span_name}}",
           "range": true,
           "refId": "p95"
         }
       ],
-      "title": "HTTP Request Latency (by endpoint)",
+      "title": "Repository Request Latency",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "id": 20,
+      "panels": [],
+      "title": "GRPC Metrics",
+      "type": "row"
     },
     {
       "datasource": {
@@ -585,7 +1298,40 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -601,85 +1347,37 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 12
-      },
-      "id": 9,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "same_as_value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": true,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "sum by (service, span_name) (traces_spanmetrics_calls_total{service=\"cart-service\", span_name=~\"$endpoint\"})",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "Error rate"
-        }
-      ],
-      "title": "Requests Total",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
         "h": 9,
-        "w": 20,
-        "x": 4,
-        "y": 12
+        "w": 12,
+        "x": 0,
+        "y": 35
       },
-      "id": 8,
+      "id": 16,
       "options": {
-        "dedupStrategy": "signature",
-        "enableInfiniteScrolling": false,
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": false,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.1.1",
       "targets": [
         {
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "direction": "backward",
           "editorMode": "code",
-          "expr": "{app=\"cart-service\", level=~\"ERROR|INFO\"} |~ \"(?i)$logs_search\"",
-          "queryType": "range",
+          "expr": "sum by (rpc_service, span_name) (rate(traces_spanmetrics_calls_total{service=\"cart-service\", rpc_service=~\"$grpc_service\"}[1m]))",
+          "legendFormat": "{{span_name}}",
+          "range": true,
           "refId": "A"
         }
       ],
-      "title": "Service Logs",
-      "type": "logs"
+      "title": "GRPC Service Requests Per Second",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -689,125 +1387,418 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Miliseconds",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.9,
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": 0
               }
             ]
           }
         },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 15
-      },
-      "id": 10,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "same_as_value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": true,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "100 * (\r\n    sum by (service, span_name) (rate(traces_spanmetrics_calls_total{\r\n        service=\"cart-service\", span_name=~\"$endpoint\", status=~\"4..|5..\"}[5m]))\r\n    /\r\n    sum by (service, span_name) (rate(traces_spanmetrics_calls_total{\r\n        service=\"cart-service\", span_name=~\"$endpoint\"}[5m]))\r\n)",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "Error rate"
-        }
-      ],
-      "title": "Errors Rate",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "percentage",
-            "steps": [
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "http put /api/v1/carts/{userId}"
+            },
+            "properties": [
               {
-                "color": "red",
-                "value": 0
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P50 - http put /api/v1/carts/{userId}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P5 - http put /api/v1/carts/{userId}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P75 - "
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 - http put /api/v1/carts/{userId}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P5 - cart-repository#get-cart-by-user-id"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P5 - cart-repository#save-cart"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P50 - cart-repository#get-cart-by-user-id"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P50 - cart-repository#save-cart"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P75 - cart-repository#get-cart-by-user-id"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 - cart-repository#get-cart-by-user-id"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 - cart-repository#save-cart"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P5 - inventory-service#list-product-availabilities"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P75 - inventory-service#list-product-availabilities"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 - inventory-service#list-product-availabilities"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P50 - inventory-service#list-product-availabilities"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "P75 - inventory-service#list-product-availabilities"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
               }
             ]
           }
-        },
-        "overrides": []
+        ]
       },
       "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 18
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 35
       },
-      "id": 7,
+      "id": 17,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "same_as_value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": true,
-        "textMode": "auto",
-        "wideLayout": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.1.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
           "editorMode": "code",
-          "expr": "sum by (service, span_name) (traces_spanmetrics_calls_total{\r\n        service=\"cart-service\", status=~\"4..|5..\", span_name=~\"$endpoint\"})",
-          "legendFormat": "__auto",
+          "expr": "histogram_quantile(0.05, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", rpc_service=~\"$grpc_service\", span_name=~\"$grpc_span_name\"}[1m]))\r\n) * 1000",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "P5 - {{span_name}}",
           "range": true,
-          "refId": "Error rate"
+          "refId": "p5"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.5, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", rpc_service=~\"$grpc_service\", span_name=~\"$grpc_span_name\"}[1m]))\r\n) * 1000",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "P50 - {{span_name}}",
+          "range": true,
+          "refId": "p50"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.75, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", rpc_service=~\"$grpc_service\", span_name=~\"$grpc_span_name\"}[1m]))\r\n) * 1000",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "P75 - {{span_name}}",
+          "range": true,
+          "refId": "P75"
+        },
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "histogram_quantile(0.95, \r\n    sum by (span_name, le) (rate(traces_spanmetrics_latency_bucket{service=\"cart-service\", rpc_service=~\"$grpc_service\", span_name=~\"$grpc_span_name\"}[1m]))\r\n) * 1000",
+          "instant": false,
+          "legendFormat": "P95 - {{span_name}}",
+          "range": true,
+          "refId": "p95"
         }
       ],
-      "title": "Errors Total",
-      "type": "stat"
+      "title": "GRPC Request Latency",
+      "type": "timeseries"
     }
   ],
   "preload": false,
-  "refresh": "",
+  "refresh": "15s",
   "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": [
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "Search Logs",
+        "name": "logs_search",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "type": "textbox"
+      },
       {
         "current": {
           "text": "http put /api/v1/carts/{userId}",
@@ -834,30 +1825,106 @@
       },
       {
         "current": {
-          "text": "",
-          "value": ""
+          "text": "cart_repository",
+          "value": "cart_repository"
         },
-        "label": "Search Logs",
-        "name": "logs_search",
-        "options": [
-          {
-            "selected": true,
-            "text": "",
-            "value": ""
-          }
-        ],
-        "query": "",
-        "type": "textbox"
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(traces_spanmetrics_calls_total,repository_name)",
+        "description": "",
+        "includeAll": false,
+        "label": "Repository",
+        "name": "repo",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(traces_spanmetrics_calls_total,repository_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "cart-repository#get-cart-by-user-id",
+          "value": "cart-repository#get-cart-by-user-id"
+        },
+        "definition": "label_values(traces_spanmetrics_calls_total{repository_name=\"$repo\"},span_name)",
+        "description": "",
+        "label": "Repository Operation",
+        "name": "repo_span_name",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(traces_spanmetrics_calls_total{repository_name=\"$repo\"},span_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "inventory",
+          "value": "inventory"
+        },
+        "definition": "label_values(traces_spanmetrics_calls_total{rpc_system=\"grpc\"},rpc_service)",
+        "label": "GRPC Service",
+        "name": "grpc_service",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(traces_spanmetrics_calls_total{rpc_system=\"grpc\"},rpc_service)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "inventory-service#list-product-availabilities",
+          "value": "inventory-service#list-product-availabilities"
+        },
+        "definition": "label_values(traces_spanmetrics_calls_total{rpc_service=\"$grpc_service\"},span_name)",
+        "label": "GRPC Service Operation",
+        "name": "grpc_span_name",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(traces_spanmetrics_calls_total{rpc_service=\"$grpc_service\"},span_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
       }
     ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-15m",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "15s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
   "timezone": "browser",
   "title": "Cart Service Performance",
   "uid": "e24b7244-5a32-4ac0-bc0c-7bab217a23d2",
-  "version": 42
+  "version": 73
 }

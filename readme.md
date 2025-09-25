@@ -1,7 +1,7 @@
 # Refs:
 
 * List of metrics: https://kubernetes.io/docs/reference/instrumentation/metrics/#list-of-stable-kubernetes-metrics
-* Helm - Git: https://github.com/bitnami/charts/tree/main/bitnami/redis
+* Helm - Redis: https://github.com/bitnami/charts/tree/main/bitnami/redis
 * Helm - LGTM: https://github.com/grafana/helm-charts/tree/main/charts/lgtm-distributed
 * Helm - Kube Prom Stack: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 * Helm - Grafana: https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
