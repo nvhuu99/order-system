@@ -21,7 +21,7 @@ spring:
   data:
     redis:
       connect-timeout: 5
-      host: ${REDIS_HOST:redis}
+      host: ${REDIS_HOST:redis-master}
       port: ${REDIS_PORT:6379}
 
   grpc:
@@ -31,6 +31,24 @@ spring:
           address: ${INVENTORY_SVC_HOST:inventory-service}:${INVENTORY_SVC_GRPC_PORT:9090}
           plaintext: true
 
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
+    admin:
+      auto-create: true
+    listener:
+      ack-mode: manual
+    consumer:
+      group-id: cart-manager.cart-update-requests
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      enable-auto-commit: false
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 management:
   endpoints:
     web:
@@ -38,14 +56,38 @@ management:
         include: health, info
   endpoint:
     prometheus:
-      enabled: true
+      enabled: false
   tracing:
     enabled: true
     sampling:
       probability: 1.0
   otlp:
     tracing:
-      endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo:4318/v1/traces}
+      endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo-distributor:4318/v1/traces}
     metrics:
       export:
         enabled: false
+
+---
+
+spring:
+  profiles:
+    active: development
+
+logging:
+  level:
+    com.example.cart.services.cart_service: DEBUG
+
+management:
+  tracing:
+    enabled: false
+
+---
+
+spring:
+  profiles:
+    active: staging
+
+management:
+  tracing:
+    enabled: true

@@ -18,7 +18,6 @@ management:
       enabled: true
 
   tracing:
-    enabled: true
     sampling:
       probability: 1.0
   otlp:
@@ -27,3 +26,23 @@ management:
     metrics:
       export:
         enabled: false
+
+---
+
+spring:
+  profiles:
+    active: development
+
+management:
+  tracing:
+    enabled: false
+
+---
+
+spring:
+  profiles:
+    active: staging
+
+management:
+  tracing:
+    enabled: true

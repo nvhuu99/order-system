@@ -5,155 +5,65 @@ networks:
     driver: bridge
 
 services:
-  alloy:
-    container_name: alloy
-    hostname: alloy
-    restart: unless-stopped
-    image: grafana/alloy:v1.9.1
-    cpus: "0.25"
-    mem_limit: "256M"
-    ports:
-      - "12350:12350"
-      - "12347:12345"
-      - "12348:12348"
-      - "6832:6832"
-      - "4317:4317" # OLTP GRPC
-      - "4318:4318" # OLTP HTTP
-      - "3110:3100" # Loki HTTP API
-    volumes:
-      - "./observability/alloy/config.alloy:/etc/alloy/config.alloy"
-      - "./observability/alloy/endpoints.json:/etc/alloy/endpoints.json"
-    networks:
-      - order-processing-system
-    command: [
-      "run",
-      "--server.http.listen-addr=0.0.0.0:12345",
-      "--stability.level=public-preview",
-      "/etc/alloy/config.alloy",
-    ]
-
-  grafana:
-    container_name: grafana
-    hostname: grafana
-    restart: unless-stopped
-    image: grafana/grafana:12.0.2
-    cpus: "0.25"
-    mem_limit: "256M"
-    volumes:
-      - "./observability/grafana/dashboards:/var/lib/grafana/dashboards"
-      - "./observability/grafana/provisioning:/etc/grafana/provisioning"
-    ports:
-      - "3000:3000"
-    networks:
-      - order-processing-system
-    environment:
-      - GF_FEATURE_TOGGLES_ENABLE=flameGraph traceqlSearch traceQLStreaming correlations metricsSummary traceqlEditor traceToMetrics traceToProfiles datatrails
-      - GF_INSTALL_PLUGINS=grafana-lokiexplore-app,grafana-exploretraces-app,grafana-pyroscope-app
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-
-  tempo:
-    container_name: tempo
-    hostname: tempo
-    restart: unless-stopped
-    image: grafana/tempo:2.8.1
-    cpus: "0.25"
-    mem_limit: "256M"
-    networks:
-      - order-processing-system
-    command: [ "-config.file=/etc/tempo.yaml" ]
-    volumes:
-      - "./observability/tempo/tempo.yaml:/etc/tempo.yaml"
-
-  loki:
-    container_name: loki
-    hostname: loki
-    restart: unless-stopped
-    image: grafana/loki:3.5.1
-    cpus: "0.25"
-    mem_limit: "256M"
-    command: [ "--pattern-ingester.enabled=true", "-config.file=/etc/loki/loki.yaml" ]
-    networks:
-      - order-processing-system
-    volumes:
-      - "./observability/loki/loki.yaml:/etc/loki/loki.yaml"
-
-  mimir:
-    container_name: mimir
-    hostname: mimir
-    restart: unless-stopped
-    image: grafana/mimir:2.16.0
-    cpus: "0.25"
-    mem_limit: "256M"
-    command: [ "-ingester.native-histograms-ingestion-enabled=true", "-config.file=/etc/mimir.yaml" ]
-    networks:
-      - order-processing-system
-    volumes:
-      - "./observability/mimir/mimir.yaml:/etc/mimir.yaml"
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    hostname: cadvisor
-    restart: unless-stopped
-    cpus: "0.25"
-    mem_limit: "256M"
-    ports:
-      - "8090:8080"
-    networks:
-      - order-processing-system
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/lib/docker:/var/lib/docker:ro
-
   redis:
-    container_name: redis
-    hostname: redis
+    container_name: redis-master
+    hostname: redis-master
     restart: unless-stopped
     image: redis:7.4.2-alpine
-    cpus: "1"
-    mem_limit: "2G"
+    cpus: "0.1"
+    mem_limit: "128mb"
     ports:
       - "6379:6379"
     networks:
         - order-processing-system
 
-  eureka-server:
-    container_name: eureka-server
-    hostname: eureka-server
-    restart: unless-stopped
-    build:
-      context: ./services/eureka-server
-      dockerfile: Dockerfile
-    cpus: "0.25"
-    mem_limit: "256M"
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    container_name: zookeeper
+    hostname: zookeeper
     ports:
-      - "8761:8761"
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     networks:
       - order-processing-system
 
-  centralized-config:
-    container_name: centralized-config
-    hostname: centralized-config
-    restart: unless-stopped
-    env_file:
-      - .env.docker
-    build:
-      context: ./services/centralized-config
-      dockerfile: Dockerfile
-    cpus: "0.25"
-    mem_limit: "256M"
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    container_name: kafka
+    hostname: kafka
     ports:
-      - "8888:8888"
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     networks:
       - order-processing-system
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8090:8080"
     depends_on:
-      - eureka-server
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    networks:
+      - order-processing-system
 
   inventory:
-    container_name: inventory
-    hostname: inventory
+    container_name: inventory-service
+    hostname: inventory-service
     restart: unless-stopped
     env_file:
       - .env.docker
@@ -161,32 +71,24 @@ services:
       context: ./services/inventory
       dockerfile: Dockerfile
     cpus: "1"
-    mem_limit: "1G"
+    mem_limit: "512mb"
     ports:
-      - "9091:9091"
+      - "9090:9090"
     networks:
       - order-processing-system
-    depends_on:
-      - eureka-server
-      - centralized-config
 
-  cart:
-    container_name: cart
-    hostname: cart
-    restart: unless-stopped
-    env_file:
-      - .env.docker
-    build:
-      context: ./services/cart
-      dockerfile: Dockerfile
-    cpus: "1"
-    mem_limit: "1G"
-    ports:
-      - "8082:8082"
-    networks:
-      - order-processing-system
-    depends_on:
-      - eureka-server
-      - centralized-config
-      - redis
-      - inventory
+#  cart:
+#    container_name: cart-service
+#    hostname: cart-service
+#    restart: unless-stopped
+#    env_file:
+#      - .env.docker
+#    build:
+#      context: ./services/cart
+#      dockerfile: Dockerfile
+#    cpus: "1"
+#    mem_limit: "512mb"
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - order-processing-system

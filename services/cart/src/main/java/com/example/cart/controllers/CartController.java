@@ -2,6 +2,7 @@ package com.example.cart.controllers;
 
 import com.example.cart.entities.Cart;
 import com.example.cart.repositories.cart_repo.CartRepository;
+import com.example.cart.services.cart_service.CartEventsPublisher;
 import com.example.cart.services.cart_service.CartUpdateRequestHandler;
 import com.example.cart.services.cart_service.entities.CartUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,13 +17,13 @@ import reactor.core.scheduler.Schedulers;
 public class CartController {
 
     @Autowired
+    private CartEventsPublisher cartEventsPublisher;
+
+    @Autowired
     private CartUpdateRequestHandler cartRequestHandler;
 
     @Autowired
     private CartRepository cartRepo;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @GetMapping("{userId}")
     public Mono<?> getCart(@PathVariable String userId) {
@@ -30,11 +31,10 @@ public class CartController {
     }
 
     @PutMapping("{userId}")
-    public Mono<ResponseEntity<Cart>> updateCart(@RequestBody CartUpdateRequest request) {
-        return cartRequestHandler
-            .handle(request)
-            .flatMap(cart -> Mono.just(ResponseEntity.ok(cart)))
-            .onErrorResume(ex -> Mono.just(ResponseEntity.badRequest().body(null)))
-            .subscribeOn(Schedulers.boundedElastic());
+    public Mono<?> updateCart(@RequestBody CartUpdateRequest request) {
+        return cartEventsPublisher.publishCartUpdateRequest(request)
+            .map(ok -> ResponseEntity.ok("requested"))
+            .onErrorResume(ex -> Mono.just(ResponseEntity.internalServerError().body(ex.getMessage())))
+        ;
     }
 }
