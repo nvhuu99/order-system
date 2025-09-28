@@ -1,7 +1,7 @@
 package com.example.cart.services.cart_service;
 
 import com.example.cart.services.cart_service.entities.CartUpdateRequest;
-import com.example.cart.services.cart_service.mocks.CartUpdateRequestKafkaConsumer;
+import com.example.cart.services.cart_service.mocks.CartUpdateRequestKafkaConsumerMock;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +24,7 @@ public class CartEventsPublisherTests {
     private CartEventsPublisher publisher;
 
     @Autowired
-    private CartUpdateRequestKafkaConsumer cartUpdateRequestConsumer;
+    private CartUpdateRequestKafkaConsumerMock cartUpdateRequestConsumer;
 
     private CartUpdateRequest buildRequest() {
         return new CartUpdateRequest("USR_01", 1, List.of(

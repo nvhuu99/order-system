@@ -10,7 +10,7 @@ import java.util.concurrent.CountDownLatch;
 
 @Component
 @Getter
-public class CartUpdateRequestKafkaConsumer {
+public class CartUpdateRequestKafkaConsumerMock {
 
     private CartUpdateRequest request;
     private CountDownLatch latch = new CountDownLatch(1);

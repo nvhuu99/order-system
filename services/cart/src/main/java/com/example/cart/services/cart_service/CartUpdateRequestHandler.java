@@ -11,8 +11,7 @@ import com.example.cart.services.inventory_service.InventoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
@@ -30,11 +29,11 @@ public class CartUpdateRequestHandler {
 
     private final Logger log = LoggerFactory.getLogger(CartUpdateRequestHandler.class);
 
-//    @Value("${order-processing-system.handlers.cart-update-requests.timeout-sec}")
-    private Long timeoutSeconds = 45L;
+    @Value("${order-processing-system.handlers.cart-update-requests.timeout-sec}")
+    private Long timeoutSeconds;
 
-//    @Value("${order-processing-system.handlers.cart-update-requests.wait-sec}")
-    private Long waitSeconds = 30L;
+    @Value("${order-processing-system.handlers.cart-update-requests.wait-sec}")
+    private Long waitSeconds;
 
     @Autowired
     private LockRepository cartLockRepo;
@@ -48,37 +47,40 @@ public class CartUpdateRequestHandler {
     @Autowired
     private CartValidator cartValidator;
 
-    @KafkaListener(
-        topics = "${order-processing-system.messaging.cart-update-requests.topic-name}",
-        groupId = "consumer-group-1"
-    )
-    public void handle(CartUpdateRequest request, Acknowledgment ack) {
+    public Mono<Void> handle(CartUpdateRequest request, Runnable commitRequest, Runnable onSaved) {
 
         log.info("Handling request - UserID: {} - CartVersion: {}", request.getUserId(), request.getVersionNumber());
 
         var lockValue = UUID.randomUUID().toString();
         var acquireLock = acquireLock(request.getUserId(), lockValue, Duration.ofSeconds(timeoutSeconds));
         var releaseLock = releaseLock(request.getUserId(), lockValue);
-        var acknowledge = Mono.fromRunnable(() -> {
-            ack.acknowledge();
-            log.debug("Acknowledged");
+        var commit = Mono.fromRunnable(() -> {
+            if (commitRequest != null) {
+                commitRequest.run();
+            }
+            log.debug("Request Committed");
         });
 
-        acquireLock
+        return acquireLock
             .then(updateCart(request))
-            .then(releaseLock.then(acknowledge))
+            .then(releaseLock.then(commit))
             .onErrorResume(ex -> {
                 if (ex instanceof LockUnavailable) {
-                    return acknowledge.then(Mono.error(ex));
+                    return commit.then(Mono.error(ex));
                 } else if (ex instanceof InvalidCartUpdateRequestVersion) {
-                    return releaseLock.then(acknowledge).then(Mono.error(ex));
+                    return releaseLock.then(commit).then(Mono.error(ex));
                 } else {
                     return releaseLock.then(Mono.error(ex));
                 }
             })
             .timeout(Duration.ofSeconds(timeoutSeconds))
-            .doOnSuccess(ok -> log.info("Handled request - UserID: {} - CartVersion: {}", request.getUserId(), request.getVersionNumber()))
-            .subscribe()
+            .doOnSuccess(ok -> {
+                log.info("Handled request - UserID: {} - CartVersion: {}", request.getUserId(), request.getVersionNumber());
+                if (onSaved != null) {
+                    onSaved.run();
+                }
+            })
+            .then()
         ;
     }
 
