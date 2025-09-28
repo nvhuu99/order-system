@@ -52,7 +52,7 @@ public class CartUpdateRequestHandler {
     private CartValidator cartValidator;
 
     @KafkaListener(
-        topics = "cart-request",
+        topics = "${order-processing-system.messaging.cart-update-requests.topic-name}",
         groupId = "consumer-group-1"
     )
     public void handle(CartUpdateRequest request, Acknowledgment ack) {

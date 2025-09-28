@@ -9,6 +9,10 @@ logging:
     io.lettuce.core: OFF
 
 order-processing-system:
+  messaging:
+    cart-update-requests:
+      topic-name: "cart-update-request"
+
   handlers:
     cart-update-requests:
       timeout-sec: 15
@@ -58,15 +62,27 @@ management:
     prometheus:
       enabled: false
   tracing:
-    enabled: true
-    sampling:
-      probability: 1.0
+    enabled: false
   otlp:
     tracing:
       endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo-distributor:4318/v1/traces}
     metrics:
       export:
         enabled: false
+
+---
+
+spring:
+  profiles:
+    active: test
+
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
+
+order-processing-system:
+  messaging:
+    cart-update-requests:
+      topic-name: "test-cart-update-request"
 
 ---
 
@@ -91,3 +107,5 @@ spring:
 management:
   tracing:
     enabled: true
+    sampling:
+      probability: 1.0
