@@ -1,11 +1,11 @@
-package com.example.cart.repositories.cart_lock_repo.drivers;
+package com.example.cart.repositories.lock_repo.drivers;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 @Configuration
-public class CartLockRepositoryProperties {
+public class LockRepositoryProperties {
 
     @Bean(name = "lockAcquireLuaScript")
     public DefaultRedisScript<Long> lockAcquireLuaScript() {

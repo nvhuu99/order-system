@@ -1,7 +1,7 @@
-package com.example.cart.repositories.cart_lock_repo.drivers;
+package com.example.cart.repositories.lock_repo.drivers;
 
-import com.example.cart.repositories.cart_lock_repo.exceptions.LockUnavailable;
-import com.example.cart.repositories.cart_lock_repo.exceptions.LockValueMismatch;
+import com.example.cart.repositories.lock_repo.exceptions.LockUnavailable;
+import com.example.cart.repositories.lock_repo.exceptions.LockValueMismatch;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
@@ -14,9 +14,9 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class CartLockRepository implements com.example.cart.repositories.cart_lock_repo.CartLockRepository {
+public class LockRepository implements com.example.cart.repositories.lock_repo.LockRepository {
 
-    private final String keyPrefix = "order-processing-system:locks:carts:";
+    private final String keyPrefix = "order-processing-system:locks:";
 
     @Resource(name = "lockAcquireLuaScript")
     private DefaultRedisScript<Long> acquireScript;

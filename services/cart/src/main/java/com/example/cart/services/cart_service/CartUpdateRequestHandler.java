@@ -2,21 +2,19 @@ package com.example.cart.services.cart_service;
 
 import com.example.cart.entities.Cart;
 import com.example.cart.entities.ProductAvailability;
-import com.example.cart.repositories.cart_lock_repo.exceptions.LockUnavailable;
+import com.example.cart.repositories.lock_repo.exceptions.LockUnavailable;
 import com.example.cart.repositories.cart_repo.CartRepository;
-import com.example.cart.repositories.cart_lock_repo.CartLockRepository;
+import com.example.cart.repositories.lock_repo.LockRepository;
 import com.example.cart.services.cart_service.entities.CartUpdateRequest;
 import com.example.cart.services.cart_service.exceptions.InvalidCartUpdateRequestVersion;
 import com.example.cart.services.inventory_service.InventoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 import reactor.util.retry.RetryBackoffSpec;
 
@@ -24,7 +22,6 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 import static com.example.cart.utils.ErrorUtils.*;
 
@@ -40,7 +37,7 @@ public class CartUpdateRequestHandler {
     private Long waitSeconds = 30L;
 
     @Autowired
-    private CartLockRepository cartLockRepo;
+    private LockRepository cartLockRepo;
 
     @Autowired
     private CartRepository cartRepo;
@@ -87,7 +84,7 @@ public class CartUpdateRequestHandler {
 
     private Mono<Void> acquireLock(String userId, String lockValue, Duration lockTTL) {
         return Mono
-            .defer(() -> cartLockRepo.acquireLock(userId, lockValue, lockTTL))
+            .defer(() -> cartLockRepo.acquireLock("carts:"+userId, lockValue, lockTTL))
             .retryWhen(weakRetrySpec())
             .timeout(Duration.ofSeconds(waitSeconds))
             .onErrorMap(ex -> {
@@ -100,7 +97,7 @@ public class CartUpdateRequestHandler {
 
     private Mono<Void> releaseLock(String userId, String lockValue) {
         return Mono
-            .defer(() -> cartLockRepo.releaseLock(userId, lockValue))
+            .defer(() -> cartLockRepo.releaseLock("carts:"+userId, lockValue))
             .retryWhen(exponentialRetrySpec())
             .timeout(Duration.ofSeconds(waitSeconds))
             .onErrorMap(ex -> {
