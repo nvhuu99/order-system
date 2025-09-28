@@ -4,6 +4,7 @@ import com.example.cart.entities.Cart;
 import com.example.cart.entities.properties.CartValidation;
 import com.example.cart.services.cart_service.entities.CartUpdateRequest;
 import com.example.cart.services.cart_service.exceptions.InvalidCartUpdateRequestVersion;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Component
+@NoArgsConstructor
 public class CartValidator {
 
     public void validateCartUpdateRequest(Cart cart, CartUpdateRequest request) throws InvalidCartUpdateRequestVersion {
