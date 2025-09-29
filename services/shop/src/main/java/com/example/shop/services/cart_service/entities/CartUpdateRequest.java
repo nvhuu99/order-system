@@ -1,4 +1,4 @@
-package com.example.cart.services.cart_service.entities;
+package com.example.shop.services.cart_service.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -33,18 +32,9 @@ public class CartUpdateRequest {
         CartAction action;
     }
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class RequestHandler {
-        String name;
-    }
-
     String userId;
-    Integer versionNumber = 1;
-    List<CartUpdateRequestEntry> entries = new ArrayList<>();
-    RequestHandler handler = new RequestHandler();
+    Integer versionNumber;
+    List<CartUpdateRequestEntry> entries;
 
     @JsonIgnore
     public List<String> getProductIds() {

@@ -1,11 +1,9 @@
 server:
-  port: ${CART_SVC_API_PORT:8081}
+  port: ${SHOP_API_PORT:8080}
 
 logging:
   level:
     io.grpc: ERROR
-    org.springframework.kafka: ERROR
-    org.apache.kafka: ERROR
     io.opentelemetry.exporter: OFF
     io.opentelemetry.exporter.internal.http.HttpExporter: OFF
     io.lettuce.core: OFF
@@ -15,30 +13,15 @@ order-processing-system:
     cart-update-requests:
       topic-name: "cart-update-request"
 
-  handlers:
-    cart-update-requests:
-      timeout-sec: 15
-      wait-sec: 10
-
 spring:
   application:
-    name: cart-service
-
-  data:
-    redis:
-      connect-timeout: 5
-      host: ${REDIS_HOST:redis-master}
-      port: ${REDIS_PORT:6379}
+    name: shop-service
 
   grpc:
-    server:
-      port: ${CART_SVC_GRPC_PORT:9091}
-      ssl:
-        secure: false
     client:
       channels:
-        inventory-service:
-          address: ${INVENTORY_SVC_HOST:inventory-service}:${INVENTORY_SVC_GRPC_PORT:9090}
+        cart-service:
+          address: ${CART_SVC_HOST:cart-service}:${CART_SVC_GRPC_PORT:9091}
           plaintext: true
 
   kafka:
@@ -70,24 +53,13 @@ management:
 
 spring:
   profiles: { active: test }
-
   kafka:
     bootstrap-servers: localhost:9092
 
 ---
 
 spring:
-  profiles: { active: development }
-
-logging:
-  level:
-    com.example.cart.services.cart_service: DEBUG
-
----
-
-spring:
-  profiles:
-    active: staging
+  profiles: { active: staging }
 
 management:
   tracing:

@@ -92,3 +92,19 @@ services:
 #      - "8080:8080"
 #    networks:
 #      - order-processing-system
+
+  shop:
+    container_name: shop-service
+    hostname: shop-service
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/shop
+      dockerfile: Dockerfile
+    cpus: "0.25"
+    mem_limit: "368mb"
+    ports:
+      - "8080:8080"
+    networks:
+      - order-processing-system

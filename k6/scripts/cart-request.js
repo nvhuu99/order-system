@@ -90,7 +90,7 @@ export default function () {
     ],
   })
 
-  var url = `http://${__ENV.CART_SVC_HOST}:${__ENV.CART_SVC_API_PORT}/api/v1/carts/${userId}`
+  var url = `http://${__ENV.SHOP_SVC_HOST}:${__ENV.SHOP_SVC_API_PORT}/api/v1/carts/${userId}`
   var res = http.put(url, body, {
     headers: { "Content-Type": "application/json" },
   })

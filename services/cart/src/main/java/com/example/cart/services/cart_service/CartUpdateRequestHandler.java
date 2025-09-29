@@ -49,16 +49,16 @@ public class CartUpdateRequestHandler {
 
     public Mono<Void> handle(CartUpdateRequest request, Runnable commitRequest, Runnable onSaved) {
 
-        log.info("Handling request - UserID: {} - CartVersion: {}", request.getUserId(), request.getVersionNumber());
+        log.info(logTemplate(request, "Handling request"));
 
         var lockValue = UUID.randomUUID().toString();
-        var acquireLock = acquireLock(request.getUserId(), lockValue, Duration.ofSeconds(timeoutSeconds));
-        var releaseLock = releaseLock(request.getUserId(), lockValue);
+        var acquireLock = acquireLock(request, lockValue, Duration.ofSeconds(timeoutSeconds));
+        var releaseLock = releaseLock(request, lockValue);
         var commit = Mono.fromRunnable(() -> {
             if (commitRequest != null) {
                 commitRequest.run();
             }
-            log.debug("Request Committed");
+            log.debug(logTemplate(request, "Request Committed"));
         });
 
         return acquireLock
@@ -75,7 +75,7 @@ public class CartUpdateRequestHandler {
             })
             .timeout(Duration.ofSeconds(timeoutSeconds))
             .doOnSuccess(ok -> {
-                log.info("Handled request - UserID: {} - CartVersion: {}", request.getUserId(), request.getVersionNumber());
+                log.info(logTemplate(request, "Handled request"));
                 if (onSaved != null) {
                     onSaved.run();
                 }
@@ -84,73 +84,73 @@ public class CartUpdateRequestHandler {
         ;
     }
 
-    private Mono<Void> acquireLock(String userId, String lockValue, Duration lockTTL) {
+    private Mono<Void> acquireLock(CartUpdateRequest request, String lockValue, Duration lockTTL) {
         return Mono
-            .defer(() -> cartLockRepo.acquireLock("carts:"+userId, lockValue, lockTTL))
+            .defer(() -> cartLockRepo.acquireLock("carts:" + request.getUserId(), lockValue, lockTTL))
             .retryWhen(weakRetrySpec())
             .timeout(Duration.ofSeconds(waitSeconds))
             .onErrorMap(ex -> {
-                log.error("Lock acquire failed - Message: {}", ex.getMessage());
+                log.error(logTemplate(request, "Lock acquire failed: {}"), ex.getMessage());
                 return unwrapException(ex, LockUnavailable.class);
             })
-            .doOnSuccess(ok -> log.debug("Lock acquire success"))
+            .doOnSuccess(ok -> log.debug(logTemplate(request, "Lock acquire success")))
         ;
     }
 
-    private Mono<Void> releaseLock(String userId, String lockValue) {
+    private Mono<Void> releaseLock(CartUpdateRequest request, String lockValue) {
         return Mono
-            .defer(() -> cartLockRepo.releaseLock("carts:"+userId, lockValue))
+            .defer(() -> cartLockRepo.releaseLock("carts:" + request.getUserId(), lockValue))
             .retryWhen(exponentialRetrySpec())
             .timeout(Duration.ofSeconds(waitSeconds))
             .onErrorMap(ex -> {
-                log.error("Lock release failed - Message: " + ex.getMessage());
+                log.error(logTemplate(request, "Lock release failed: {}"), ex.getMessage());
                 return unwrapException(ex, LockUnavailable.class);
             })
-            .doOnSuccess(ok -> log.debug("Lock release success"))
+            .doOnSuccess(ok -> log.debug(logTemplate(request, "Lock release success")))
         ;
     }
 
     private Mono<Cart> updateCart(CartUpdateRequest request) {
         return Mono
             .zip(
-                getCart(request.getUserId()).defaultIfEmpty(new Cart(request.getUserId())),
-                listProductAvailabilities(request.getProductIds()).onErrorReturn(Collections.emptyList())
+                getCart(request).defaultIfEmpty(new Cart(request.getUserId())),
+                listProductAvailabilities(request).onErrorReturn(Collections.emptyList())
             )
             .flatMap(tuple2 -> buildAndValidateCart(tuple2.getT1(), tuple2.getT2(), request))
-            .flatMap(this::saveCart);
+            .flatMap(cart -> saveCart(request, cart));
     }
 
-    private Mono<Cart> getCart(String userId) {
+    private Mono<Cart> getCart(CartUpdateRequest request) {
         return Mono
-            .defer(() -> cartRepo.getCartByUserId(userId))
+            .defer(() -> cartRepo.getCartByUserId(request.getUserId()))
             .retryWhen(exponentialRetrySpec())
             .timeout(Duration.ofSeconds(waitSeconds))
-            .doOnError(ex -> logExceptionCause(ex, "Failed to get cart - Message: {}"))
-            .doOnSuccess(cart -> log.debug(
-                cart == null || cart.getVersionNumber() == 0
+            .doOnError(ex -> log.error(logTemplate(request, "Failed to get cart: {}"), exceptionCause(ex)))
+            .doOnSuccess(cart ->
+                log.debug(logTemplate(request, cart == null || cart.getVersionNumber() == 0
                     ? "Cart not found"
                     : "Cart found"
-            ))
+            )))
         ;
     }
 
-    private Mono<List<ProductAvailability>> listProductAvailabilities(List<String> productIds) {
+    private Mono<List<ProductAvailability>> listProductAvailabilities(CartUpdateRequest request) {
         return Mono
-            .defer(() -> inventoryService.listProductAvailabilities(productIds).collectList())
+            .defer(() -> inventoryService.listProductAvailabilities(request.getProductIds()).collectList())
             .retryWhen(weakRetrySpec())
             .timeout(Duration.ofSeconds(waitSeconds))
-            .doOnError(ex -> logExceptionCause(ex, "Get product infos failed - Message: {}"))
-            .doOnSuccess(ok -> log.debug("Get product infos success - IDs: {}", productIds))
+            .doOnError(ex -> log.error(logTemplate(request, "Get product infos failed: {}"), exceptionCause(ex)))
+            .doOnSuccess(ok -> log.debug(logTemplate(request, "Get product infos success - IDs: {}"), request.getProductIds()))
         ;
     }
 
-    private Mono<Cart> saveCart(Cart cart) {
+    private Mono<Cart> saveCart(CartUpdateRequest request, Cart cart) {
         return Mono
             .defer(() -> cartRepo.saveCart(cart))
             .retryWhen(exponentialRetrySpec())
             .timeout(Duration.ofSeconds(waitSeconds))
-            .doOnError(ex -> logExceptionCause(ex, "Saved cart to cache failed - Message: {}"))
-            .doOnSuccess(ok -> log.debug("Saved cart to cache success"))
+            .doOnError(ex -> log.error(logTemplate(request, "Saved cart to cache failed: {}"), exceptionCause(ex)))
+            .doOnSuccess(ok -> log.debug(logTemplate(request, "Saved cart to cache success")))
         ;
     }
 
@@ -169,8 +169,8 @@ public class CartUpdateRequestHandler {
                     .build()
                     .getCart();
             })
-            .doOnError(ex -> log.error("Build cart failed - Message: {}", ex.getMessage()))
-            .doOnSuccess(ok -> log.debug("Build cart success"))
+            .doOnError(ex -> log.error(logTemplate(request, "Build cart failed: {}"), ex.getMessage()))
+            .doOnSuccess(ok -> log.debug(logTemplate(request, "Build cart success")))
         ;
     }
 
@@ -189,5 +189,9 @@ public class CartUpdateRequestHandler {
     private void logExceptionCause(Throwable ex, String template) {
         var cause = ex.getCause() != null ? ex.getCause() : ex;
         log.error(template, cause.getMessage());
+    }
+
+    private String logTemplate(CartUpdateRequest request, String append) {
+        return String.format("user_id=%s cart_ver=%s handler=%s " + append, request.getUserId(), request.getVersionNumber(), request.getHandler().getName());
     }
 }

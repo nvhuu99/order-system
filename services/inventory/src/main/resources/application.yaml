@@ -9,17 +9,7 @@ spring:
         secure: false
 
 management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info
-  endpoint:
-    prometheus:
-      enabled: true
-
-  tracing:
-    sampling:
-      probability: 1.0
+  tracing: { enabled: false }
   otlp:
     tracing:
       endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo:4318/v1/traces}
@@ -30,19 +20,10 @@ management:
 ---
 
 spring:
-  profiles:
-    active: development
-
-management:
-  tracing:
-    enabled: false
-
----
-
-spring:
-  profiles:
-    active: staging
+  profiles: { active: staging }
 
 management:
   tracing:
     enabled: true
+    sampling:
+      probability: 1.0

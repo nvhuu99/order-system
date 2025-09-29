@@ -13,7 +13,7 @@
         <format>
             <label>
                 <pattern>
-                    app=cart-service, host=${HOSTNAME}, level=%level
+                    app=shop-service, host=${HOSTNAME}, level=%level
                 </pattern>
                 <readMarkers>true</readMarkers>
             </label>
@@ -42,7 +42,6 @@
 
     <springProfile name="staging">
         <root level="INFO">
-            <appender-ref ref="CART_EVENTS_CONSUMER"/>
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="LOKI"/>
         </root>

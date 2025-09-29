@@ -11,12 +11,13 @@ import reactor.core.publisher.Mono;
 public class CartEventsPublisher {
 
     @Value("${order-processing-system.messaging.cart-update-requests.topic-name}")
-    private String cartUpdateRequestsTopicName;
+    private String cartUpdateRequestsTopic;
 
     @Autowired
-    private KafkaTemplate<String, CartUpdateRequest> kafkaTemplate;
+    private KafkaTemplate<String, CartUpdateRequest> kafka;
 
     public Mono<Void> publishCartUpdateRequest(CartUpdateRequest request) {
-        return Mono.fromFuture(() -> kafkaTemplate.send(cartUpdateRequestsTopicName, request)).then();
+        var key = request.getUserId();
+        return Mono.fromFuture(() -> kafka.send(cartUpdateRequestsTopic, key, request)).then();
     }
 }

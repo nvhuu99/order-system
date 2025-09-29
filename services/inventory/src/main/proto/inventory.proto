@@ -1,15 +1,14 @@
 syntax = "proto3";
-package product;
+
+package inventory;
 
 option java_package = "com.example.grpc.inventory.stubs";
 option java_multiple_files = true;
 
-// Request message with repeated product IDs
 message ListProductAvailabilitiesRequest {
   repeated string product_ids = 1;
 }
 
-// Response message representing ProductAvailability
 message ProductAvailability {
   string product_id = 1;
   string product_name = 2;
@@ -18,7 +17,6 @@ message ProductAvailability {
   bool is_available = 5;
 }
 
-// InventoryService definition with server streaming
 service InventoryService {
   rpc ListProductAvailabilities(ListProductAvailabilitiesRequest) returns (stream ProductAvailability);
 }
