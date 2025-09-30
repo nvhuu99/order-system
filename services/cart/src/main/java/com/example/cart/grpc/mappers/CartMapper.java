@@ -4,6 +4,9 @@ import com.example.cart.entities.Cart;
 
 public class CartMapper {
     public static com.example.grpc.cart.stubs.Cart mapFromEntity(Cart cart) {
+        if (cart == null) {
+            return null;
+        }
         return com.example.grpc.cart.stubs.Cart.newBuilder()
             .setUserId(cart.getUserId())
             .setVersionNumber(cart.getVersionNumber())

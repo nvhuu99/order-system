@@ -7,6 +7,9 @@ import java.util.Map;
 
 public class ProductAvailabilityMapper {
     public static ProductAvailability mapToEntity(com.example.grpc.cart.stubs.ProductAvailability data) {
+        if (data == null) {
+            return null;
+        }
         return ProductAvailability.builder()
             .productId(data.getProductId())
             .productName(data.getProductName())
@@ -17,6 +20,9 @@ public class ProductAvailabilityMapper {
     }
 
     public static Map<String, ProductAvailability> mapFromEntities(Map<String, com.example.grpc.cart.stubs.ProductAvailability> data) {
+        if (data == null) {
+            return Map.of();
+        }
         var items = new HashMap<String, ProductAvailability>();
         data.forEach((key, value) -> items.put(key, mapToEntity(value)));
         return items;

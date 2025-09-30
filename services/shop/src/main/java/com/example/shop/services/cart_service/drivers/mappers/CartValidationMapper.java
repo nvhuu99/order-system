@@ -9,6 +9,9 @@ import java.util.Map;
 public class CartValidationMapper {
 
     public static CartValidation mapToEntity(com.example.grpc.cart.stubs.CartValidation data) {
+        if (data == null) {
+            return null;
+        }
         return CartValidation.builder()
             .productId(data.getProductId())
             .type(CartValidationType.valueOf(data.getType().toString()))
@@ -17,6 +20,9 @@ public class CartValidationMapper {
     }
 
     public static Map<String, CartValidation> mapToEntities(Map<String, com.example.grpc.cart.stubs.CartValidation> data) {
+        if (data == null) {
+            return Map.of();
+        }
         var items = new HashMap<String, CartValidation>();
         data.forEach((key, value) -> items.put(key, mapToEntity(value)));
         return items;

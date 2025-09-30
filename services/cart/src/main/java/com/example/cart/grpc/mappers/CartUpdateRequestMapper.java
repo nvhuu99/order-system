@@ -8,6 +8,9 @@ import java.util.ArrayList;
 public class CartUpdateRequestMapper {
 
     public static CartUpdateRequest mapToEntity(com.example.grpc.cart.stubs.CartUpdateRequest data) {
+        if (data == null) {
+            return null;
+        }
         var entries = new ArrayList<CartUpdateRequest.CartUpdateRequestEntry>();
         for (var entryDTO : data.getEntriesList()) {
             entries.add(new CartUpdateRequest.CartUpdateRequestEntry(

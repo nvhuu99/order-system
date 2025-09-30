@@ -20,7 +20,9 @@ management:
 ---
 
 spring:
-  profiles: { active: staging }
+  config:
+    activate:
+      on-profile: staging
 
 management:
   tracing:

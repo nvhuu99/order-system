@@ -75,7 +75,9 @@ logging:
     io.lettuce.core: DEBUG
 
 spring:
-  profiles: { active: test }
+  config:
+    activate:
+      on-profile: test
   grpc:
     server:
       enabled: false
@@ -88,7 +90,9 @@ spring:
 ---
 
 spring:
-  profiles: { active: development }
+  config:
+    activate:
+      on-profile: development
 
 logging:
   level:
@@ -97,8 +101,9 @@ logging:
 ---
 
 spring:
-  profiles:
-    active: staging
+  config:
+    activate:
+      on-profile: staging
 
 management:
   tracing:

@@ -52,14 +52,9 @@ management:
 ---
 
 spring:
-  profiles: { active: test }
-  kafka:
-    bootstrap-servers: localhost:9092
-
----
-
-spring:
-  profiles: { active: staging }
+  config:
+    activate:
+      on-profile: staging
 
 management:
   tracing:

@@ -7,6 +7,9 @@ import java.util.Map;
 
 public class CartItemMapper {
     public static com.example.grpc.cart.stubs.CartItem mapFromEntity(CartItem entity) {
+        if (entity == null) {
+            return null;
+        }
         return com.example.grpc.cart.stubs.CartItem.newBuilder()
             .setProductId(entity.getProductId())
             .setProductName(entity.getProductName())
@@ -15,6 +18,9 @@ public class CartItemMapper {
     }
 
     public static Map<String, com.example.grpc.cart.stubs.CartItem> mapFromEntities(Map<String, CartItem> entities) {
+        if (entities == null) {
+            return Map.of();
+        }
         var items = new HashMap<String, com.example.grpc.cart.stubs.CartItem>();
         entities.forEach((key, value) -> items.put(key, mapFromEntity(value)));
         return items;
