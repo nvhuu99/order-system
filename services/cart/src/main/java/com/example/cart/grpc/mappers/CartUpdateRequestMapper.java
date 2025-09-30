@@ -1,11 +1,11 @@
-package com.example.cart.grpc.dto;
+package com.example.cart.grpc.mappers;
 
 
 import com.example.cart.services.cart_service.entities.CartUpdateRequest;
 
 import java.util.ArrayList;
 
-public class CartUpdateRequestDTO {
+public class CartUpdateRequestMapper {
 
     public static CartUpdateRequest mapToEntity(com.example.grpc.cart.stubs.CartUpdateRequest data) {
         var entries = new ArrayList<CartUpdateRequest.CartUpdateRequestEntry>();

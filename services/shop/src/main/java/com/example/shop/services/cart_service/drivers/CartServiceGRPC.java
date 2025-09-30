@@ -1,7 +1,11 @@
 package com.example.shop.services.cart_service.drivers;
 
 import com.example.grpc.cart.stubs.CartServiceGrpc;
+import com.example.grpc.cart.stubs.GetCartByUserIdRequest;
 import com.example.shop.services.cart_service.CartService;
+import com.example.shop.services.cart_service.drivers.mappers.CartMapper;
+import com.example.shop.services.cart_service.drivers.mappers.CartUpdateRequestMapper;
+import com.example.shop.services.cart_service.entities.Cart;
 import com.example.shop.services.cart_service.entities.CartUpdateRequest;
 import com.example.shop.services.cart_service.entities.CartUpdateRequestResult;
 import io.grpc.stub.StreamObserver;
@@ -17,6 +21,32 @@ public class CartServiceGRPC implements CartService {
     @Autowired
     private CartServiceGrpc.CartServiceStub cartSvcGRPC;
 
+    @Observed(name = "get_cart_by_user_id", lowCardinalityKeyValues = {
+        "rpc.system", "grpc",
+        "rpc.service", "cart"
+    })
+    @Override
+    public Mono<Cart> getCartByUserId(String userId) {
+
+        Sinks.One<Cart> sink = Sinks.one();
+
+        var request = GetCartByUserIdRequest.newBuilder().setUserId(userId).build();
+        cartSvcGRPC.getCartByUserId(request, new StreamObserver<>() {
+            @Override
+            public void onNext(com.example.grpc.cart.stubs.GetCartByUserIdResult data) {
+                sink.tryEmitValue(CartMapper.mapToEntity(data.getCart()));
+            }
+
+            @Override
+            public void onError(Throwable t) { sink.tryEmitError(t); }
+
+            @Override
+            public void onCompleted() {}
+        });
+
+        return sink.asMono();
+    }
+
     @Observed(name = "cart_update_request", lowCardinalityKeyValues = {
         "rpc.system", "grpc",
         "rpc.service", "cart"
@@ -26,22 +56,7 @@ public class CartServiceGRPC implements CartService {
 
         Sinks.One<CartUpdateRequestResult> sink = Sinks.one();
 
-        var requestBuilder = com.example.grpc.cart.stubs.CartUpdateRequest.newBuilder()
-            .setUserId(request.getUserId())
-            .setVersionNumber(request.getVersionNumber());
-
-        for (var entry : request.getEntries()) {
-            var mappedEntryBuilder = com.example.grpc.cart.stubs.CartUpdateRequest.CartUpdateRequestEntry
-                .newBuilder()
-                .setAction(com.example.grpc.cart.stubs.CartUpdateRequest.CartAction.valueOf(entry.getAction().toString()))
-                .setProductId(entry.getProductId())
-                .setProductName(entry.getProductName())
-                .setQtyAdjustment(entry.getQtyAdjustment())
-            ;
-            requestBuilder.addEntries(mappedEntryBuilder.build());
-        }
-
-        cartSvcGRPC.cartUpdateRequest(requestBuilder.build(), new StreamObserver<>() {
+        cartSvcGRPC.cartUpdateRequest(CartUpdateRequestMapper.mapFromEntity(request), new StreamObserver<>() {
             @Override
             public void onNext(com.example.grpc.cart.stubs.CartUpdateRequestResult data) {
                 if (! data.getSuccess()) {
@@ -57,8 +72,7 @@ public class CartServiceGRPC implements CartService {
             }
 
             @Override
-            public void onCompleted() {
-            }
+            public void onCompleted() {}
         });
 
         return sink.asMono();

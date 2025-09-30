@@ -14,6 +14,14 @@ public class CartController {
     @Autowired
     private CartService cartSvc;
 
+    @GetMapping("{userId}")
+    public Mono<?> getCart(@PathVariable String userId) {
+        return cartSvc.getCartByUserId(userId)
+            .map(ResponseEntity::ok)
+            .onErrorReturn(ResponseEntity.internalServerError().body(null))
+        ;
+    }
+
     @PutMapping("{userId}")
     public Mono<?> updateCart(@RequestBody CartUpdateRequest request) {
         return cartSvc.cartUpdateRequest(request)
