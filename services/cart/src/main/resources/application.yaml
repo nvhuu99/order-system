@@ -48,6 +48,7 @@ spring:
     listener:
       ack-mode: manual
     consumer:
+      group-id: default
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -65,6 +66,24 @@ management:
       endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo-distributor:4318/v1/traces}
     metrics:
       export: { enabled: false }
+
+
+---
+
+logging:
+  level:
+    io.lettuce.core: DEBUG
+
+spring:
+  profiles: { active: test }
+  grpc:
+    server:
+      enabled: false
+  kafka:
+    admin:
+      auto-create: false
+    listener:
+      auto-startup: false
 
 ---
 

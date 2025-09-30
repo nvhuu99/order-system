@@ -6,7 +6,6 @@ import com.example.cart.repositories.lock_repo.exceptions.LockValueMismatch;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -22,16 +21,15 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-@DirtiesContext
-@Testcontainers
 @ActiveProfiles("test")
+@Testcontainers
 public class LockRepositoryTests {
 
     @Container
     static GenericContainer<?> redis = new GenericContainer<>("redis:7.4.2-alpine").withExposedPorts(6379);
 
     @DynamicPropertySource
-    static void redisProperties(DynamicPropertyRegistry registry) {
+    static void properties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.redis.host", redis::getHost);
         registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
         registry.add("spring.data.redis.connect-timeout", () -> 5);

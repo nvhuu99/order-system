@@ -1,4 +1,4 @@
-package com.example.cart.services.cart_service.fixtures;
+package com.example.cart.config.test;
 
 import com.example.cart.entities.ProductAvailability;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Configuration
 @Profile("test")
-public class FixturesConfigs {
+public class TestData {
 
     @Bean
     public Map<String, ProductAvailability> productAvailabilities() {
