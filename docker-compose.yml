@@ -77,34 +77,71 @@ services:
     networks:
       - order-processing-system
 
-#  cart:
-#    container_name: cart-service
-#    hostname: cart-service
+  cart-0:
+    container_name: cart-service-0
+    hostname: cart-service-0
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/cart
+      dockerfile: Dockerfile
+    cpus: "1"
+    mem_limit: "512mb"
+    ports:
+      - "9093:9091"
+    depends_on:
+      - inventory
+      - redis
+      - kafka
+    networks:
+      - order-processing-system
+
+  cart-1:
+    container_name: cart-service-1
+    hostname: cart-service-1
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/cart
+      dockerfile: Dockerfile
+    cpus: "1"
+    mem_limit: "512mb"
+    ports:
+      - "9094:9091"
+    networks:
+      - order-processing-system
+    depends_on:
+      - inventory
+      - redis
+      - kafka
+
+#  shop:
+#    container_name: shop-service
+#    hostname: shop-service
 #    restart: unless-stopped
 #    env_file:
 #      - .env.docker
 #    build:
-#      context: ./services/cart
+#      context: ./services/shop
 #      dockerfile: Dockerfile
-#    cpus: "1"
-#    mem_limit: "512mb"
+#    cpus: "0.25"
+#    mem_limit: "368mb"
 #    ports:
 #      - "8080:8080"
 #    networks:
 #      - order-processing-system
 
-  shop:
-    container_name: shop-service
-    hostname: shop-service
-    restart: unless-stopped
-    env_file:
-      - .env.docker
-    build:
-      context: ./services/shop
-      dockerfile: Dockerfile
-    cpus: "0.25"
-    mem_limit: "368mb"
-    ports:
-      - "8080:8080"
-    networks:
-      - order-processing-system
+#  go-kafka-producer:
+#    container_name: go-kafka-producer
+#    build:
+#      context: ./services/kafka-batch-producer
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - kafka
+#    environment:
+#      KAFKA_BROKER: kafka:9092
+#    command: ["./producer"]
+#    networks:
+#      - order-processing-system
