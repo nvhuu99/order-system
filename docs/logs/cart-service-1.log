@@ -1,0 +1,76 @@
+2025-09-30 09:59:07.855 | 02:59:07,854 |-WARN in ch.qos.logback.core.model.processor.AppenderModelHandler - Appender named [LOKI] not referenced. Skipping further processing.
+2025-09-30 09:59:07.956 |
+2025-09-30 09:59:07.956 |   .   ____          _            __ _ _
+2025-09-30 09:59:07.956 |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+2025-09-30 09:59:07.956 | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+2025-09-30 09:59:07.956 |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+2025-09-30 09:59:07.956 |   '  |____| .__|_| |_|_| |_\__, | / / / /
+2025-09-30 09:59:07.956 |  =========|_|==============|___/=/_/_/_/
+2025-09-30 09:59:07.956 |
+2025-09-30 09:59:07.956 |  :: Spring Boot ::                (v3.5.5)
+2025-09-30 09:59:07.956 |
+2025-09-30 09:59:08.157 | 02:59:08.156 - INFO  - c.example.cart.CartApplication - Starting CartApplication v0.0.1-SNAPSHOT using Java 21 with PID 1 (/app/app.jar started by root in /app)
+2025-09-30 09:59:08.159 | 02:59:08.158 - INFO  - c.example.cart.CartApplication - The following 1 profile is active: "development"
+2025-09-30 09:59:11.145 | 02:59:11.145 - INFO  - o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-09-30 09:59:11.148 | 02:59:11.148 - INFO  - o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-09-30 09:59:11.187 | 02:59:11.186 - INFO  - o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 19 ms. Found 0 Redis repository interfaces.
+2025-09-30 09:59:17.435 | 02:59:17.435 - INFO  - o.s.b.a.e.w.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2025-09-30 09:59:19.643 | 02:59:19.643 - INFO  - o.s.b.w.e.netty.NettyWebServer - Netty started on port 8081 (http)
+2025-09-30 09:59:20.064 | 02:59:20.064 - INFO  - o.s.g.s.NettyGrpcServerFactory - Registered gRPC service: cart.CartService
+2025-09-30 09:59:20.064 | 02:59:20.064 - INFO  - o.s.g.s.NettyGrpcServerFactory - Registered gRPC service: grpc.reflection.v1.ServerReflection
+2025-09-30 09:59:20.064 | 02:59:20.064 - INFO  - o.s.g.s.NettyGrpcServerFactory - Registered gRPC service: grpc.health.v1.Health
+2025-09-30 09:59:20.153 | 02:59:20.153 - INFO  - o.s.g.s.l.GrpcServerLifecycle - gRPC Server started, listening on address: [/[0:0:0:0:0:0:0:0]:9091]
+2025-09-30 09:59:20.240 | 02:59:20.239 - INFO  - c.example.cart.CartApplication - Started CartApplication in 14.055 seconds (process running for 16.018)
+2025-09-30 09:59:52.538 | 02:59:52.538 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_2 - partition=1 - group=group-1 - offset=20 - hostname=cart-service-1 - Message received
+2025-09-30 09:59:52.539 | 02:59:52.538 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_1 - partition=0 - group=group-0 - offset=20 - hostname=cart-service-1 - Message received
+2025-09-30 09:59:52.544 | 02:59:52.539 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Handling request
+2025-09-30 09:59:52.544 | 02:59:52.540 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Handling request
+2025-09-30 09:59:53.556 | 02:59:53.555 - ERROR - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Lock acquire failed: Lock acquire failed due to lock unavailable, resource name: carts:user_1
+2025-09-30 09:59:53.556 | 02:59:53.556 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Request Committed
+2025-09-30 09:59:53.557 | 02:59:53.557 - ERROR - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Lock acquire failed: Lock acquire failed due to lock unavailable, resource name: carts:user_2
+2025-09-30 09:59:53.557 | 02:59:53.557 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Request Committed
+2025-09-30 09:59:53.569 | 02:59:53.569 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_1 - partition=0 - group=group-0 - offset=21 - hostname=cart-service-1 - Message received
+2025-09-30 09:59:53.569 | 02:59:53.569 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Handling request
+2025-09-30 09:59:53.572 | 02:59:53.572 - ERROR - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Lock acquire failed: Lock acquire failed due to lock unavailable, resource name: carts:user_1
+2025-09-30 09:59:53.572 | 02:59:53.572 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Request Committed
+2025-09-30 09:59:53.576 | 02:59:53.576 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_2 - partition=1 - group=group-1 - offset=21 - hostname=cart-service-1 - Message received
+2025-09-30 09:59:53.576 | 02:59:53.576 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Handling request
+2025-09-30 09:59:53.579 | 02:59:53.578 - ERROR - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Lock acquire failed: Lock acquire failed due to lock unavailable, resource name: carts:user_2
+2025-09-30 09:59:53.579 | 02:59:53.578 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Request Committed
+2025-09-30 09:59:53.614 | 02:59:53.614 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_3 - partition=0 - group=group-0 - offset=22 - hostname=cart-service-1 - Message received
+2025-09-30 09:59:53.616 | 02:59:53.614 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Handling request
+2025-09-30 09:59:53.619 | 02:59:53.619 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Lock acquire success
+2025-09-30 09:59:53.627 | 02:59:53.626 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_4 - partition=1 - group=group-1 - offset=22 - hostname=cart-service-1 - Message received
+2025-09-30 09:59:53.627 | 02:59:53.627 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Handling request
+2025-09-30 09:59:53.751 | 02:59:53.750 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Cart not found
+2025-09-30 09:59:53.751 | 02:59:53.751 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Lock acquire success
+2025-09-30 09:59:53.832 | 02:59:53.831 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Cart not found
+2025-09-30 09:59:54.058 | 02:59:54.058 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.058 | 02:59:54.058 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.063 | 02:59:54.062 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Build cart success
+2025-09-30 09:59:54.063 | 02:59:54.062 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Build cart success
+2025-09-30 09:59:54.159 | 02:59:54.159 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Saved cart success
+2025-09-30 09:59:54.162 | 02:59:54.161 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Saved cart success
+2025-09-30 09:59:54.163 | 02:59:54.163 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Lock release success
+2025-09-30 09:59:54.163 | 02:59:54.163 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Request Committed
+2025-09-30 09:59:54.163 | 02:59:54.163 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Handled request
+2025-09-30 09:59:54.163 | 02:59:54.163 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_3 - partition=0 - group=group-0 - offset=22 - hostname=cart-service-1 - Message accepted
+2025-09-30 09:59:54.164 | 02:59:54.164 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Lock release success
+2025-09-30 09:59:54.164 | 02:59:54.164 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Request Committed
+2025-09-30 09:59:54.164 | 02:59:54.164 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Handled request
+2025-09-30 09:59:54.164 | 02:59:54.164 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_4 - partition=1 - group=group-1 - offset=22 - hostname=cart-service-1 - Message accepted
+2025-09-30 09:59:54.232 | 02:59:54.232 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_4 - partition=1 - group=group-1 - offset=23 - hostname=cart-service-1 - Message received
+2025-09-30 09:59:54.232 | 02:59:54.232 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_3 - partition=0 - group=group-0 - offset=23 - hostname=cart-service-1 - Message received
+2025-09-30 09:59:54.233 | 02:59:54.232 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Handling request
+2025-09-30 09:59:54.233 | 02:59:54.233 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Handling request
+2025-09-30 09:59:54.235 | 02:59:54.235 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Lock acquire success
+2025-09-30 09:59:54.242 | 02:59:54.241 - ERROR - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Lock acquire failed: Lock acquire failed due to lock unavailable, resource name: carts:user_3
+2025-09-30 09:59:54.242 | 02:59:54.242 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Request Committed
+2025-09-30 09:59:54.246 | 02:59:54.245 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.255 | 02:59:54.254 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Cart found
+2025-09-30 09:59:54.255 | 02:59:54.255 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Build cart success
+2025-09-30 09:59:54.258 | 02:59:54.258 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Saved cart success
+2025-09-30 09:59:54.260 | 02:59:54.259 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Lock release success
+2025-09-30 09:59:54.260 | 02:59:54.259 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Request Committed
+2025-09-30 09:59:54.260 | 02:59:54.260 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Handled request
+2025-09-30 09:59:54.260 | 02:59:54.260 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_4 - partition=1 - group=group-1 - offset=23 - hostname=cart-service-1 - Message accepted

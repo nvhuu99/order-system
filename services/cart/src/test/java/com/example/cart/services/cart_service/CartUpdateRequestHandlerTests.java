@@ -61,7 +61,7 @@ public class CartUpdateRequestHandlerTests {
         return new CartUpdateRequest(usrId, 1, List.of(
             new CartUpdateRequest.CartUpdateRequestEntry("PRODUCT_001", "Product_1", 2, CartUpdateRequest.CartAction.QTY_CHANGE),
             new CartUpdateRequest.CartUpdateRequestEntry("PRODUCT_002", "Product_2", 3, CartUpdateRequest.CartAction.QTY_CHANGE)
-        ));
+        ), "unknown");
     }
 
     @Test

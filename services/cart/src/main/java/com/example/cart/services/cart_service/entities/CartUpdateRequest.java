@@ -33,18 +33,10 @@ public class CartUpdateRequest {
         CartAction action;
     }
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class RequestHandler {
-        String name;
-    }
-
     String userId;
     Integer versionNumber = 1;
     List<CartUpdateRequestEntry> entries = new ArrayList<>();
-    RequestHandler handler = new RequestHandler();
+    String handlerName = "unknown";
 
     @JsonIgnore
     public List<String> getProductIds() {

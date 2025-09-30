@@ -2,7 +2,7 @@
 <configuration>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} - %-5level - %thread - %X{spanId} - %logger{-30} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} - %-5level - %logger{30} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -18,7 +18,7 @@
                 <readMarkers>true</readMarkers>
             </label>
             <message>
-                <pattern>%-5level - %thread - %X{spanId} - %logger{-30} - %msg</pattern>
+                <pattern>%-5level - %logger{30} - %msg</pattern>
             </message>
         </format>
         <batch>

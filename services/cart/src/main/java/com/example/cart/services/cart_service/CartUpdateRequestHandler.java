@@ -87,12 +87,9 @@ public class CartUpdateRequestHandler {
     private Mono<Void> acquireLock(CartUpdateRequest request, String lockValue, Duration lockTTL) {
         return Mono
             .defer(() -> cartLockRepo.acquireLock("carts:" + request.getUserId(), lockValue, lockTTL))
-            .retryWhen(weakRetrySpec())
+            .retryWhen(weakRetrySpec().filter(ex -> !(ex instanceof LockUnavailable)))
             .timeout(Duration.ofSeconds(waitSeconds))
-            .onErrorMap(ex -> {
-                log.error(logTemplate(request, "Lock acquire failed: {}"), ex.getMessage());
-                return unwrapException(ex, LockUnavailable.class);
-            })
+            .doOnError(ex -> log.error(logTemplate(request, "Lock acquire failed: {}"), ex.getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "Lock acquire success")))
         ;
     }
@@ -102,10 +99,7 @@ public class CartUpdateRequestHandler {
             .defer(() -> cartLockRepo.releaseLock("carts:" + request.getUserId(), lockValue))
             .retryWhen(exponentialRetrySpec())
             .timeout(Duration.ofSeconds(waitSeconds))
-            .onErrorMap(ex -> {
-                log.error(logTemplate(request, "Lock release failed: {}"), ex.getMessage());
-                return unwrapException(ex, LockUnavailable.class);
-            })
+            .doOnError(ex -> log.error(logTemplate(request, "Lock release failed: {}"), ex.getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "Lock release success")))
         ;
     }
@@ -149,8 +143,8 @@ public class CartUpdateRequestHandler {
             .defer(() -> cartRepo.saveCart(cart))
             .retryWhen(exponentialRetrySpec())
             .timeout(Duration.ofSeconds(waitSeconds))
-            .doOnError(ex -> log.error(logTemplate(request, "Saved cart to cache failed: {}"), exceptionCause(ex)))
-            .doOnSuccess(ok -> log.debug(logTemplate(request, "Saved cart to cache success")))
+            .doOnError(ex -> log.error(logTemplate(request, "Saved cart failed: {}"), exceptionCause(ex)))
+            .doOnSuccess(ok -> log.debug(logTemplate(request, "Saved cart success")))
         ;
     }
 
@@ -176,22 +170,22 @@ public class CartUpdateRequestHandler {
 
     private RetryBackoffSpec exponentialRetrySpec() {
         return Retry.backoff(10, Duration.ofMillis(200)).jitter(0.5).doBeforeRetry(retrySignal -> {
-            log.debug("Retry attempt {} - Message: {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString());
+            log.debug("Retry attempt ({}): {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString());
         });
     }
 
     private RetryBackoffSpec weakRetrySpec() {
         return Retry.fixedDelay(3, Duration.ofMillis(100)).doBeforeRetry(retrySignal -> {
-            log.debug("Retry attempt {} - Message: {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString());
+            log.debug("Weak retry attempt ({}): {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString());
         });
     }
 
-    private void logExceptionCause(Throwable ex, String template) {
-        var cause = ex.getCause() != null ? ex.getCause() : ex;
-        log.error(template, cause.getMessage());
-    }
-
     private String logTemplate(CartUpdateRequest request, String append) {
-        return String.format("user_id=%s cart_ver=%s handler=%s " + append, request.getUserId(), request.getVersionNumber(), request.getHandler().getName());
+        return String.format(
+            "user_id=%s - cart_ver=%s - handler=%s - " + append,
+            request.getUserId(),
+            request.getVersionNumber(),
+            request.getHandlerName()
+        );
     }
 }
