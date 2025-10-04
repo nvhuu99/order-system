@@ -69,6 +69,7 @@ public class CartUpdateRequestHandler {
 
         return acquireLock(request)
             .then(updateCart(request))
+            .then(commit)
             .onErrorResume(LockUnavailable.class, ex -> commit.then(Mono.empty()))
             .onErrorResume(InvalidCartUpdateRequestVersion.class, ex -> commit.then(Mono.empty()))
             .timeout(Duration.ofSeconds(timeoutSeconds))

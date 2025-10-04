@@ -68,3 +68,16 @@
       
       failed: race condition again, cart got skip
       solution: once you lock a user cart, never release the lock
+
+  ### RUN#2:
+    
+      all cart request success ✅
+      performance very good as there are less steps now, and more replicas:
+        - request total time: ~26s
+        - workload finished latency: ~27s
+        - latency avg: 3-5ms
+      request balance (undetermined):
+        - 500, 100, 200, 200
+        - 300, 200, 200, 100
+        - 600, 400, 0, 0
+        - 100, 600, 200, 100
