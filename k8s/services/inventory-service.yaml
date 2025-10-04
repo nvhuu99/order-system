@@ -6,29 +6,32 @@ metadata:
   labels:
     app.kubernetes.io/name: inventory-service
 spec:
+  type: ClusterIP
   selector:
-    app.kubernetes.io/name: inventory-service
+    app.kubernetes.io/instance: inventory-service
   ports:
     - port: 9090
       targetPort: 9090
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: inventory-service
   namespace: app
   labels:
     app.kubernetes.io/name: inventory-service
 spec:
+  serviceName: inventory-service
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: inventory-service
+      app.kubernetes.io/instance: inventory-service
   template:
     metadata:
       namespace: app
       labels:
         app.kubernetes.io/name: inventory-service
+        app.kubernetes.io/instance: inventory-service
     spec:
       containers:
       - name: inventory-service
@@ -36,7 +39,7 @@ spec:
         imagePullPolicy: Never
         resources:
           requests:
-            cpu: 100m
+            cpu: 200m
             memory: 384Mi
           limits:
             cpu: 200m
@@ -45,4 +48,4 @@ spec:
           - containerPort: 9090
         envFrom:
           - configMapRef:
-              name: env-common
+              name: global-env

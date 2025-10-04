@@ -12,13 +12,13 @@ master:
     limits: { cpu: 100m, memory: 256Mi }
 
 metrics:
-  enabled: true
-  resourcesPreset: "none"
-  resources:
-    requests: { cpu: 25m, memory: 32Mi }
-    limits: { cpu: 50m, memory: 64Mi }
-  serviceMonitor:
-    enabled: true
-    namespace: monitoring
-    interval: 15s
+  enabled: false
+#  resourcesPreset: "none"
+#  resources:
+#    requests: { cpu: 25m, memory: 32Mi }
+#    limits: { cpu: 50m, memory: 64Mi }
+#  serviceMonitor:
+#    enabled: true
+#    namespace: monitoring
+#    interval: 15s
 

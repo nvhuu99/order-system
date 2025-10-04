@@ -1,28 +1,33 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: env-common
+  name: global-env
 data:
+  SPRING_PROFILES_ACTIVE: staging
+
   # Monitoring endpoints
   PROMETHEUS_REMOTE_WRITE_ENDPOINT: "http://prom-stack-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
   TEMPO_PUSH_API_ENDPOINT: "http://tempo-distributor.monitoring.svc.cluster.local:4318/v1/traces"
   LOKI_PUSH_API_ENDPOINT: "http://loki-loki-distributed-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
 
   # Redis
-  REDIS_HOST: "redis-master"
+  REDIS_HOST: "redis-master.infras.svc.cluster.local"
   REDIS_PORT: "6379"
 
   # Kafka
-  KAFKA_HOST: "kafka"
+  KAFKA_HOST: "kafka.infras.svc.cluster.local"
   KAFKA_PORT: "9092"
 
   # Inventory Service
   INVENTORY_SVC_HOST: "inventory-service"
   INVENTORY_SVC_GRPC_PORT: "9090"
 
+  # Shop Service
+  SHOP_SVC_HOST: "shop-service"
+  SHOP_SVC_API_PORT: "8080"
+
   # Cart Service
   CART_SVC_HOST: "cart-service"
-  CART_SVC_API_PORT: "8080"
-
-
-
+  CART_SVC_API_PORT: "8081"
+  CART_SVC_GRPC_PORT: "9091"
+  CART_SVC_INSTANCES: "cart-service-0.cart-service-headless.app.svc.cluster.local, cart-service-1.cart-service-headless.app.svc.cluster.local, cart-service-2.cart-service-headless.app.svc.cluster.local, cart-service-3.cart-service-headless.app.svc.cluster.local"

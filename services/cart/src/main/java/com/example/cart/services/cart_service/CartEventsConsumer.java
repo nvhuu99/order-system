@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.annotation.KafkaListeners;
 import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -17,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class CartEventsConsumer {
@@ -29,24 +29,33 @@ public class CartEventsConsumer {
     @Autowired
     private CartUpdateRequestHandler cartUpdateRequestHandler;
 
-    @KafkaListeners({
-        @KafkaListener(groupId = "group-0", topicPartitions = {
-            @TopicPartition(partitions = { "0" }, topic = "${order-processing-system.messaging.cart-update-requests.topic-name}")
-        }),
-        @KafkaListener(groupId = "group-1", topicPartitions = {
-            @TopicPartition(partitions = { "1" }, topic = "${order-processing-system.messaging.cart-update-requests.topic-name}")
-        }),
+    @KafkaListener(topicPartitions = { @TopicPartition(
+        topic = "${order-processing-system.messaging.cart-update-requests.topic-name}",
+        partitions = { "0", "1" })
     })
-    public void handle(CartUpdateRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
+//    public void handle(CartUpdateRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
+    public void handle(CartUpdateRequest request, @Headers Map<String, Object> headers) {
 
         log.info(logTemplate(headers, "Message received"));
 
         request.setHandlerName(getConsumerName(headers));
 
-        cartUpdateRequestHandler
-            .handle(request, () -> ack.acknowledge(), () -> log.info(logTemplate(headers, "Message accepted")))
+        var isCommited = new AtomicBoolean(false);
+        var execute = cartUpdateRequestHandler.handle(request, () -> {
+//            ack.acknowledge();
+            isCommited.set(true);
+        }, null);
+
+        execute
             .onErrorResume(ex -> Mono.empty())
-            .then(gracefullyWait(10, 50))
+//            .then(gracefullyWait(10, 50))
+            .doOnTerminate(() -> {
+                if (isCommited.get()) {
+                    log.info(logTemplate(headers, "Message committed"));
+                } else {
+                    log.info(logTemplate(headers, "Did not commit message"));
+                }
+            })
             .block()
         ;
     }

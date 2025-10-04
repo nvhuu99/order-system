@@ -1,5 +1,5 @@
 server:
-  port: ${SHOP_API_PORT:8080}
+  port: ${SHOP_SVC_API_PORT:8080}
 
 logging:
   level:
@@ -7,11 +7,6 @@ logging:
     io.opentelemetry.exporter: OFF
     io.opentelemetry.exporter.internal.http.HttpExporter: OFF
     io.lettuce.core: OFF
-
-order-processing-system:
-  messaging:
-    cart-update-requests:
-      topic-name: "cart-update-request"
 
 spring:
   application:
@@ -24,23 +19,6 @@ spring:
           address: ${CART_SVC_HOST:cart-service}:${CART_SVC_GRPC_PORT:9091}
           plaintext: true
 
-  kafka:
-    bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
-    admin:
-      auto-create: true
-    listener:
-      ack-mode: manual
-    consumer:
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      enable-auto-commit: false
-      properties:
-        spring.json.trusted.packages: "*"
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
 management:
   tracing: { enabled: false }
   otlp:
@@ -48,16 +26,3 @@ management:
       endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo-distributor:4318/v1/traces}
     metrics:
       export: { enabled: false }
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: staging
-
-management:
-  tracing:
-    enabled: true
-    sampling:
-      probability: 1.0

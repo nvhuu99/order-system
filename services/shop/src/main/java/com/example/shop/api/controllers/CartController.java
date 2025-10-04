@@ -1,7 +1,7 @@
-package com.example.shop.controllers;
+package com.example.shop.api.controllers;
 
+import com.example.shop.api.responses.ApiResponse;
 import com.example.shop.services.cart_service.CartService;
-import com.example.shop.services.cart_service.entities.Cart;
 import com.example.shop.services.cart_service.entities.CartUpdateRequest;
 import io.grpc.Status;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,24 +17,24 @@ public class CartController {
     private CartService cartSvc;
 
     @GetMapping("{userId}")
-    public Mono<ResponseEntity<Cart>> getCart(@PathVariable String userId) {
+    public Mono<ResponseEntity<ApiResponse>> getCart(@PathVariable String userId) {
         return cartSvc.getCartByUserId(userId)
-            .map(ResponseEntity::ok)
+            .map(cart -> ApiResponse.ok(cart))
             .onErrorResume(ex -> {
                 if (ex instanceof io.grpc.StatusRuntimeException grpcEx) {
                     if (grpcEx.getStatus() == Status.NOT_FOUND) {
-                        return Mono.just(ResponseEntity.notFound().build());
+                        return Mono.just(ApiResponse.notFound());
                     }
                 }
-                return Mono.just(ResponseEntity.internalServerError().build());
+                return Mono.just(ApiResponse.internalServerError(ex));
             });
     }
 
     @PutMapping("{userId}")
     public Mono<?> updateCart(@RequestBody CartUpdateRequest request) {
         return cartSvc.cartUpdateRequest(request)
-            .map(ok -> ResponseEntity.ok("Requested"))
-            .onErrorReturn(ResponseEntity.internalServerError().body("Failed to request"))
+            .map(ok -> ApiResponse.ok(null))
+            .onErrorResume(ex -> Mono.just(ApiResponse.internalServerError(ex)))
         ;
     }
 }

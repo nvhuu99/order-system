@@ -42,7 +42,6 @@
 
     <springProfile name="staging">
         <root level="INFO">
-            <appender-ref ref="CART_EVENTS_CONSUMER"/>
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="LOKI"/>
         </root>

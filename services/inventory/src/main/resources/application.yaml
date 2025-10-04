@@ -1,3 +1,12 @@
+logging:
+  level:
+    io.grpc: ERROR
+    org.springframework.kafka: ERROR
+    org.apache.kafka: ERROR
+    io.opentelemetry.exporter: OFF
+    io.opentelemetry.exporter.internal.http.HttpExporter: OFF
+    io.lettuce.core: OFF
+
 spring:
   application:
     name: inventory_service
@@ -16,16 +25,3 @@ management:
     metrics:
       export:
         enabled: false
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: staging
-
-management:
-  tracing:
-    enabled: true
-    sampling:
-      probability: 1.0
