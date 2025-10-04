@@ -12,16 +12,18 @@ public class LockRepositoryProperties {
         var script = new DefaultRedisScript<Long>("""
             local key = KEYS[1]
             local lock_value = ARGV[1]
-            local ttl = tonumber(ARGV[2])
+            local ttl = tonumber(ARGV[2]) or 0
             local existing_value = redis.call("GET", key)
             if existing_value then
                 if existing_value ~= lock_value then
                     return 0
                 end
-                redis.call("PEXPIRE", key, ttl)
-                return 1
             end
-            redis.call("SET", key, lock_value, "PX", ttl)
+            if ttl == 0 then
+                redis.call("SET", key, lock_value)
+            else
+                redis.call("SET", key, lock_value, "PX", ttl)
+            end
             return 1
         """);
         script.setResultType(Long.class);

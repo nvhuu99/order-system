@@ -42,7 +42,7 @@ public class LockRepositoryTests {
     void whenAcquireAvailableLock_thenNoException() {
         var resource = UUID.randomUUID().toString();
 
-        var acquireLock = lockRepo.acquireLock("A", resource, Duration.ofSeconds(10));
+        var acquireLock = lockRepo.acquireLock("A", resource, 10000L);
 
         assertThatNoException().isThrownBy(acquireLock::block);
     }
@@ -51,7 +51,7 @@ public class LockRepositoryTests {
     void whenAcquireNewLock_thenCreateNewLock() {
         var resource = UUID.randomUUID().toString();
 
-        var resolveType = lockRepo.acquireLock("A", resource, Duration.ofSeconds(10)).block();
+        var resolveType = lockRepo.acquireLock("A", resource, 10000L).block();
 
         assertEquals(LockResolveType.CREATE_NEW, resolveType);
     }
@@ -60,8 +60,8 @@ public class LockRepositoryTests {
     void ifLockAlreadyResolvedBefore_whenAcquireThenResolveFromInMemory() {
         var resource = UUID.randomUUID().toString();
 
-        var firstAttempt = lockRepo.acquireLock("A", resource, Duration.ofSeconds(10));
-        var secAttempt = lockRepo.acquireLock("A", resource, Duration.ofSeconds(10));
+        var firstAttempt = lockRepo.acquireLock("A", resource, 10000L);
+        var secAttempt = lockRepo.acquireLock("A", resource, 10000L);
 
         assertEquals(LockResolveType.IN_MEMORY, firstAttempt.then(secAttempt).block());
     }
@@ -70,8 +70,8 @@ public class LockRepositoryTests {
     void whenAcquireUnavailableLock_thenThrowException() {
         var resource = UUID.randomUUID().toString();
 
-        var firstOwnerAttempt = lockRepo.acquireLock("A", resource, Duration.ofSeconds(10));
-        var secondOwnerAttempt = lockRepo.acquireLock("B", resource, Duration.ofSeconds(10));
+        var firstOwnerAttempt = lockRepo.acquireLock("A", resource, 10000L);
+        var secondOwnerAttempt = lockRepo.acquireLock("B", resource, 10000L);
 
         assertThrows(LockUnavailable.class, firstOwnerAttempt.then(secondOwnerAttempt)::block);
     }

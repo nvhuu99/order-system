@@ -33,7 +33,7 @@ public class LockRepository implements com.example.cart.repositories.lock_repo.L
 
 
     @Override
-    public Mono<LockResolveType> acquireLock(String owner, String resource, Duration ttl) {
+    public Mono<LockResolveType> acquireLock(String owner, String resource, Long expireMs) {
 
         var key = key(resource);
         var redisKey = redisKey(resource);
@@ -47,7 +47,7 @@ public class LockRepository implements com.example.cart.repositories.lock_repo.L
             })
             .onErrorResume(InMemoryLockMissing.class, ex ->
                 redisTemplate
-                    .execute(acquireScript, redisKey, owner, String.valueOf(ttl.toMillis()))
+                    .execute(acquireScript, redisKey, owner, String.valueOf(expireMs))
                     .next()
                     .flatMap(r -> r == 0
                         ? Mono.error(new LockUnavailable(owner, resource))

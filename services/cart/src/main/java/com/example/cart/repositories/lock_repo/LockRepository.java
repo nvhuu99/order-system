@@ -5,5 +5,5 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 
 public interface LockRepository {
-    Mono<LockResolveType> acquireLock(String owner, String resource, Duration ttl);
+    Mono<LockResolveType> acquireLock(String owner, String resource, Long expireMs);
 }
