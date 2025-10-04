@@ -36,7 +36,7 @@ public class CartUpdateRequest {
     String userId;
     Integer versionNumber = 1;
     List<CartUpdateRequestEntry> entries = new ArrayList<>();
-    String handlerName = "unknown";
+    String handlerName = "cart-service";
 
     @JsonIgnore
     public List<String> getProductIds() {

@@ -36,7 +36,8 @@ public class CartUpdateRequestHandler {
     public Map<String, Integer> getObservedCartVersions() { return new HashMap<>(observedCartVersions); }
     public Map<String, Integer> getRequestsHandledTotal() { return new HashMap<>(requestsHandledTotal); }
 
-    private final Set<String> skippedUserIds = ConcurrentHashMap.newKeySet();
+    @Value("${HOSTNAME:cart-service}")
+    private String hostname;
 
     @Value("${order-processing-system.handlers.cart-update-requests.timeout-sec}")
     private Long timeoutSeconds;
@@ -45,7 +46,7 @@ public class CartUpdateRequestHandler {
     private Long waitSeconds;
 
     @Autowired
-    private LockRepository cartLockRepo;
+    private LockRepository lockRepo;
 
     @Autowired
     private CartRepository cartRepo;
@@ -60,32 +61,16 @@ public class CartUpdateRequestHandler {
 
         log.info(logTemplate(request, "Handling cart update request"));
 
-        var lockValue = UUID.randomUUID().toString();
-        var acquireLock = acquireLock(request, lockValue, Duration.ofSeconds(timeoutSeconds));
-        var releaseLock = releaseLock(request, lockValue);
-        var markUserIdAsSkipped = Mono.fromRunnable(() -> skippedUserIds.add(request.getUserId()));
         var commit = Mono.fromRunnable(() -> {
             if (commitRequest != null) {
                 commitRequest.run();
             }
         });
 
-        return skipIfMarked(request)
-            .then(acquireLock)
+        return acquireLock(request)
             .then(updateCart(request))
-            .then(releaseLock.then(commit))
-            .onErrorResume(
-                SkippedUserId.class, ex -> commit.then(Mono.empty())
-            )
-            .onErrorResume(
-                LockUnavailable.class, ex -> markUserIdAsSkipped.then(commit).then(Mono.empty())
-            )
-            .onErrorResume(
-                InvalidCartUpdateRequestVersion.class, ex -> markUserIdAsSkipped.then(releaseLock).then(commit).then(Mono.empty())
-            )
-            .onErrorResume(
-                ex -> !(ex instanceof LockReleaseFailure), ex -> releaseLock.then(Mono.error(ex))
-            )
+            .onErrorResume(LockUnavailable.class, ex -> commit.then(Mono.empty()))
+            .onErrorResume(InvalidCartUpdateRequestVersion.class, ex -> commit.then(Mono.empty()))
             .timeout(Duration.ofSeconds(timeoutSeconds))
             .doOnSuccess(cart -> {
                 log.info(logTemplate(request, "Handle cart update request successfully"));
@@ -97,35 +82,14 @@ public class CartUpdateRequestHandler {
         ;
     }
 
-    private Mono<Void> skipIfMarked(CartUpdateRequest request) {
-        return Mono
-            .fromRunnable(() -> {
-                if (skippedUserIds.contains(request.getUserId())) {
-                    log.info(logTemplate(request, "UserId marked as skipped"));
-                    throw new SkippedUserId();
-                }
-            })
-        ;
-    }
+    private Mono<Void> acquireLock(CartUpdateRequest request) {
 
-    private Mono<Void> acquireLock(CartUpdateRequest request, String lockValue, Duration lockTTL) {
         return Mono
-            .defer(() -> cartLockRepo.acquireLock("carts:" + request.getUserId(), lockValue, lockTTL))
+            .defer(() -> lockRepo.acquireLock(hostname, "carts:" + request.getUserId(), 0L).then())
             .retryWhen(weakRetrySpec().filter(ex -> !(ex instanceof LockUnavailable)))
             .timeout(Duration.ofSeconds(waitSeconds))
             .doOnError(ex -> log.error(logTemplate(request, "Lock acquire failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "Lock acquire success")))
-        ;
-    }
-
-    private Mono<Void> releaseLock(CartUpdateRequest request, String lockValue) {
-        return Mono
-            .defer(() -> cartLockRepo.releaseLock("carts:" + request.getUserId(), lockValue))
-            .retryWhen(exponentialRetrySpec())
-            .timeout(Duration.ofSeconds(waitSeconds))
-            .doOnError(ex -> log.error(logTemplate(request, "Lock release failed: {}"), exceptionCause(ex).getMessage()))
-            .doOnSuccess(ok -> log.debug(logTemplate(request, "Lock release success")))
-            .onErrorMap(ex -> new LockReleaseFailure())
         ;
     }
 

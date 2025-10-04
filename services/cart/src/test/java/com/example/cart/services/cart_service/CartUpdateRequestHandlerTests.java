@@ -77,7 +77,7 @@ public class CartUpdateRequestHandlerTests {
         var request = buildRequest(userId);
 
         var acquireLockAndCallHandler = lockRepo
-            .acquireLock("carts:"+ userId, "1", Duration.ofSeconds(3))
+            .acquireLock("carts:"+ userId, "1", 10000L)
             .then(handler.handle(request, () -> commited.set(true), () -> saved.set(true)))
         ;
 

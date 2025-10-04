@@ -33,8 +33,7 @@ public class CartEventsConsumer {
         topic = "${order-processing-system.messaging.cart-update-requests.topic-name}",
         partitions = { "0", "1" })
     })
-//    public void handle(CartUpdateRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
-    public void handle(CartUpdateRequest request, @Headers Map<String, Object> headers) {
+    public void handle(CartUpdateRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
 
         log.info(logTemplate(headers, "Message received"));
 
@@ -42,13 +41,12 @@ public class CartEventsConsumer {
 
         var isCommited = new AtomicBoolean(false);
         var execute = cartUpdateRequestHandler.handle(request, () -> {
-//            ack.acknowledge();
+            ack.acknowledge();
             isCommited.set(true);
         }, null);
 
         execute
             .onErrorResume(ex -> Mono.empty())
-//            .then(gracefullyWait(10, 50))
             .doOnTerminate(() -> {
                 if (isCommited.get()) {
                     log.info(logTemplate(headers, "Message committed"));
@@ -72,7 +70,7 @@ public class CartEventsConsumer {
             headers.get(KafkaHeaders.RECEIVED_PARTITION),
             headers.get(KafkaHeaders.GROUP_ID),
             headers.get(KafkaHeaders.OFFSET),
-            env.getProperty("HOSTNAME", "unknown")
+            env.getProperty("HOSTNAME", "cart-service")
         );
     }
 

@@ -6,9 +6,9 @@ logging:
     io.grpc: ERROR
     org.springframework.kafka: OFF
     org.apache.kafka: OFF
+    io.lettuce.core: OFF
     io.opentelemetry.exporter: OFF
     io.opentelemetry.exporter.internal.http.HttpExporter: OFF
-    io.lettuce.core: OFF
 
 order-processing-system:
   messaging:
@@ -42,17 +42,17 @@ spring:
           plaintext: true
 
   kafka:
-    bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
+    bootstrap-servers: ${KAFKA_HOST:kafka-broker}:${KAFKA_PORT:9092}
     admin:
       auto-create: false
-#    listener:
-#      ack-mode: manual
+    listener:
+      ack-mode: manual
     consumer:
       group-id: ${HOSTNAME:cart-service}
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      enable-auto-commit: true
+      enable-auto-commit: false
       properties:
         spring.json.trusted.packages: "*"
     producer:

@@ -123,8 +123,6 @@ services:
     command: ["run", "/scripts/cart-update-load-test.js"]
     env_file:
       - .env.docker
-    environment:
-      HOSTNAME: cart-update-load-test
     volumes:
       - ./k6/scripts/cart-service/cart-update-load-test.js:/scripts/cart-update-load-test.js
     deploy:
