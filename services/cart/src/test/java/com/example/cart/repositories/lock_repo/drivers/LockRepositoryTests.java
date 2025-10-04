@@ -1,8 +1,8 @@
 package com.example.cart.repositories.lock_repo.drivers;
 
 import com.example.cart.repositories.lock_repo.LockRepository;
+import com.example.cart.repositories.lock_repo.LockResolveType;
 import com.example.cart.repositories.lock_repo.exceptions.LockUnavailable;
-import com.example.cart.repositories.lock_repo.exceptions.LockValueMismatch;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,12 +12,12 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -40,47 +40,39 @@ public class LockRepositoryTests {
 
     @Test
     void whenAcquireAvailableLock_thenNoException() {
-        var randomResourceId = UUID.randomUUID().toString();
-        var acquireLock = lockRepo.acquireLock(randomResourceId, randomResourceId, Duration.ofSeconds(10));
+        var resource = UUID.randomUUID().toString();
+
+        var acquireLock = lockRepo.acquireLock("A", resource, Duration.ofSeconds(10));
 
         assertThatNoException().isThrownBy(acquireLock::block);
     }
 
     @Test
-    void whenAcquireUnAvailableLock_thenThrowException() {
-        var randomResourceId = UUID.randomUUID().toString();
-        var acquireLock1 = lockRepo.acquireLock(randomResourceId, randomResourceId, Duration.ofSeconds(10));
-        var acquireLock2 = lockRepo.acquireLock(randomResourceId, randomResourceId, Duration.ofSeconds(10));
+    void whenAcquireNewLock_thenCreateNewLock() {
+        var resource = UUID.randomUUID().toString();
 
-        assertThrows(LockUnavailable.class, () -> acquireLock1.then(acquireLock2).block());
+        var resolveType = lockRepo.acquireLock("A", resource, Duration.ofSeconds(10)).block();
+
+        assertEquals(LockResolveType.CREATE_NEW, resolveType);
     }
 
     @Test
-    void whenReleaseLockWithCorrectValue_thenNoException() {
-        var randomResourceId = UUID.randomUUID().toString();
-        var acquireLock = lockRepo.acquireLock(randomResourceId, randomResourceId, Duration.ofSeconds(10));
-        var releaseLock = lockRepo.releaseLock(randomResourceId, randomResourceId);
+    void ifLockAlreadyResolvedBefore_whenAcquireThenResolveFromInMemory() {
+        var resource = UUID.randomUUID().toString();
 
-        assertThatNoException().isThrownBy(() -> acquireLock.then(releaseLock).block());
+        var firstAttempt = lockRepo.acquireLock("A", resource, Duration.ofSeconds(10));
+        var secAttempt = lockRepo.acquireLock("A", resource, Duration.ofSeconds(10));
+
+        assertEquals(LockResolveType.IN_MEMORY, firstAttempt.then(secAttempt).block());
     }
 
     @Test
-    void whenLockValueMismatch_thenThrowException() {
-        var randomResourceId = UUID.randomUUID().toString();
-        var acquireLock = lockRepo.acquireLock(randomResourceId, randomResourceId, Duration.ofSeconds(10));
-        var releaseLock = lockRepo.releaseLock(randomResourceId, "wrongValue");
+    void whenAcquireUnavailableLock_thenThrowException() {
+        var resource = UUID.randomUUID().toString();
 
-        assertThrows(LockValueMismatch.class, () -> acquireLock.then(releaseLock).block());
-    }
+        var firstOwnerAttempt = lockRepo.acquireLock("A", resource, Duration.ofSeconds(10));
+        var secondOwnerAttempt = lockRepo.acquireLock("B", resource, Duration.ofSeconds(10));
 
-    @Test
-    void afterLockExpires_thenAcquireLockSuccess() {
-        var randomResourceId = UUID.randomUUID().toString();
-        var acquireLock1 = lockRepo.acquireLock(randomResourceId, randomResourceId, Duration.ofMillis(200));
-        var acquireLock2 = lockRepo.acquireLock(randomResourceId, randomResourceId, Duration.ofSeconds(10));
-
-        assertThatNoException().isThrownBy(
-            () -> acquireLock1.then(acquireLock2.retryWhen(Retry.fixedDelay(5, Duration.ofMillis(300)))).block()
-        );
+        assertThrows(LockUnavailable.class, firstOwnerAttempt.then(secondOwnerAttempt)::block);
     }
 }

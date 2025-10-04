@@ -10,29 +10,19 @@ public class LockRepositoryProperties {
     @Bean(name = "lockAcquireLuaScript")
     public DefaultRedisScript<Long> lockAcquireLuaScript() {
         var script = new DefaultRedisScript<Long>("""
-            local keys = KEYS
+            local key = KEYS[1]
             local lock_value = ARGV[1]
             local ttl = tonumber(ARGV[2])
-            if redis.call("EXISTS", keys[1]) == 1 then
-              return 0
+            local existing_value = redis.call("GET", key)
+            if existing_value then
+                if existing_value ~= lock_value then
+                    return 0
+                end
+                redis.call("PEXPIRE", key, ttl)
+                return 1
             end
-            redis.call("SET", keys[1], lock_value, "PX", ttl)
+            redis.call("SET", key, lock_value, "PX", ttl)
             return 1
-        """);
-        script.setResultType(Long.class);
-        return script;
-    }
-
-    @Bean(name = "lockReleaseLuaScript")
-    public DefaultRedisScript<Long> lockReleaseLuaScript() {
-        var script = new DefaultRedisScript<Long>("""
-            local keys = KEYS
-            local lock_value = ARGV[1]
-            if redis.call("GET", keys[1]) == lock_value then
-              redis.call("DEL", keys[1])
-              return 1
-            end
-            return 0
         """);
         script.setResultType(Long.class);
         return script;
