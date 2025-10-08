@@ -117,35 +117,22 @@ services:
     depends_on:
       - cart-service
 
-  cart-update-load-test:
-    image: grafana/k6:latest
-    container_name: cart-request
-    command: ["run", "/scripts/cart-update-load-test.js"]
-    env_file:
-      - .env.docker
-    volumes:
-      - ./k6/scripts/cart-service/cart-update-load-test.js:/scripts/cart-update-load-test.js
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 128M
-        reservations:
-          cpus: '0.2'
-          memory: 128M
-    restart: "no"
-    networks:
-      - order-processing-system
-
-#  go-kafka-producer:
-#    container_name: go-kafka-producer
-#    build:
-#      context: ./services/kafka-batch-producer
-#      dockerfile: Dockerfile
-#    depends_on:
-#      - kafka
-#    environment:
-#      KAFKA_BROKER: kafka:9092
-#    command: ["./producer"]
+#  cart-update-load-test:
+#    image: grafana/k6:latest
+#    container_name: cart-request
+#    command: ["run", "/scripts/cart-update-load-test.js"]
+#    env_file:
+#      - .env.docker
+#    volumes:
+#      - ./k6/scripts/cart-service/cart-update-load-test.js:/scripts/cart-update-load-test.js
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.2'
+#          memory: 128M
+#        reservations:
+#          cpus: '0.2'
+#          memory: 128M
+#    restart: "no"
 #    networks:
 #      - order-processing-system
