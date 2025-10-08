@@ -1,0 +1,28 @@
+server:
+  port: ${SHOP_SVC_API_PORT:8080}
+
+logging:
+  level:
+    io.grpc: ERROR
+    io.opentelemetry.exporter: OFF
+    io.opentelemetry.exporter.internal.http.HttpExporter: OFF
+    io.lettuce.core: OFF
+
+spring:
+  application:
+    name: shop-service
+
+  grpc:
+    client:
+      channels:
+        cart-service:
+          address: ${CART_SVC_HOST:cart-service}:${CART_SVC_GRPC_PORT:9091}
+          plaintext: true
+
+management:
+  tracing: { enabled: false }
+  otlp:
+    tracing:
+      endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo-distributor:4318/v1/traces}
+    metrics:
+      export: { enabled: false }

@@ -1,6 +1,0 @@
-spring:
-  application:
-    name: notification
-
-  config:
-    import: configserver:service.notification.yaml

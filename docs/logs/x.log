@@ -1,0 +1,23 @@
+07:32:24,556 |-WARN in ch.qos.logback.core.model.processor.ImplicitModelHandler - Ignoring unknown property [batch] in [com.github.loki4j.logback.Loki4jAppender]
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.5)
+
+07:32:25.369 - INFO  - c.example.cart.CartApplication - Starting CartApplication v0.0.1-SNAPSHOT using Java 21 with PID 1 (/app/app.jar started by root in /app)
+07:32:25.376 - INFO  - c.example.cart.CartApplication - The following 1 profile is active: "staging"
+07:32:28.762 - INFO  - o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+07:32:28.767 - INFO  - o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+07:32:28.853 - INFO  - o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 65 ms. Found 0 Redis repository interfaces.
+07:32:35.659 - INFO  - o.s.b.a.e.w.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+07:32:37.216 - INFO  - o.s.b.w.e.netty.NettyWebServer - Netty started on port 8081 (http)
+07:32:37.865 - INFO  - o.s.g.s.NettyGrpcServerFactory - Registered gRPC service: cart.CartService
+07:32:37.866 - INFO  - o.s.g.s.NettyGrpcServerFactory - Registered gRPC service: grpc.reflection.v1.ServerReflection
+07:32:37.866 - INFO  - o.s.g.s.NettyGrpcServerFactory - Registered gRPC service: grpc.health.v1.Health
+07:32:37.956 - INFO  - o.s.g.s.l.GrpcServerLifecycle - gRPC Server started, listening on address: [/[0:0:0:0:0:0:0:0]:9091]
+07:32:38.009 - INFO  - c.example.cart.CartApplication - Started CartApplication in 14.996 seconds (process running for 16.66)

@@ -7,33 +7,26 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 @Configuration
 public class LockRepositoryProperties {
 
-    @Bean(name = "lockKeyPrefix")
-    public String lockKeyPrefix() { return "distributed_lock:"; }
-
     @Bean(name = "lockAcquireLuaScript")
     public DefaultRedisScript<Long> lockAcquireLuaScript() {
-        return new DefaultRedisScript<>("""
-            local keys = KEYS
+        var script = new DefaultRedisScript<Long>("""
+            local key = KEYS[1]
             local lock_value = ARGV[1]
-            local ttl = tonumber(ARGV[2])
-            if redis.call("EXISTS", keys[1]) == 1 then
-              return 0
+            local ttl = tonumber(ARGV[2]) or 0
+            local existing_value = redis.call("GET", key)
+            if existing_value then
+                if existing_value ~= lock_value then
+                    return 0
+                end
             end
-            redis.call("SET", keys[1], lock_value, "PX", ttl)
+            if ttl == 0 then
+                redis.call("SET", key, lock_value)
+            else
+                redis.call("SET", key, lock_value, "PX", ttl)
+            end
             return 1
         """);
-    }
-
-    @Bean(name = "lockReleaseLuaScript")
-    public DefaultRedisScript<Long> lockReleaseLuaScript() {
-        return new DefaultRedisScript<>("""
-            local keys = KEYS
-            local lock_value = ARGV[1]
-            if redis.call("GET", keys[1]) == lock_value then
-              redis.call("DEL", keys[1])
-              return 1
-            end
-            return 0
-        """);
+        script.setResultType(Long.class);
+        return script;
     }
 }

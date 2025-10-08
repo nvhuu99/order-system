@@ -1,6 +1,5 @@
 package com.example.inventory.services.dto;
 
-
 import com.example.inventory.entities.ProductAvailability;
 
 public class ProductAvailabilityDTO {

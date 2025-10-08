@@ -4,11 +4,13 @@ import com.example.cart.entities.Cart;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
+@NoArgsConstructor
 public class CartValidation {
 
     public enum CartValidationType {
@@ -17,9 +19,9 @@ public class CartValidation {
         PRODUCT_UNAVAILABLE
     }
 
-    private final String productId;
-    private final String message;
-    private final CartValidationType type;
+    private String productId;
+    private String message;
+    private CartValidationType type;
 
     public static CartValidation outOfStock(Cart.CartItem cartItem) {
         return new CartValidation(

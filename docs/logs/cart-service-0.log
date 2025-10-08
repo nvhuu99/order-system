@@ -1,0 +1,102 @@
+2025-09-30 09:59:07.913 | 02:59:07,911 |-WARN in ch.qos.logback.core.model.processor.AppenderModelHandler - Appender named [LOKI] not referenced. Skipping further processing.
+2025-09-30 09:59:07.995 |
+2025-09-30 09:59:07.995 |   .   ____          _            __ _ _
+2025-09-30 09:59:07.995 |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+2025-09-30 09:59:07.995 | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+2025-09-30 09:59:07.995 |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+2025-09-30 09:59:07.995 |   '  |____| .__|_| |_|_| |_\__, | / / / /
+2025-09-30 09:59:07.995 |  =========|_|==============|___/=/_/_/_/
+2025-09-30 09:59:07.995 |
+2025-09-30 09:59:07.996 |  :: Spring Boot ::                (v3.5.5)
+2025-09-30 09:59:07.996 |
+2025-09-30 09:59:08.150 | 02:59:08.148 - INFO  - c.example.cart.CartApplication - Starting CartApplication v0.0.1-SNAPSHOT using Java 21 with PID 1 (/app/app.jar started by root in /app)
+2025-09-30 09:59:08.151 | 02:59:08.150 - INFO  - c.example.cart.CartApplication - The following 1 profile is active: "development"
+2025-09-30 09:59:11.024 | 02:59:11.023 - INFO  - o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-09-30 09:59:11.026 | 02:59:11.026 - INFO  - o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-09-30 09:59:11.104 | 02:59:11.104 - INFO  - o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 12 ms. Found 0 Redis repository interfaces.
+2025-09-30 09:59:17.098 | 02:59:17.098 - INFO  - o.s.b.a.e.w.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2025-09-30 09:59:19.500 | 02:59:19.500 - INFO  - o.s.b.w.e.netty.NettyWebServer - Netty started on port 8081 (http)
+2025-09-30 09:59:19.897 | 02:59:19.897 - INFO  - o.s.g.s.NettyGrpcServerFactory - Registered gRPC service: cart.CartService
+2025-09-30 09:59:19.898 | 02:59:19.897 - INFO  - o.s.g.s.NettyGrpcServerFactory - Registered gRPC service: grpc.reflection.v1.ServerReflection
+2025-09-30 09:59:19.898 | 02:59:19.897 - INFO  - o.s.g.s.NettyGrpcServerFactory - Registered gRPC service: grpc.health.v1.Health
+2025-09-30 09:59:20.000 | 02:59:20.000 - INFO  - o.s.g.s.l.GrpcServerLifecycle - gRPC Server started, listening on address: [/[0:0:0:0:0:0:0:0]:9091]
+2025-09-30 09:59:20.100 | 02:59:20.099 - INFO  - c.example.cart.CartApplication - Started CartApplication in 13.885 seconds (process running for 15.84)
+2025-09-30 09:59:52.414 | 02:59:52.413 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_2 - partition=1 - group=group-1 - offset=20 - hostname=cart-service-0 - Message received
+2025-09-30 09:59:52.414 | 02:59:52.413 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_1 - partition=0 - group=group-0 - offset=20 - hostname=cart-service-0 - Message received
+2025-09-30 09:59:52.415 | 02:59:52.415 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Handling request
+2025-09-30 09:59:52.415 | 02:59:52.415 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Handling request
+2025-09-30 09:59:53.412 | 02:59:53.411 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Lock acquire success
+2025-09-30 09:59:53.702 | 02:59:53.702 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Lock acquire success
+2025-09-30 09:59:53.712 | 02:59:53.712 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Cart not found
+2025-09-30 09:59:53.713 | 02:59:53.712 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Cart not found
+2025-09-30 09:59:54.010 | 02:59:54.010 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.010 | 02:59:54.010 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.014 | 02:59:54.014 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Build cart success
+2025-09-30 09:59:54.014 | 02:59:54.014 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Build cart success
+2025-09-30 09:59:54.118 | 02:59:54.118 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Saved cart success
+2025-09-30 09:59:54.120 | 02:59:54.120 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Saved cart success
+2025-09-30 09:59:54.123 | 02:59:54.123 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Lock release success
+2025-09-30 09:59:54.124 | 02:59:54.124 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Request Committed
+2025-09-30 09:59:54.124 | 02:59:54.124 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=1 - handler=consumer-group-1-1Handled request
+2025-09-30 09:59:54.125 | 02:59:54.124 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_2 - partition=1 - group=group-1 - offset=20 - hostname=cart-service-0 - Message accepted
+2025-09-30 09:59:54.126 | 02:59:54.125 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Lock release success
+2025-09-30 09:59:54.126 | 02:59:54.126 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Request Committed
+2025-09-30 09:59:54.126 | 02:59:54.126 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=1 - handler=consumer-group-0-0Handled request
+2025-09-30 09:59:54.126 | 02:59:54.126 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_1 - partition=0 - group=group-0 - offset=20 - hostname=cart-service-0 - Message accepted
+2025-09-30 09:59:54.145 | 02:59:54.144 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_1 - partition=0 - group=group-0 - offset=21 - hostname=cart-service-0 - Message received
+2025-09-30 09:59:54.145 | 02:59:54.144 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Handling request
+2025-09-30 09:59:54.148 | 02:59:54.147 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Lock acquire success
+2025-09-30 09:59:54.150 | 02:59:54.149 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_2 - partition=1 - group=group-1 - offset=21 - hostname=cart-service-0 - Message received
+2025-09-30 09:59:54.150 | 02:59:54.149 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Handling request
+2025-09-30 09:59:54.191 | 02:59:54.191 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.202 | 02:59:54.201 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Cart found
+2025-09-30 09:59:54.202 | 02:59:54.202 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Build cart success
+2025-09-30 09:59:54.207 | 02:59:54.206 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Lock acquire success
+2025-09-30 09:59:54.212 | 02:59:54.212 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Saved cart success
+2025-09-30 09:59:54.215 | 02:59:54.214 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Cart found
+2025-09-30 09:59:54.216 | 02:59:54.215 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Lock release success
+2025-09-30 09:59:54.216 | 02:59:54.215 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Request Committed
+2025-09-30 09:59:54.216 | 02:59:54.216 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_1 - cart_ver=2 - handler=consumer-group-0-0Handled request
+2025-09-30 09:59:54.216 | 02:59:54.216 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_1 - partition=0 - group=group-0 - offset=21 - hostname=cart-service-0 - Message accepted
+2025-09-30 09:59:54.216 | 02:59:54.216 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.217 | 02:59:54.217 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Build cart success
+2025-09-30 09:59:54.220 | 02:59:54.219 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Saved cart success
+2025-09-30 09:59:54.222 | 02:59:54.221 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Lock release success
+2025-09-30 09:59:54.222 | 02:59:54.222 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Request Committed
+2025-09-30 09:59:54.222 | 02:59:54.222 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_2 - cart_ver=2 - handler=consumer-group-1-1Handled request
+2025-09-30 09:59:54.222 | 02:59:54.222 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_2 - partition=1 - group=group-1 - offset=21 - hostname=cart-service-0 - Message accepted
+2025-09-30 09:59:54.229 | 02:59:54.229 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_3 - partition=0 - group=group-0 - offset=22 - hostname=cart-service-0 - Message received
+2025-09-30 09:59:54.229 | 02:59:54.229 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Handling request
+2025-09-30 09:59:54.232 | 02:59:54.231 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Lock acquire success
+2025-09-30 09:59:54.238 | 02:59:54.237 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_4 - partition=1 - group=group-1 - offset=22 - hostname=cart-service-0 - Message received
+2025-09-30 09:59:54.238 | 02:59:54.237 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Handling request
+2025-09-30 09:59:54.286 | 02:59:54.286 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Cart found
+2025-09-30 09:59:54.287 | 02:59:54.287 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Lock acquire success
+2025-09-30 09:59:54.288 | 02:59:54.288 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.288 | 02:59:54.288 - ERROR - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Build cart failed: Cart update request version (1) must be one unit ahead the current version (1)
+2025-09-30 09:59:54.293 | 02:59:54.293 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Cart found
+2025-09-30 09:59:54.294 | 02:59:54.294 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Lock release success
+2025-09-30 09:59:54.295 | 02:59:54.294 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=1 - handler=consumer-group-0-0Request Committed
+2025-09-30 09:59:54.297 | 02:59:54.296 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.297 | 02:59:54.297 - ERROR - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Build cart failed: Cart update request version (1) must be one unit ahead the current version (2)
+2025-09-30 09:59:54.299 | 02:59:54.299 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Lock release success
+2025-09-30 09:59:54.299 | 02:59:54.299 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=1 - handler=consumer-group-1-1Request Committed
+2025-09-30 09:59:54.328 | 02:59:54.328 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_3 - partition=0 - group=group-0 - offset=23 - hostname=cart-service-0 - Message received
+2025-09-30 09:59:54.328 | 02:59:54.328 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Handling request
+2025-09-30 09:59:54.331 | 02:59:54.331 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Lock acquire success
+2025-09-30 09:59:54.335 | 02:59:54.335 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Cart found
+2025-09-30 09:59:54.339 | 02:59:54.339 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.339 | 02:59:54.339 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Build cart success
+2025-09-30 09:59:54.341 | 02:59:54.341 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_4 - partition=1 - group=group-1 - offset=23 - hostname=cart-service-0 - Message received
+2025-09-30 09:59:54.341 | 02:59:54.341 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Handling request
+2025-09-30 09:59:54.342 | 02:59:54.342 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Saved cart success
+2025-09-30 09:59:54.344 | 02:59:54.344 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Lock release success
+2025-09-30 09:59:54.344 | 02:59:54.344 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Request Committed
+2025-09-30 09:59:54.344 | 02:59:54.344 - INFO  - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_3 - cart_ver=2 - handler=consumer-group-0-0Handled request
+2025-09-30 09:59:54.344 | 02:59:54.344 - INFO  - c.e.c.s.c.CartEventsConsumer - key=user_3 - partition=0 - group=group-0 - offset=23 - hostname=cart-service-0 - Message accepted
+2025-09-30 09:59:54.345 | 02:59:54.344 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Lock acquire success
+2025-09-30 09:59:54.352 | 02:59:54.351 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Cart found
+2025-09-30 09:59:54.355 | 02:59:54.355 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Get product infos success - IDs: [P001]
+2025-09-30 09:59:54.355 | 02:59:54.355 - ERROR - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Build cart failed: Cart update request version (2) must be one unit ahead the current version (2)
+2025-09-30 09:59:54.385 | 02:59:54.385 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Lock release success
+2025-09-30 09:59:54.385 | 02:59:54.385 - DEBUG - c.e.c.s.c.CartUpdateRequestHandler - user_id=user_4 - cart_ver=2 - handler=consumer-group-1-1Request Committed

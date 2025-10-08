@@ -6,134 +6,133 @@ networks:
 
 services:
   redis:
+    container_name: redis-master
+    hostname: redis-master
+    restart: unless-stopped
     image: redis:7.4.2-alpine
-    container_name: redis
-    hostname: redis
+    cpus: "0.1"
+    mem_limit: "128mb"
     ports:
       - "6379:6379"
     networks:
         - order-processing-system
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.4
-    container_name: zookeeper
-    hostname: zookeeper
+  kafka-controller:
+    image: apache/kafka:latest
+    container_name: kafka-controller
+    hostname: kafka-controller
+    restart: unless-stopped
     ports:
-      - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+      - 9093:9093
     networks:
       - order-processing-system
-
-  kafka:
-    image: confluentinc/cp-kafka:7.4.4
-    container_name: kafka
-    hostname: kafka
-    ports:
-      - "9092:9092"
-    depends_on:
-      - zookeeper
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: controller
+      KAFKA_LISTENERS: CONTROLLER://:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller:9093
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+  kafka-broker:
+    image: apache/kafka:latest
+    container_name: kafka-broker
+    hostname: kafka-broker
+    restart: unless-stopped
+    ports:
+      - 9092:9092
+    networks:
+      - order-processing-system
+    depends_on:
+      - kafka-controller
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_LISTENERS: 'PLAINTEXT://:19092,PLAINTEXT_HOST://:9092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-broker:19092,PLAINTEXT_HOST://kafka-broker:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller:9093
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-    networks:
-      - order-processing-system
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
 
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
-    ports:
-      - "8090:8080"
-    depends_on:
-      - kafka
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-    networks:
-      - order-processing-system
-
-  eureka-server:
-    container_name: eureka-server
-    build:
-      context: ./services/eureka-server
-      dockerfile: Dockerfile
+  inventory-service:
+    container_name: inventory-service
+    hostname: inventory-service
     restart: unless-stopped
-    ports:
-      - "8761:8761"
-    networks:
-      - order-processing-system
-
-  centralized-config:
-    container_name: centralized-config
-    env_file:
-      - .env.docker
-    build:
-      context: ./services/centralized-config
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    ports:
-      - "8888:8888"
-    networks:
-      - order-processing-system
-    depends_on:
-      - eureka-server
-
-  inventory:
-    container_name: inventory
     env_file:
       - .env.docker
     build:
       context: ./services/inventory
       dockerfile: Dockerfile
-    restart: unless-stopped
+    cpus: "1"
+    mem_limit: "512mb"
     ports:
-      - "9091:9091"
+      - "9090:9090"
     networks:
       - order-processing-system
-    depends_on:
-      - eureka-server
-      - centralized-config
-      - kafka
 
-  cart:
-    container_name: cart
+  cart-service:
+    container_name: cart-service
+    hostname: cart-service
+    restart: unless-stopped
     env_file:
       - .env.docker
     build:
       context: ./services/cart
       dockerfile: Dockerfile
-    restart: unless-stopped
+    cpus: "1"
+    mem_limit: "512mb"
     ports:
-      - "8082:8082"
+      - "9094:9091"
+      - "8081:8081"
+    depends_on:
+      - inventory-service
+      - redis
+      - kafka-broker
+    networks:
+      - order-processing-system
+
+  shop-service:
+    container_name: shop-service
+    hostname: shop-service
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/shop
+      dockerfile: Dockerfile
+    cpus: "0.25"
+    mem_limit: "368mb"
+    ports:
+      - "8080:8080"
     networks:
       - order-processing-system
     depends_on:
-      - eureka-server
-      - centralized-config
-      - kafka
-      - redis
-      - inventory
+      - cart-service
 
-#  shop-app:
-#    container_name: shop-app
+#  cart-update-load-test:
+#    image: grafana/k6:latest
+#    container_name: cart-request
+#    command: ["run", "/scripts/cart-update-load-test.js"]
 #    env_file:
 #      - .env.docker
-#    build:
-#      context: ./services/shop-app
-#      dockerfile: Dockerfile
-#    restart: unless-stopped
-#    ports:
-#      - "8081:8081"
+#    volumes:
+#      - ./k6/scripts/cart-service/cart-update-load-test.js:/scripts/cart-update-load-test.js
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.2'
+#          memory: 128M
+#        reservations:
+#          cpus: '0.2'
+#          memory: 128M
+#    restart: "no"
 #    networks:
 #      - order-processing-system
-#    depends_on:
-#      - kafka
-#      - redis
-#      - eureka-server
-#      - centralized-config

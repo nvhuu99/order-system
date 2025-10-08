@@ -1,0 +1,374 @@
+level=warn ts=2025-09-25T08:19:26.395341134Z caller=main.go:130 msg="-- CONFIGURATION WARNINGS --"
+level=warn ts=2025-09-25T08:19:26.39553269Z caller=main.go:136 msg="Local backend will not correctly retrieve traces with a distributed deployment unless all components have access to the same disk. You should probably be using object storage as a backend."
+level=info ts=2025-09-25T08:19:26.653615093Z caller=main.go:114 msg="Starting Tempo" version="(version=v2.8.2, branch=HEAD, revision=6b9261586)" target=metrics-generator
+level=info ts=2025-09-25T08:19:26.673986134Z caller=server.go:265 msg="server listening on addresses" http=[::]:3200 grpc=[::]:9095
+level=info ts=2025-09-25T08:19:26.779965098Z caller=module_service.go:82 msg=starting module=optional-store
+level=info ts=2025-09-25T08:19:26.78092703Z caller=module_service.go:82 msg=starting module=internal-server
+level=info ts=2025-09-25T08:19:26.796589274Z caller=memberlist_client.go:463 msg="Using memberlist cluster label and node name" cluster_label=tempo.monitoring node=tempo-metrics-generator-5dc5c6dfd-d6r56-08292a6b
+level=info ts=2025-09-25T08:19:26.857747425Z caller=module_service.go:82 msg=starting module=server
+level=info ts=2025-09-25T08:19:26.952835838Z caller=module_service.go:82 msg=starting module=overrides
+level=info ts=2025-09-25T08:19:26.952823128Z caller=module_service.go:82 msg=starting module=memberlist-kv
+level=info ts=2025-09-25T08:19:26.9529979Z caller=module_service.go:82 msg=starting module=usage-report
+level=info ts=2025-09-25T08:19:26.953125494Z caller=module_service.go:82 msg=starting module=ring
+level=error ts=2025-09-25T08:19:46.882433964Z caller=memberlist_client.go:762 msg="failed to resolve members" addrs=dns+tempo-gossip-ring:7946 err="lookup IP addresses \"tempo-gossip-ring\": lookup tempo-gossip-ring on 10.96.0.10:53: read udp 10.244.1.4:40210->10.96.0.10:53: read: connection refused"
+level=info ts=2025-09-25T08:19:46.882495568Z caller=memberlist_client.go:594 msg="memberlist fast-join starting" nodes_found=0 to_join=0
+level=warn ts=2025-09-25T08:19:46.882504619Z caller=memberlist_client.go:614 msg="memberlist fast-join finished" joined_nodes=0 elapsed_time=20.027770605s
+level=info ts=2025-09-25T08:19:46.882528533Z caller=memberlist_client.go:626 phase=startup msg="joining memberlist cluster" join_members=dns+tempo-gossip-ring:7946
+level=info ts=2025-09-25T08:19:46.882622333Z caller=ring.go:361 msg="ring doesn't exist in KV store yet"
+level=info ts=2025-09-25T08:19:46.883225394Z caller=module_service.go:82 msg=starting module=metrics-generator
+level=info ts=2025-09-25T08:19:46.883309739Z caller=basic_lifecycler.go:301 msg="instance not found in the ring" instance=tempo-metrics-generator-5dc5c6dfd-d6r56 ring=metrics-generator
+level=info ts=2025-09-25T08:19:46.883609546Z caller=app.go:211 msg="Tempo started"
+level=error ts=2025-09-25T08:19:56.719760228Z caller=memberlist_client.go:762 msg="failed to resolve members" addrs=dns+tempo-gossip-ring:7946 err="lookup IP addresses \"tempo-gossip-ring\": lookup tempo-gossip-ring on 10.96.0.10:53: read udp 10.244.1.4:51080->10.96.0.10:53: read: connection refused"
+level=warn ts=2025-09-25T08:19:56.719810984Z caller=memberlist_client.go:660 phase=startup msg="joining memberlist cluster" attempts=1 max_attempts=10 err="found no nodes to join"
+level=error ts=2025-09-25T08:20:08.050201404Z caller=memberlist_client.go:762 msg="failed to resolve members" addrs=dns+tempo-gossip-ring:7946 err="lookup IP addresses \"tempo-gossip-ring\": lookup tempo-gossip-ring on 10.96.0.10:53: read udp 10.244.1.4:57764->10.96.0.10:53: read: connection refused"
+level=warn ts=2025-09-25T08:20:08.050239098Z caller=memberlist_client.go:660 phase=startup msg="joining memberlist cluster" attempts=2 max_attempts=10 err="found no nodes to join"
+level=info ts=2025-09-25T08:20:11.544505635Z caller=memberlist_client.go:633 phase=startup msg="joining memberlist cluster succeeded" reached_nodes=3 elapsed_time=24.827662047s
+level=info ts=2025-09-25T08:20:41.668065931Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:21:11.647264959Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:21:41.622928779Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:22:11.604746229Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:22:41.588127399Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:23:11.570441922Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:23:41.558280551Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:24:11.550925261Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:24:41.54619854Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:25:11.542422994Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:25:41.539190486Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:26:11.536285384Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:26:41.534938885Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:27:11.532840731Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+time=2025-09-25T08:27:36.572Z level=INFO source=/home/runner/work/tempo/tempo/modules/generator/storage/instance.go:71 msg="clearing old WAL on start up" tenant=single-tenant dir=/var/tempo/wal/single-tenant
+time=2025-09-25T08:27:36.573Z level=INFO source=/home/runner/work/tempo/tempo/modules/generator/storage/instance.go:78 msg="creating WAL" tenant=single-tenant dir=/var/tempo/wal/single-tenant
+time=2025-09-25T08:27:36.615Z level=INFO source=/home/runner/work/tempo/tempo/vendor/github.com/prometheus/prometheus/tsdb/wlog/watcher.go:225 msg="Starting WAL watcher" tenant=single-tenant component=remote remote_name=prometheus url=http://prom-stack-kube-prometheus-prometheus:9090/api/v1/write queue=prometheus
+time=2025-09-25T08:27:36.615Z level=INFO source=/home/runner/work/tempo/tempo/vendor/github.com/prometheus/prometheus/storage/remote/metadata_watcher.go:90 msg="Starting scraped metadata watcher" tenant=single-tenant component=remote remote_name=prometheus url=http://prom-stack-kube-prometheus-prometheus:9090/api/v1/write
+time=2025-09-25T08:27:36.616Z level=INFO source=/home/runner/work/tempo/tempo/vendor/github.com/prometheus/prometheus/tsdb/wlog/watcher.go:277 msg="Replaying WAL" tenant=single-tenant component=remote remote_name=prometheus url=http://prom-stack-kube-prometheus-prometheus:9090/api/v1/write queue=prometheus
+time=2025-09-25T08:27:36.775Z level=INFO source=/home/runner/work/tempo/tempo/vendor/github.com/prometheus/prometheus/tsdb/agent/db.go:367 msg="replaying WAL, this may take a while" tenant=single-tenant component=wal dir=/var/tempo/wal/single-tenant/wal
+time=2025-09-25T08:27:36.775Z level=INFO source=/home/runner/work/tempo/tempo/vendor/github.com/prometheus/prometheus/tsdb/agent/db.go:418 msg="WAL segment loaded" tenant=single-tenant component=wal segment=0 maxSegment=0
+level=info ts=2025-09-25T08:27:41.531221908Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:27:51.777092098Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+time=2025-09-25T08:27:51.815Z level=INFO source=/home/runner/work/tempo/tempo/vendor/github.com/prometheus/prometheus/tsdb/wlog/watcher.go:523 msg="Done replaying WAL" tenant=single-tenant component=remote remote_name=prometheus url=http://prom-stack-kube-prometheus-prometheus:9090/api/v1/write duration=15.200038576s
+level=info ts=2025-09-25T08:28:06.775675213Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:28:11.528999261Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:28:21.774420469Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:28:36.773615813Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:28:41.527348318Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:28:51.773723366Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:29:06.77224443Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:29:11.525403002Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:29:21.867832997Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:29:36.770253743Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:29:41.523913629Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:29:51.769333775Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:30:06.767425621Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:30:11.521743056Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:30:21.767815869Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:30:36.766039372Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:30:41.52042938Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:30:51.766944484Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:31:06.765005819Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:31:11.518285148Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:31:21.764235794Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:31:36.762566595Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:31:41.517491544Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:31:51.762428523Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:32:06.76073028Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:32:11.514822613Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:32:21.760755447Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:32:36.759133857Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:32:36.759192377Z caller=registry.go:276 tenant=single-tenant msg="deleted stale series" active_series=170
+level=info ts=2025-09-25T08:32:41.513885562Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:32:51.759783338Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:33:06.758452811Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:33:11.512794662Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:33:21.758122509Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:33:36.757181807Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:33:41.511645149Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:33:51.757659796Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:34:06.754538785Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:34:11.50913092Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:34:21.755309736Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:34:36.754645742Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:34:41.508647459Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:34:51.754439503Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:35:06.752659646Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:35:11.507391466Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:35:21.75283081Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:35:36.751869348Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:35:41.505524326Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:35:51.751221659Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:36:06.749893756Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:36:11.503978229Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:36:21.749993578Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:36:36.748281782Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:36:41.502910834Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:36:51.748464229Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:37:06.747614074Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:37:11.500432144Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:37:21.747079695Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:37:36.745215247Z caller=registry.go:276 tenant=single-tenant msg="deleted stale series" active_series=170
+level=info ts=2025-09-25T08:37:36.745497906Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:37:41.500004922Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:37:51.745464849Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:38:06.744200731Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:38:11.498666179Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:38:21.744258106Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:38:36.743216041Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:38:41.496787329Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:38:51.742575438Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:39:06.742820503Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:39:11.496008806Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:39:21.741761843Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:39:36.739599583Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:39:41.494208838Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:39:51.739483587Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:40:06.738984336Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:40:11.492787646Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:40:21.739301993Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:40:36.737561526Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:40:41.491406093Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:40:51.737870915Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:41:06.735024913Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:41:11.489254517Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:41:21.735640891Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:41:36.734780741Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:41:41.488368434Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:41:51.73365554Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:42:06.732573445Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:42:11.485800834Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:42:21.732035997Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:42:36.731215285Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:42:36.731214652Z caller=registry.go:276 tenant=single-tenant msg="deleted stale series" active_series=170
+level=info ts=2025-09-25T08:42:41.484920257Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:42:51.73107371Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:43:06.729243193Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:43:11.483452881Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:43:21.729453456Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:43:36.728056744Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:43:41.482125389Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:43:51.727804639Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:44:06.726368244Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:44:11.480537121Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:44:21.726457995Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:44:36.724848284Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:44:41.478893675Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:44:51.724667154Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:45:06.723828453Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:45:11.478189573Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:45:21.723576167Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:45:36.722945363Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:45:41.476348536Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:45:51.722529067Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:46:06.720822155Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:46:11.474841465Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:46:21.720588335Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:46:36.718632137Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:46:41.472710352Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:46:51.719053298Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:47:06.717225551Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:47:11.4712653Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:47:21.718509891Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:47:36.715910881Z caller=registry.go:276 tenant=single-tenant msg="deleted stale series" active_series=170
+level=info ts=2025-09-25T08:47:36.716192326Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:47:41.470227888Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:47:51.716633301Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:48:06.715111935Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:48:11.468589329Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:48:21.714423215Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:48:36.711900599Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:48:41.466521449Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:48:51.713025259Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:49:06.711547076Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:49:11.46567527Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:49:21.711681985Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:49:36.710375936Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:49:41.464393207Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:49:51.710348895Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:50:06.70852238Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:50:11.462866156Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:50:21.708241338Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:50:36.706531219Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:50:41.46058305Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:50:51.706278252Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:51:06.706024577Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:51:11.45912099Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:51:21.70500991Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:51:36.703949164Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:51:41.457913686Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:51:51.703733042Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:52:06.700160171Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:52:11.454278298Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:52:21.701672591Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:52:36.700414873Z caller=registry.go:276 tenant=single-tenant msg="deleted stale series" active_series=170
+level=info ts=2025-09-25T08:52:36.700617708Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:52:41.45493655Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:52:51.70052926Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:53:06.699040231Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:53:11.453347764Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:53:21.69870274Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:53:36.698227886Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:53:41.451595506Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:53:51.697867011Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:54:06.696009087Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:54:11.450202471Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:54:21.6950914Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:54:36.693962381Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:54:41.448512347Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:54:51.694816073Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:55:06.692911315Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:55:11.447005951Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:55:21.692785463Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:55:36.690897714Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:55:41.445874715Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:55:51.691192421Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:56:06.690317788Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:56:11.443896342Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:56:21.689642472Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:56:36.688285535Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:56:41.442677983Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:56:51.688691121Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:57:06.687181282Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:57:11.440810774Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:57:21.686684321Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=170
+level=info ts=2025-09-25T08:57:36.685113793Z caller=registry.go:276 tenant=single-tenant msg="deleted stale series" active_series=0
+level=info ts=2025-09-25T08:57:36.685187796Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T08:57:41.439278831Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:57:51.685632353Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T08:58:06.683903753Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T08:58:11.437960268Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:58:21.683889131Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T08:58:36.682349154Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T08:58:41.436686799Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:58:51.682550644Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T08:59:06.680919363Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T08:59:11.435190002Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:59:21.68088474Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T08:59:36.678838973Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T08:59:41.432877776Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T08:59:51.678456692Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:00:06.677543374Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:00:11.431801957Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:00:21.678023402Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:00:36.676112327Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:00:41.430865343Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:00:51.67642474Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:01:06.674527186Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:01:11.428817593Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:01:21.674291888Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:01:36.673594175Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:01:41.427795467Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:01:51.673666112Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:02:06.672210123Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:02:11.425832628Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:02:21.671561706Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:02:36.670213364Z caller=registry.go:276 tenant=single-tenant msg="deleted stale series" active_series=0
+level=info ts=2025-09-25T09:02:36.670427907Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:02:41.424263558Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:02:51.669953703Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:03:06.668115086Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:03:11.42247868Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:03:21.667920194Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:03:36.666653205Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:03:41.421635794Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:03:51.66700225Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:04:06.665921973Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:04:11.420104063Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:04:21.665745508Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:04:36.663782553Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:04:41.418375879Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:04:51.663981774Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:05:06.662616536Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:05:11.417530568Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:05:21.662873325Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:05:36.661669075Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:05:41.415824594Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:05:51.661532793Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:06:06.659443302Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:06:11.413351755Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:06:21.65996244Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:06:36.658658009Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:06:41.412837739Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:06:51.657849874Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:07:06.656891721Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:07:11.411419125Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:07:21.656732162Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:07:36.654763457Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:07:36.654691135Z caller=registry.go:276 tenant=single-tenant msg="deleted stale series" active_series=0
+level=info ts=2025-09-25T09:07:41.409620407Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:07:51.655188485Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:08:06.653433449Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:08:11.408028024Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:08:21.653792432Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:08:36.652232995Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:08:41.406818107Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:08:51.652922746Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:09:06.650778339Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:09:11.404526527Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:09:21.650271826Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:09:36.649380757Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:09:41.403853549Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:09:51.649237405Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:10:06.648207214Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:10:11.402247187Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:10:21.648059663Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:10:36.646408933Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:10:41.400396659Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:10:51.646552119Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:11:06.645060038Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:11:11.399514906Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:11:21.644851054Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:11:36.643658663Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:11:41.397500734Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:11:51.643426821Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:12:06.643041885Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:12:11.39691141Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:12:21.641967494Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:12:36.640993409Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:12:36.641003698Z caller=registry.go:276 tenant=single-tenant msg="deleted stale series" active_series=0
+level=info ts=2025-09-25T09:12:41.394954975Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:12:51.64044533Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:13:06.638581143Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:13:11.392719904Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:13:21.639079275Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:13:36.637847269Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:13:41.391869947Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:13:51.637364973Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:14:06.636505309Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:14:11.390576192Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:14:21.636015184Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:14:36.634623865Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:14:41.388354614Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:14:51.634913621Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:15:06.632807173Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:15:11.387540279Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:15:21.632841063Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:15:36.632297725Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:15:41.386081166Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:15:51.631301896Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:16:06.630976496Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:16:11.385092173Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:16:21.630302804Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:16:36.628872075Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:16:41.383123587Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:16:51.629289484Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:17:06.627456798Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:17:11.381794236Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:17:21.627055367Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:17:36.626173977Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:17:36.62615377Z caller=registry.go:276 tenant=single-tenant msg="deleted stale series" active_series=0
+level=info ts=2025-09-25T09:17:41.38057467Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:17:51.626784647Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:18:06.624757144Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:18:11.379504445Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:18:21.624539304Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:18:36.623629984Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:18:41.37748829Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:18:51.623791192Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:19:06.622112858Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:19:11.375549715Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:19:21.622091643Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:19:36.620825639Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:19:41.374408797Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:19:51.620439393Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:20:06.618282007Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0
+level=info ts=2025-09-25T09:20:11.373300362Z caller=memberlist_client.go:552 msg="initiating cleanup of obsolete entries"
+level=info ts=2025-09-25T09:20:21.618690556Z caller=registry.go:255 tenant=single-tenant msg="collecting metrics" active_series=0

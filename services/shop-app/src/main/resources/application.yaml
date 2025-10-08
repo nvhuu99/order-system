@@ -1,6 +1,0 @@
-spring:
-  application:
-    name: shop-app
-
-  config:
-    import: configserver:${CENTRALIZED_CONFIG_SERVER_URL}
