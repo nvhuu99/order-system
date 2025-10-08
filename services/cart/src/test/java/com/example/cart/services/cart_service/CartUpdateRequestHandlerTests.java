@@ -20,7 +20,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -77,7 +76,7 @@ public class CartUpdateRequestHandlerTests {
         var request = buildRequest(userId);
 
         var acquireLockAndCallHandler = lockRepo
-            .acquireLock("carts:"+ userId, "1", 10000L)
+            .acquireLock("owner", "carts:"+ userId, 0L)
             .then(handler.handle(request, () -> commited.set(true), () -> saved.set(true)))
         ;
 
