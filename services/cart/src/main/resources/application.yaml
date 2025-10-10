@@ -70,11 +70,11 @@ management:
 ---
 
 spring:
-  lifecycle:
-    timeout-per-shutdown-phase: 0s  # allow faster shutdown for tests
   config:
     activate:
       on-profile: test
+  lifecycle:
+    timeout-per-shutdown-phase: 0s  # allow faster shutdown for tests
   grpc:
     server:
       enabled: false

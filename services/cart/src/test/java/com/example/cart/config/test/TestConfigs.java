@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Configuration
 @Profile("test")
-public class TestData {
+public class TestConfigs {
 
     @Bean
     public Map<String, ProductAvailability> productAvailabilities() {
