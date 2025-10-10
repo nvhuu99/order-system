@@ -1,5 +1,6 @@
 package com.example.cart.services.cart_service;
 
+import com.example.cart.TestBase;
 import com.example.cart.entities.Cart;
 import com.example.cart.entities.ProductAvailability;
 import com.example.cart.entities.properties.CartValidation;
@@ -7,17 +8,13 @@ import com.example.cart.services.cart_service.entities.CartUpdateRequest;
 import com.example.cart.services.cart_service.exceptions.InvalidCartUpdateRequestVersion;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@ActiveProfiles("test")
-public class CartValidatorTests {
+public class CartValidatorTests extends TestBase {
 
     private final CartValidator validator = new CartValidator();
 
