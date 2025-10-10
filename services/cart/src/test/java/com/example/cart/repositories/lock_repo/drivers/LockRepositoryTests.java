@@ -13,7 +13,6 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.time.Duration;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
