@@ -7,8 +7,6 @@ import com.example.cart.repositories.cart_repo.CartRepository;
 import com.example.cart.repositories.lock_repo.LockRepository;
 import com.example.cart.services.cart_service.entities.CartUpdateRequest;
 import com.example.cart.services.cart_service.exceptions.InvalidCartUpdateRequestVersion;
-import com.example.cart.services.cart_service.exceptions.LockReleaseFailure;
-import com.example.cart.services.cart_service.exceptions.SkippedUserId;
 import com.example.cart.services.inventory_service.InventoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

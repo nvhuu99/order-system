@@ -9,11 +9,13 @@ logging:
     io.lettuce.core: OFF
     io.opentelemetry.exporter: OFF
     io.opentelemetry.exporter.internal.http.HttpExporter: OFF
+    com.github.loki4j: OFF
 
 order-processing-system:
   messaging:
     cart-update-requests:
       topic-name: "cart-update-requests"
+      topic-partitions: "0"
 
   handlers:
     cart-update-requests:
@@ -44,7 +46,7 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka-broker}:${KAFKA_PORT:9092}
     admin:
-      auto-create: false
+      auto-create: true
     listener:
       ack-mode: manual
     consumer:
@@ -66,48 +68,3 @@ management:
       endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo-distributor:4318/v1/traces}
     metrics:
       export: { enabled: false }
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: test
-  lifecycle:
-    timeout-per-shutdown-phase: 0s  # allow faster shutdown for tests
-  grpc:
-    server:
-      enabled: false
-  kafka:
-    admin:
-      auto-create: false
-    listener:
-      auto-startup: false
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: development
-
-logging:
-  level:
-    com.example.cart.services.cart_service: DEBUG
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: staging
-
-logging:
-  level:
-    com.example.cart.services.cart_service: DEBUG
-
-management:
-  tracing:
-    enabled: true
-    sampling:
-      probability: 1.0

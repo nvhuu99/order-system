@@ -31,7 +31,7 @@ public class CartEventsConsumer {
 
     @KafkaListener(topicPartitions = { @TopicPartition(
         topic = "${order-processing-system.messaging.cart-update-requests.topic-name}",
-        partitions = { "0", "1" })
+        partitions = "${order-processing-system.messaging.cart-update-requests.topic-partitions}")
     })
     public void handle(CartUpdateRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
 

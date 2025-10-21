@@ -79,12 +79,19 @@
 
     kubectl exec -it kafka-controller-0 -n infras -c kafka -- bash
 
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --delete --topic cart-update-requests
+
       /opt/bitnami/kafka/bin/kafka-topics.sh \
+        --bootstrap-server localhost:9092 \
         --create \
         --if-not-exists \
-        --bootstrap-server localhost:9092 \
         --replication-factor 1 \
         --partitions 2 \
+        --topic cart-update-requests
+
+      /opt/bitnami/kafka/bin/kafka-topics.sh \
+        --bootstrap-server localhost:9092 \
+        --describe \
         --topic cart-update-requests
 
 
