@@ -25,13 +25,6 @@ order-processing-system:
 spring:
   application:
     name: cart-service
-
-  data:
-    redis:
-      connect-timeout: 5
-      host: ${REDIS_HOST:redis-master}
-      port: ${REDIS_PORT:6379}
-
   grpc:
     server:
       port: ${CART_SVC_GRPC_PORT:9091}

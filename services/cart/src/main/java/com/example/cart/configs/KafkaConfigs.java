@@ -37,7 +37,7 @@ public class KafkaConfigs {
 
     @Bean
     public NewTopic cartUpdateRequestsTopic() {
-        log.info("Creating kafka topic - partitions: {} - replicas: {}", cartUpdateRequestsTopicPartitions, kafkaReplicasCount);
+        log.info("Topic - partitions: {} - replicas: {}", cartUpdateRequestsTopicPartitions, kafkaReplicasCount);
         return TopicBuilder.name(cartUpdateRequestsTopic)
             .partitions(cartUpdateRequestsTopicPartitions.size())
             .replicas(kafkaReplicasCount)
