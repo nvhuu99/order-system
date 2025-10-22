@@ -81,18 +81,30 @@
 
       /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --delete --topic cart-update-requests
 
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+
       /opt/bitnami/kafka/bin/kafka-topics.sh \
         --bootstrap-server localhost:9092 \
         --create \
-        --if-not-exists \
-        --replication-factor 1 \
-        --partitions 2 \
+        --replication-factor 3 \
+        --partitions 3 \
         --topic cart-update-requests
 
       /opt/bitnami/kafka/bin/kafka-topics.sh \
         --bootstrap-server localhost:9092 \
         --describe \
         --topic cart-update-requests
+
+      /opt/bitnami/kafka/bin/kafka-topics.sh --alter \
+        --topic cart-update-requests \
+        --partitions 3 \
+        --bootstrap-server localhost:9092
+
+      kafka-reassign-partitions.sh \
+        --bootstrap-server <broker_address> \
+        --topics-to-move-json-file topics.json \
+        --broker-list "1,2,3" \
+        --generate
 
 
 ### Deploy App & K6 load simulator:

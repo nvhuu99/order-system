@@ -39,7 +39,7 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_HOST:kafka-broker}:${KAFKA_PORT:9092}
     admin:
-      auto-create: true
+      auto-create: false
     listener:
       ack-mode: manual
     consumer:

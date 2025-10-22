@@ -19,4 +19,4 @@ management:
 order-processing-system:
   messaging:
     cart-update-requests:
-      topic-partitions: "0, 1, 2"
+      topic-partitions: "0-2"
