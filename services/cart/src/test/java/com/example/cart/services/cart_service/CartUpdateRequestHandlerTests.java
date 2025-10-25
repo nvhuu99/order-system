@@ -9,6 +9,7 @@ import com.example.cart.repositories.lock_repo.LockRepository;
 import com.example.cart.repositories.lock_repo.exceptions.LockUnavailable;
 import com.example.cart.repositories.lock_repo.exceptions.LockValueMismatch;
 import com.example.cart.services.cart_service.entities.CartUpdateRequest;
+import com.example.cart.services.cart_service.exceptions.InvalidCartUpdateRequestVersion;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
@@ -16,8 +17,9 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,10 +46,7 @@ public class CartUpdateRequestHandlerTests extends TestBase {
 
     @Test
     void beforeAcquireLock_whenRequestVersionMismatch_thenCommitRequestWithoutSave() {
-        var commited = new AtomicBoolean(false);
-        var saved = new AtomicBoolean(false);
-        var lockAcquired = new AtomicBoolean(false);
-
+        var hooks = new ConcurrentHashMap<String, Boolean>();
         var userId = UUID.randomUUID().toString();
         var request = buildRequest(userId);
         var cart = new Cart();
@@ -56,30 +55,20 @@ public class CartUpdateRequestHandlerTests extends TestBase {
         cart.setVersionNumber(1);
         cart.setUserId(userId);
 
-        cartRepo
+        var execute = cartRepo
             .saveCart(cart)
-            .then(handler.handle(request, (hookName) -> {
-                switch (hookName) {
-                    case "LOCK_ACQUIRED" -> lockAcquired.set(true);
-                    case "REQUEST_COMMITTED" -> commited.set(true);
-                    case "CART_SAVED" -> saved.set(true);
-                }
-            }))
-            .onErrorResume(ex -> Mono.empty())
-            .block()
+            .then(handler.handle(request, (hookName) -> hooks.putIfAbsent(hookName, true)))
         ;
 
-        assertFalse(lockAcquired.get());
-        assertFalse(saved.get());
-        assertTrue(commited.get());
+        assertThrows(InvalidCartUpdateRequestVersion.class, execute::block);
+        assertFalse(hooks.containsKey("LOCK_ACQUIRED"));
+        assertFalse(hooks.containsKey("CART_SAVED"));
+        assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
     }
 
     @Test
     void afterAcquiredLock_whenRequestVersionMismatch_thenCommitRequestWithoutSave() {
-        var commited = new AtomicBoolean(false);
-        var saved = new AtomicBoolean(false);
-        var lockAcquired = new AtomicBoolean(false);
-
+        var hooks = new ConcurrentHashMap<String, Boolean>();
         var userId = UUID.randomUUID().toString();
         var request = buildRequest(userId);
         var cart = new Cart();
@@ -92,183 +81,128 @@ public class CartUpdateRequestHandlerTests extends TestBase {
         cartRepo
             .saveCart(cart)
             .then(handler.handle(request, (hookName) -> {
-                // After lock acquired, set an "invalid" request version
-                // in order to simulate a race-condition that leads to version mismatch.
-                // The handler is expected to validate the version again.
-                if (hookName == "LOCK_ACQUIRED") {
+                hooks.putIfAbsent(hookName, true);
+                if (Objects.equals(hookName, "LOCK_ACQUIRED")) {
                     request.setVersionNumber(3);
-                    lockAcquired.set(true);
-                }
-                if (hookName == "REQUEST_COMMITTED") {
-                    commited.set(true);
-                }
-                if (hookName == "CART_SAVED") {
-                    saved.set(true);
                 }
             }))
             .onErrorResume(ex -> Mono.empty())
             .block()
         ;
 
-        assertTrue(lockAcquired.get());
-        assertTrue(commited.get());
-        assertFalse(saved.get());
+        assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
+        assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
+        assertFalse(hooks.containsKey("CART_SAVED"));
     }
 
     @Test
     void whenLockUnavailable_thenCommitRequestWithoutSave() {
-        var commited = new AtomicBoolean(false);
-        var saved = new AtomicBoolean(false);
-        var lockAcquired = new AtomicBoolean(false);
-
+        var hooks = new ConcurrentHashMap<String, Boolean>();
         var userId = UUID.randomUUID().toString();
         var request = buildRequest(userId);
 
         var acquireLockAndCallHandler = lockRepo
             .acquireLock("carts:" + userId, "lockValue", Duration.ofSeconds(10))
-            .then(handler.handle(request, (hookName) -> {
-                switch (hookName) {
-                    case "LOCK_ACQUIRED" -> lockAcquired.set(true);
-                    case "REQUEST_COMMITTED" -> commited.set(true);
-                    case "CART_SAVED" -> saved.set(true);
-                }
-            }))
+            .then(handler.handle(request, (hookName) -> hooks.putIfAbsent(hookName, true)))
         ;
 
         assertThrows(LockUnavailable.class, acquireLockAndCallHandler::block);
-        assertFalse(lockAcquired.get());
-        assertFalse(saved.get());
-        assertTrue(commited.get());
+        assertFalse(hooks.containsKey("LOCK_ACQUIRED"));
+        assertFalse(hooks.containsKey("CART_SAVED"));
+        assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
     }
 
     @Test
     void whenUnhandledErrorOccurred_mustNotCommitRequest() {
-        var lockAcquired = new AtomicBoolean(false);
-        var commited = new AtomicBoolean(false);
-        var saved = new AtomicBoolean(false);
-
+        var hooks = new ConcurrentHashMap<String, Boolean>();
         var userId = UUID.randomUUID().toString();
         var request = buildRequest(userId);
 
         handler
             .handle(request, (hookName) -> {
-                switch (hookName) {
-                    case "LOCK_ACQUIRED" -> lockAcquired.set(true);
-                    case "CART_SAVED" -> saved.set(true);
-                    case "REQUEST_COMMITTED" -> commited.set(true);
-                    case "CART_BUILT" -> throw new RuntimeException("Unhandled Error");
+                hooks.putIfAbsent(hookName, true);
+                if (Objects.equals(hookName, "CART_BUILT")) {
+                    throw new RuntimeException("Unhandled Error");
                 }
             })
             .onErrorResume(ex -> Mono.empty())
             .block()
         ;
 
-        assertTrue(lockAcquired.get());
-        assertFalse(commited.get());
-        assertFalse(saved.get());
+        assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
+        assertFalse(hooks.containsKey("REQUEST_COMMITTED"));
+        assertFalse(hooks.containsKey("CART_SAVED"));
     }
 
     @Test
     void whenLockReleaseFailed_mustNotCommitRequest() {
-        var lockAcquired = new AtomicBoolean(false);
-        var lockRelease = new AtomicBoolean(false);
-        var commited = new AtomicBoolean(false);
-        var saved = new AtomicBoolean(false);
-
+        var hooks = new ConcurrentHashMap<String, Boolean>();
         var userId = UUID.randomUUID().toString();
         var request = buildRequest(userId);
 
         var execute = handler
             .handle(request, (hookName) -> {
-                switch (hookName) {
-                    case "LOCK_ACQUIRED": {
-                        lockAcquired.set(true);
-                        break;
-                    }
-                    case "LOCK_RELEASED": {
-                        lockRelease.set(true);
-                        break;
-                    }
-                    case "REQUEST_COMMITTED": {
-                        commited.set(true);
-                        break;
-                    }
-                    case "CART_SAVED": {
-                        saved.set(true);
-                        break;
-                    }
-                    case "CART_BUILT": {
-                        try {
-                            lockRepo
-                                .releaseLockUnSafe("carts:" + userId)
-                                .then(lockRepo.acquireLock("carts:" + userId, "lockValue", Duration.ofSeconds(10)))
-                                .subscribe()
-                            ;
-                            Thread.sleep(300);
-                        } catch (Exception ignored) {
-                        }
+                hooks.putIfAbsent(hookName, true);
+                if (Objects.equals(hookName, "CART_BUILT")) {
+                    try {
+                        lockRepo
+                            .releaseLockUnSafe("carts:" + userId)
+                            .then(lockRepo.acquireLock("carts:" + userId, "lockValue", Duration.ofSeconds(10)))
+                            .subscribe()
+                        ;
+                        Thread.sleep(300);
+                    } catch (Exception ignored) {
                     }
                 }
             })
         ;
 
         assertThrows(LockValueMismatch.class, execute::block);
-        assertTrue(lockAcquired.get());
-        assertTrue(saved.get());
-        assertFalse(lockRelease.get());
-        assertFalse(commited.get());
+        assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
+        assertTrue(hooks.containsKey("CART_SAVED"));
+        assertFalse(hooks.containsKey("LOCK_RELEASED"));
+        assertFalse(hooks.containsKey("REQUEST_COMMITTED"));
     }
 
     @Test
     void whenUnhandledErrorOccurred_lockIsReleased() {
-        var lockAcquired = new AtomicBoolean(false);
-        var lockReleased = new AtomicBoolean(false);
-        var commited = new AtomicBoolean(false);
-        var saved = new AtomicBoolean(false);
-
+        var hooks = new ConcurrentHashMap<String, Boolean>();
         var userId = UUID.randomUUID().toString();
         var request = buildRequest(userId);
 
         handler
             .handle(request, (hookName) -> {
-                switch (hookName) {
-                    case "LOCK_ACQUIRED" -> lockAcquired.set(true);
-                    case "LOCK_RELEASED" -> lockReleased.set(true);
-                    case "CART_SAVED" -> saved.set(true);
-                    case "REQUEST_COMMITTED" -> commited.set(true);
-                    case "CART_BUILT" -> throw new RuntimeException("Unhandled Error");
+                hooks.putIfAbsent(hookName, true);
+                if (Objects.equals(hookName, "CART_BUILT")) {
+                    throw new RuntimeException("Unhandled Error");
                 }
             })
             .onErrorResume(ex -> Mono.empty())
             .block()
         ;
 
-        assertTrue(lockAcquired.get());
-        assertTrue(lockReleased.get());
-        assertFalse(commited.get());
-        assertFalse(saved.get());
+        assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
+        assertTrue(hooks.containsKey("LOCK_RELEASED"));
+        assertFalse(hooks.containsKey("REQUEST_COMMITTED"));
+        assertFalse(hooks.containsKey("CART_SAVED"));
     }
 
     @Test
     void whenCartNotExist_thenPutNewCart() {
-        var commited = new AtomicBoolean(false);
-        var saved = new AtomicBoolean(false);
-
+        var hooks = new ConcurrentHashMap<String, Boolean>();
         var userId = UUID.randomUUID().toString();
         var request = buildRequest(userId);
 
         var cartAfterSaved = handler
-            .handle(request, (hookName) -> {
-                switch (hookName) {
-                    case "CART_SAVED" -> saved.set(true);
-                    case "REQUEST_COMMITTED" -> commited.set(true);
-                }
-            })
+            .handle(request, (hookName) -> hooks.putIfAbsent(hookName, true))
             .then(cartRepo.getCartByUserId(userId))
             .block();
 
-        assertTrue(commited.get());
-        assertTrue(saved.get());
+        assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
+        assertTrue(hooks.containsKey("LOCK_RELEASED"));
+        assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
+        assertTrue(hooks.containsKey("CART_SAVED"));
+
         assertNotNull(cartAfterSaved);
         assertEquals(userId, cartAfterSaved.getUserId());
         assertEquals(
@@ -295,9 +229,7 @@ public class CartUpdateRequestHandlerTests extends TestBase {
 
     @Test
     void whenCartExists_thenUpdateCart() {
-        var commited = new AtomicBoolean(false);
-        var saved = new AtomicBoolean(false);
-
+        var hooks = new ConcurrentHashMap<String, Boolean>();
         var userId = UUID.randomUUID().toString();
         var cart = new Cart(userId);
         var request = buildRequest(userId);
@@ -308,18 +240,16 @@ public class CartUpdateRequestHandlerTests extends TestBase {
 
         var saveCartThenRequestUpdate = cartRepo
             .saveCart(cart)
-            .then(handler.handle(request, (hookName) -> {
-                switch (hookName) {
-                    case "CART_SAVED" -> saved.set(true);
-                    case "REQUEST_COMMITTED" -> commited.set(true);
-                }
-            }))
+            .then(handler.handle(request, (hookName) -> hooks.putIfAbsent(hookName, true)))
             .then(cartRepo.getCartByUserId(userId))
         ;
         var cartAfterSaved = saveCartThenRequestUpdate.block();
 
-        assertTrue(commited.get());
-        assertTrue(saved.get());
+        assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
+        assertTrue(hooks.containsKey("LOCK_RELEASED"));
+        assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
+        assertTrue(hooks.containsKey("CART_SAVED"));
+
         assertNotNull(cartAfterSaved);
         assertEquals(userId, cartAfterSaved.getUserId());
         assertEquals(
@@ -346,6 +276,7 @@ public class CartUpdateRequestHandlerTests extends TestBase {
 
     @Test
     void afterSavedCart_alsoSetValidations() {
+        var hooks = new ConcurrentHashMap<String, Boolean>();
         var userId = UUID.randomUUID().toString();
         var cart = new Cart(userId);
         var request = buildRequest(userId);
@@ -356,10 +287,15 @@ public class CartUpdateRequestHandlerTests extends TestBase {
 
         var saveCartThenRequestUpdate = cartRepo
             .saveCart(cart)
-            .then(handler.handle(request, null))
+            .then(handler.handle(request, (hookName) -> hooks.putIfAbsent(hookName, true)))
             .then(cartRepo.getCartByUserId(userId))
         ;
         var saved = saveCartThenRequestUpdate.block();
+
+        assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
+        assertTrue(hooks.containsKey("LOCK_RELEASED"));
+        assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
+        assertTrue(hooks.containsKey("CART_SAVED"));
 
         assertNotNull(saved);
         assertEquals(CartValidationType.PRODUCT_UNAVAILABLE, saved.getValidations().get("PRODUCT_001").getType());
@@ -368,30 +304,19 @@ public class CartUpdateRequestHandlerTests extends TestBase {
 
     @Test
     void afterSavedCart_lockIsReleased() {
-        var lockAcquired = new AtomicBoolean(false);
-        var lockReleased = new AtomicBoolean(false);
-        var commited = new AtomicBoolean(false);
-        var saved = new AtomicBoolean(false);
-
+        var hooks = new ConcurrentHashMap<String, Boolean>();
         var userId = UUID.randomUUID().toString();
         var request = buildRequest(userId);
 
         handler
-            .handle(request, (hookName) -> {
-                switch (hookName) {
-                    case "LOCK_ACQUIRED" -> lockAcquired.set(true);
-                    case "LOCK_RELEASED" -> lockReleased.set(true);
-                    case "CART_SAVED" -> saved.set(true);
-                    case "REQUEST_COMMITTED" -> commited.set(true);
-                }
-            })
+            .handle(request, (hookName) -> hooks.putIfAbsent(hookName, true))
             .onErrorResume(ex -> Mono.empty())
             .block()
         ;
 
-        assertTrue(lockAcquired.get());
-        assertTrue(lockReleased.get());
-        assertTrue(commited.get());
-        assertTrue(saved.get());
+        assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
+        assertTrue(hooks.containsKey("LOCK_RELEASED"));
+        assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
+        assertTrue(hooks.containsKey("CART_SAVED"));
     }
 }

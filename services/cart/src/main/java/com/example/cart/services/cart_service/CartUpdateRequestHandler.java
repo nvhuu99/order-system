@@ -97,7 +97,7 @@ public class CartUpdateRequestHandler {
             .retryWhen(exponentialRetrySpec())
             .timeout(Duration.ofSeconds(waitSeconds))
             .map(cart -> {
-                if (cart != null && (cart.getUserId() == request.getUserId())) {
+                if (cart != null && Objects.equals(cart.getUserId(), request.getUserId())) {
                     cartValidator.checkCartUpdateRequestVersion(cart, request);
                 }
                 return cart;
