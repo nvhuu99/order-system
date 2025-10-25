@@ -45,14 +45,10 @@ public class CartBuilder {
             applyRequestEntries();
         }
         if (productAvailabilities != null) {
-            cart.getProductAvailabilities().putAll(
-                productAvailabilities.stream().collect(Collectors.toMap(ProductAvailability::getProductId, p -> p))
-            );
+            productAvailabilities.forEach(pa -> cart.getProductAvailabilities().put(pa.getProductId(), pa));
         }
         if (cartValidations != null) {
-            cart.setValidations(
-                cartValidations.stream().collect(Collectors.toMap(CartValidation::getProductId, v -> v))
-            );
+            cartValidations.forEach(v -> cart.getValidations().put(v.getProductId(), v));
         }
         return this;
     }
