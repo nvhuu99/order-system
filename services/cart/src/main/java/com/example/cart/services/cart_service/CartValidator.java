@@ -15,13 +15,13 @@ import java.util.Optional;
 @NoArgsConstructor
 public class CartValidator {
 
-    public void validateCartUpdateRequest(Cart cart, CartUpdateRequest request) throws InvalidCartUpdateRequestVersion {
+    public void checkCartUpdateRequestVersion(Cart cart, CartUpdateRequest request) throws InvalidCartUpdateRequestVersion {
         if (cart.getVersionNumber() + 1 != request.getVersionNumber()) {
             throw new InvalidCartUpdateRequestVersion(request.getVersionNumber(), cart.getVersionNumber());
         }
     }
 
-    public List<CartValidation> validateCart(Cart cart) {
+    public List<CartValidation> validateCartItems(Cart cart) {
         return cart.getItems().values().stream()
             .map(cartItem -> checkProductAvailabilities(cart, cartItem))
             .filter(Objects::nonNull)
