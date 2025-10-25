@@ -40,10 +40,12 @@ public class CartEventsConsumer {
         request.setHandlerName(getConsumerName(headers));
 
         var isCommited = new AtomicBoolean(false);
-        var execute = cartUpdateRequestHandler.handle(request, () -> {
-            ack.acknowledge();
-            isCommited.set(true);
-        }, null);
+        var execute = cartUpdateRequestHandler.handle(request, (hookName) -> {
+            if (hookName == CartUpdateRequestHandler.REQUEST_COMMITTED) {
+                ack.acknowledge();
+                isCommited.set(true);
+            }
+        });
 
         execute
             .onErrorResume(ex -> Mono.empty())
@@ -56,11 +58,6 @@ public class CartEventsConsumer {
             })
             .block()
         ;
-    }
-
-    private Mono<Void> gracefullyWait(Integer minMs, Integer maxMs) {
-        long millis = ThreadLocalRandom.current().nextLong(minMs, maxMs);
-        return Mono.delay(Duration.ofMillis(millis)).then();
     }
 
     private String logTemplate(Map<String, Object> headers, String append) {

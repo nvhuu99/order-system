@@ -16,7 +16,7 @@ public class TestConfigs {
         return Map.of(
             "PRODUCT_001", new ProductAvailability("PRODUCT_001", "", 0.0, 0, false),   // not available
             "PRODUCT_002", new ProductAvailability("PRODUCT_002", "", 0.0, 0, true),    // out of stock
-            "PRODUCT_003", new ProductAvailability("PRODUCT_002", "", 0.0, 3, true)     // has some stock
+            "PRODUCT_003", new ProductAvailability("PRODUCT_003", "", 0.0, 3, true)     // has some stock
         );
     }
 }
