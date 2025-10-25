@@ -51,6 +51,11 @@ public class LockRepository implements com.example.cart.repositories.lock_repo.L
             );
     }
 
+    @Override
+    public Mono<Void> releaseLockUnSafe(String resource) {
+        return redisTemplate.delete(redisKey(resource).getFirst()).then();
+    }
+
 
     private List<String> redisKey(String resource) {
         return Collections.singletonList(key(resource));

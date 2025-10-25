@@ -7,4 +7,5 @@ import java.time.Duration;
 public interface LockRepository {
     Mono<Void> acquireLock(String resource, String lockValue, Duration ttl);
     Mono<Void> releaseLock(String resource, String lockValue);
+    Mono<Void> releaseLockUnSafe(String resource);
 }
