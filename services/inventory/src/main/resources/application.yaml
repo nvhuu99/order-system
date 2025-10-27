@@ -6,6 +6,7 @@ logging:
     io.opentelemetry.exporter: ERROR
     io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
     io.lettuce.core: ERROR
+    org.hibernate: ERROR
 
 spring:
   application:
@@ -13,9 +14,24 @@ spring:
 
   grpc:
     server:
-      port: ${INVENTORY_SVC_GRPC_PORT}
+      port: ${INVENTORY_SVC_GRPC_PORT:9090}
       ssl:
         secure: false
+
+  datasource:
+    url: "jdbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/inventory?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverTimeZone=UTC&allowPublicKeyRetrieval=true&useSSL=false"
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:admin}
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
 
 management:
   tracing: { enabled: false }
@@ -25,14 +41,3 @@ management:
     metrics:
       export:
         enabled: false
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: staging
-  grpc:
-    server:
-      ssl:
-        secure: false

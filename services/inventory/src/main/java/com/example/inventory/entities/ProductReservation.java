@@ -5,23 +5,29 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Table(name = "product_availabilities")
+@Table(name = "product_reservations")
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
-public class ProductAvailability {
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class ProductReservation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false)
+    String id;
 
     @Column(nullable = false)
-    Integer reserved;
+    Double price;
 
     @Column(nullable = false)
-    Integer stock;
+    String name;
+
+    @Column(nullable = false)
+    Long stock;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
