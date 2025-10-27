@@ -62,60 +62,60 @@ services:
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
 
-  inventory-service:
-    container_name: inventory-service
-    hostname: inventory-service
-    restart: unless-stopped
-    env_file:
-      - .env.docker
-    build:
-      context: ./services/inventory
-      dockerfile: Dockerfile
-    cpus: "1"
-    mem_limit: "512mb"
-    ports:
-      - "9090:9090"
-    networks:
-      - order-processing-system
-
-  cart-service:
-    container_name: cart-service
-    hostname: cart-service
-    restart: unless-stopped
-    env_file:
-      - .env.docker
-    build:
-      context: ./services/cart
-      dockerfile: Dockerfile
-    cpus: "1"
-    mem_limit: "512mb"
-    ports:
-      - "9094:9091"
-      - "8081:8081"
-    depends_on:
-      - inventory-service
-      - redis
-      - kafka-broker
-    networks:
-      - order-processing-system
-
-  shop-service:
-    container_name: shop-service
-    hostname: shop-service
-    restart: unless-stopped
-    env_file:
-      - .env.docker
-    build:
-      context: ./services/shop
-      dockerfile: Dockerfile
-    cpus: "0.25"
-    mem_limit: "368mb"
-    ports:
-      - "8080:8080"
-    networks:
-      - order-processing-system
-    depends_on:
-      - cart-service
+#  inventory-service:
+#    container_name: inventory-service
+#    hostname: inventory-service
+#    restart: unless-stopped
+#    env_file:
+#      - .env.docker
+#    build:
+#      context: ./services/inventory
+#      dockerfile: Dockerfile
+#    cpus: "1"
+#    mem_limit: "512mb"
+#    ports:
+#      - "9090:9090"
+#    networks:
+#      - order-processing-system
+#
+#  cart-service:
+#    container_name: cart-service
+#    hostname: cart-service
+#    restart: unless-stopped
+#    env_file:
+#      - .env.docker
+#    build:
+#      context: ./services/cart
+#      dockerfile: Dockerfile
+#    cpus: "1"
+#    mem_limit: "512mb"
+#    ports:
+#      - "9094:9091"
+#      - "8081:8081"
+#    depends_on:
+#      - inventory-service
+#      - redis
+#      - kafka-broker
+#    networks:
+#      - order-processing-system
+#
+#  shop-service:
+#    container_name: shop-service
+#    hostname: shop-service
+#    restart: unless-stopped
+#    env_file:
+#      - .env.docker
+#    build:
+#      context: ./services/shop
+#      dockerfile: Dockerfile
+#    cpus: "0.25"
+#    mem_limit: "368mb"
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - order-processing-system
+#    depends_on:
+#      - cart-service
 
 #  cart-update-load-test:
 #    image: grafana/k6:latest

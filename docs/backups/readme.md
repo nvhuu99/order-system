@@ -7,6 +7,8 @@
 * Helm - Grafana: https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
 * Helm - Kafka: https://github.com/bitnami/charts/blob/main/bitnami/kafka/values.yaml
 
+* Loki V2 config: https://grafana.com/docs/loki/v2.9.x/configure/
+
 # Prerequisites:
 
 * Docker
@@ -111,9 +113,11 @@
 
   Deploy app:
     
-    docker build -t order-processing-system/cart-service services/cart
+    docker build -t nvhuu991/order-system:cart-service services/cart
     docker build -t order-processing-system/inventory-service services/inventory
     docker build -t order-processing-system/shop-service services/shop
+
+    docker push nvhuu991/order-system:cart-service
     
     kind load docker-image \
       order-processing-system/cart-service \
