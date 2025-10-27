@@ -4,6 +4,9 @@ networks:
   order-processing-system:
     driver: bridge
 
+volumes:
+  order_system_mysql_data:
+
 services:
   redis:
     container_name: redis-master
@@ -61,6 +64,18 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
+
+  mysql:
+    container_name: mysql
+    hostname: mysql
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+    ports:
+      - "3306:3306"
+    volumes:
+      - order_system_mysql_data:/var/lib/mysql
 
 #  inventory-service:
 #    container_name: inventory-service
