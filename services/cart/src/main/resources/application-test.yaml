@@ -1,3 +1,7 @@
+logging:
+  level:
+    com.example.cart.services.cart_service: DEBUG
+
 spring:
   lifecycle:
     timeout-per-shutdown-phase: 0s  # allow faster shutdown for tests
