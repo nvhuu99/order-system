@@ -1,0 +1,22 @@
+logging:
+  level:
+    com.example.cart.services.cart_service: DEBUG
+
+spring:
+  data:
+    redis:
+      sentinel:
+        master: mymaster
+        nodes:
+          - "${REDIS_HOST}:${REDIS_SENTINEL_PORT}"
+
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+
+order-processing-system:
+  messaging:
+    cart-update-requests:
+      topic-partitions: "0-2"

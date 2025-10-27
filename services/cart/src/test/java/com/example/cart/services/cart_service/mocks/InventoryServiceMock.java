@@ -3,6 +3,7 @@ package com.example.cart.services.cart_service.mocks;
 import com.example.cart.entities.ProductAvailability;
 import com.example.cart.services.inventory_service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @Service
 @Profile("test")
+@Primary  // This ensures this bean is chosen when multiple implementations exist
 public class InventoryServiceMock implements InventoryService {
 
     @Autowired

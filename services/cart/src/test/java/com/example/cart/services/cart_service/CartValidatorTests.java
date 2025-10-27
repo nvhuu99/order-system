@@ -28,15 +28,15 @@ public class CartValidatorTests extends TestBase {
 
         cart.setVersionNumber(1);
         request.setVersionNumber(1);
-        assertThrows(InvalidCartUpdateRequestVersion.class, () -> validator.validateCartUpdateRequest(cart, request));
+        assertThrows(InvalidCartUpdateRequestVersion.class, () -> validator.checkCartUpdateRequestVersion(cart, request));
 
         cart.setVersionNumber(1);
         request.setVersionNumber(3);
-        assertThrows(InvalidCartUpdateRequestVersion.class, () -> validator.validateCartUpdateRequest(cart, request));
+        assertThrows(InvalidCartUpdateRequestVersion.class, () -> validator.checkCartUpdateRequestVersion(cart, request));
 
         cart.setVersionNumber(2);
         request.setVersionNumber(1);
-        assertThrows(InvalidCartUpdateRequestVersion.class, () -> validator.validateCartUpdateRequest(cart, request));
+        assertThrows(InvalidCartUpdateRequestVersion.class, () -> validator.checkCartUpdateRequestVersion(cart, request));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class CartValidatorTests extends TestBase {
         cart.setVersionNumber(1);
         request.setVersionNumber(2);
 
-        assertThatNoException().isThrownBy(() -> validator.validateCartUpdateRequest(cart, request));
+        assertThatNoException().isThrownBy(() -> validator.checkCartUpdateRequestVersion(cart, request));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class CartValidatorTests extends TestBase {
         cart.setProductAvailabilities(productAvailabilities);
         cart.getItems().put("PRODUCT_001", new Cart.CartItem("PRODUCT_001", "", 1));
 
-        var validations = validator.validateCart(cart);
+        var validations = validator.validateCartItems(cart);
         assertNotNull(validations.getFirst());
         assertEquals(validations.getFirst().getType(), CartValidation.CartValidationType.PRODUCT_UNAVAILABLE);
     }
@@ -67,7 +67,7 @@ public class CartValidatorTests extends TestBase {
         cart.setProductAvailabilities(productAvailabilities);
         cart.getItems().put("PRODUCT_002", new Cart.CartItem("PRODUCT_002", "", 1));
 
-        var validations = validator.validateCart(cart);
+        var validations = validator.validateCartItems(cart);
         assertNotNull(validations.getFirst());
         assertEquals(validations.getFirst().getType(), CartValidation.CartValidationType.OUT_OF_STOCK);
     }
@@ -78,7 +78,7 @@ public class CartValidatorTests extends TestBase {
         cart.setProductAvailabilities(productAvailabilities);
         cart.getItems().put("PRODUCT_003", new Cart.CartItem("PRODUCT_003", "", 5));
 
-        var validations = validator.validateCart(cart);
+        var validations = validator.validateCartItems(cart);
         assertNotNull(validations.getFirst());
         assertEquals(validations.getFirst().getType(), CartValidation.CartValidationType.INSUFFICIENT_STOCK);
     }
@@ -89,7 +89,7 @@ public class CartValidatorTests extends TestBase {
         cart.setProductAvailabilities(productAvailabilities);
         cart.getItems().put("PRODUCT_003", new Cart.CartItem("PRODUCT_003", "", 2));
 
-        var validations = validator.validateCart(cart);
+        var validations = validator.validateCartItems(cart);
         assertTrue(validations.isEmpty());
     }
 }

@@ -3,9 +3,9 @@ logging:
     io.grpc: ERROR
     org.springframework.kafka: ERROR
     org.apache.kafka: ERROR
-    io.opentelemetry.exporter: OFF
-    io.opentelemetry.exporter.internal.http.HttpExporter: OFF
-    io.lettuce.core: OFF
+    io.opentelemetry.exporter: ERROR
+    io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
+    io.lettuce.core: ERROR
 
 spring:
   application:
@@ -25,3 +25,14 @@ management:
     metrics:
       export:
         enabled: false
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: staging
+  grpc:
+    server:
+      ssl:
+        secure: false
