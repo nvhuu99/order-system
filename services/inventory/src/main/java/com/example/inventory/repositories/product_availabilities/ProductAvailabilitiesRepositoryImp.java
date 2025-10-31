@@ -32,19 +32,23 @@ public class ProductAvailabilitiesRepositoryImp implements ProductAvailabilities
     }
 
     @Override
-    public Mono<Void> save(ProductAvailability productAvailability) {
+    public Mono<ProductAvailability> save(ProductAvailability productAvailability) {
         return redisTemplate.opsForValue()
             .set(keyPrefix + productAvailability.getProductId(), productAvailability)
-            .then()
+            .map(ok -> productAvailability)
         ;
     }
 
     @Override
-    public Mono<Void> saveMany(List<ProductAvailability> productAvailabilities) {
+    public Mono<List<ProductAvailability>> saveMany(List<ProductAvailability> productAvailabilities) {
         var map = new HashMap<String, ProductAvailability>();
         for (var p: productAvailabilities) {
             map.put(p.getProductId(), p);
         }
-        return redisTemplate.opsForValue().multiSet(map).then();
+        return redisTemplate
+            .opsForValue()
+            .multiSet(map)
+            .map(ok -> productAvailabilities)
+        ;
     }
 }

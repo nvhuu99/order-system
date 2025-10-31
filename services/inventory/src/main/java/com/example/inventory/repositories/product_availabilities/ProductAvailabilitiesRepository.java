@@ -13,7 +13,7 @@ public interface ProductAvailabilitiesRepository {
 
     Mono<List<ProductAvailability>> findAllByProductIds(List<String> productIds);
 
-    Mono<Void> save(ProductAvailability productAvailability);
+    Mono<ProductAvailability> save(ProductAvailability productAvailability);
 
-    Mono<Void> saveMany(List<ProductAvailability> productAvailabilities);
+    Mono<List<ProductAvailability>> saveMany(List<ProductAvailability> productAvailabilities);
 }
