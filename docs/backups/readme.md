@@ -114,15 +114,15 @@
   Deploy app:
     
     docker build -t nvhuu991/order-system:cart-service services/cart
-    docker build -t order-processing-system/inventory-service services/inventory
-    docker build -t order-processing-system/shop-service services/shop
+    docker build -t order-system/inventory-service services/inventory
+    docker build -t order-system/shop-service services/shop
 
     docker push nvhuu991/order-system:cart-service
     
     kind load docker-image \
-      order-processing-system/cart-service \
-      order-processing-system/inventory-service \
-      order-processing-system/shop-service
+      order-system/cart-service \
+      order-system/inventory-service \
+      order-system/shop-service
 
     kubectl apply -f k8s/services
 
