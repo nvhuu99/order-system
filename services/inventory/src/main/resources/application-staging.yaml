@@ -1,0 +1,4 @@
+order-system:
+  messaging:
+    product-reservation-requests:
+      topic-partitions: "0-2"
