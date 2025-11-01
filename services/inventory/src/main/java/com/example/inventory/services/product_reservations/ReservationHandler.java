@@ -11,10 +11,7 @@ import com.example.inventory.services.product_reservations.exceptions.InvalidReq
 import com.example.inventory.services.product_reservations.exceptions.RequestHandlerLockUnavailable;
 import org.redisson.api.RLockReactive;
 import org.redisson.api.RedissonReactiveClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -22,29 +19,13 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import static com.example.inventory.utils.ErrorUtils.exceptionCause;
 
 @Service
-public class ReservationHandler {
-
-    public static final String LOCK_ACQUIRED = "LOCK_ACQUIRED";
-    public static final String LOCK_RELEASED = "LOCK_RELEASED";
-    public static final String REQUEST_COMMITTED = "REQUEST_COMMITTED";
-    public static final String RESERVATION_SAVED = "RESERVATION_SAVED";
-
-    private final Logger log = LoggerFactory.getLogger(ReservationHandler.class);
-
-    @Value("${HOSTNAME:inventory-service}")
-    private String hostname;
-
-    @Value("${order-system.handlers.product-reservation-requests.timeout-sec}")
-    private Long timeoutSeconds;
-
-    @Value("${order-system.handlers.product-reservation-requests.wait-sec}")
-    private Long waitSeconds;
-
+public class ReservationHandler extends ReservationHandlerProperties {
+    
     @Autowired
     private ProductReservationsRepository reservationRepo;
 
@@ -60,7 +41,7 @@ public class ReservationHandler {
     @Autowired
     private RedissonReactiveClient redisson;
 
-    public Mono<Void> handle(ReservationRequest request, Consumer<String> hook) {
+    public Mono<Void> handle(ReservationRequest request, BiConsumer<String, String> hook) {
 
         log.info(logTemplate(request, "Handling product_reservations request"));
 
@@ -78,7 +59,7 @@ public class ReservationHandler {
         var commit = Mono.fromRunnable(() -> callHook(REQUEST_COMMITTED, hook));
 
         return
-            getReservation(request, reservationRef, hook)
+            getReservation(request, reservationRef)
             .map(reservation -> {
                 validator.checkRequestTimestamp(reservation, request);
                 return reservation;
@@ -86,7 +67,7 @@ public class ReservationHandler {
             .then(tryAcquireLock(request, handlerLock, isHandlerLocked, hook))
             .then(acquireLock(request, reservationLock, isReservationLocked, hook))
             .then(acquireLock(request, productAvailabilityLock, isProductAvailabilityLocked, hook))
-            .then(getProductAvailability(request, productAvailabilityRef, hook))
+            .then(getProductAvailability(request, productAvailabilityRef))
             .map(ignored -> {
                 validator.checkRequestTimestamp(reservationRef.get(), request);
                 validator.checkStockSufficientForReservation(productAvailabilityRef.get(), request);
@@ -120,7 +101,7 @@ public class ReservationHandler {
                     productAvailabilityLock.unlock().subscribe();
                 }
             })
-            .timeout(Duration.ofSeconds(timeoutSeconds))
+            .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
             .doOnSuccess(cart -> log.info(logTemplate(request, "Handle product_reservations request successfully")))
             .then()
         ;
@@ -129,88 +110,83 @@ public class ReservationHandler {
 
     private Mono<ProductReservation> getReservation(
         ReservationRequest request,
-        AtomicReference<ProductReservation> reservationRef,
-        Consumer<String> hook
+        AtomicReference<ProductReservation> reservationRef
     ) {
         return reservationRepo
             .findByProductIdAndUserId(request.getProductId(), request.getUserId())
             .defaultIfEmpty(new ProductReservation())
+            .retryWhen(exponentialRetrySpec())
+            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "get reservation failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(cart -> log.debug(logTemplate(request, "get reservation successfully")))
-            .doOnSuccess(reservation -> reservationRef.set(reservation))
+            .doOnSuccess(reservationRef::set)
         ;
     }
 
-    private Mono<Void> tryAcquireLock(ReservationRequest request, RLockReactive lock, AtomicBoolean isLocked, Consumer<String> hook) {
+    private Mono<Void> tryAcquireLock(ReservationRequest request, RLockReactive lock, AtomicBoolean isLocked, BiConsumer<String, String> hook) {
         return lock
-            .tryLock(0, timeoutSeconds, TimeUnit.SECONDS) // no wait for lock acquisition
+            .tryLock(0, TIMEOUT_SECONDS, TimeUnit.SECONDS) // no wait for lock acquisition
             .map(acquired -> {
                 if (! acquired) {
                     throw new RequestHandlerLockUnavailable();
                 }
                 return isLocked.getAndSet(true);
             })
+            .retryWhen(exponentialRetrySpec())
+            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "lock acquire failed - {} - {}"), lock.getName(), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock acquire success - {}"), lock.getName()))
-            .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, hook))
+            .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, lock.getName(), hook))
             .then()
         ;
     }
 
-    private Mono<Void> acquireLock(ReservationRequest request, RLockReactive lock, AtomicBoolean isLocked, Consumer<String> hook) {
+    private Mono<Void> acquireLock(ReservationRequest request, RLockReactive lock, AtomicBoolean isLocked, BiConsumer<String, String> hook) {
         return lock
-            .lock(timeoutSeconds, TimeUnit.SECONDS)
-            .timeout(Duration.ofSeconds(waitSeconds))
+            .lock(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .retryWhen(exponentialRetrySpec())
+            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnSuccess(ok -> isLocked.set(true))
             .doOnError(ex -> log.error(logTemplate(request, "lock acquire failed - {} - {}"), lock.getName(), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock acquire success - {}"), lock.getName()))
-            .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, hook))
+            .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, lock.getName(), hook))
         ;
     }
 
-    private Mono<Void> releaseLock(ReservationRequest request, RLockReactive lock, Consumer<String> hook) {
+    private Mono<Void> releaseLock(ReservationRequest request, RLockReactive lock, BiConsumer<String, String> hook) {
         return lock
             .unlock()
+            .retryWhen(exponentialRetrySpec())
+            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "Lock release failed - {} - {}"), lock.getName(), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "Lock release success - {}"), lock.getName()))
-            .doOnSuccess(ok -> callHook(LOCK_RELEASED, hook))
+            .doOnSuccess(ok -> callHook(LOCK_RELEASED, lock.getName(), hook))
         ;
     }
 
     private Mono<ProductAvailability> getProductAvailability(
         ReservationRequest request,
-        AtomicReference<ProductAvailability> producAvailabilityRef,
-        Consumer<String> hook
+        AtomicReference<ProductAvailability> producAvailabilityRef
     ) {
         return productAvailabilitiesRepo
             .findByProductId(request.getProductId())
             .switchIfEmpty(productAvailabilityService.syncWithReservations(request.getProductId()))
+            .retryWhen(exponentialRetrySpec())
+            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "get product availability failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(cart -> log.debug(logTemplate(request, "get product availability successfully")))
         ;
     }
 
-    private Mono<Void> putReservation(ReservationRequest request, ProductReservation reservation, Consumer<String> hook) {
-        return reservationRepo.save(reservation)
+    private Mono<Void> putReservation(ReservationRequest request, ProductReservation reservation, BiConsumer<String, String> hook) {
+        return reservationRepo
+            .save(reservation)
+            .retryWhen(exponentialRetrySpec())
+            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "put product_reservations failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(cart -> log.debug(logTemplate(request, "put product_reservations successfully")))
             .doOnSuccess(ok -> callHook(RESERVATION_SAVED, hook))
             .then()
         ;
-    }
-
-    private String logTemplate(ReservationRequest request, String append) {
-        return String.format(
-            "product_id=%s - user_id=%s - handler=%s - " + append,
-            request.getProductId(),
-            request.getUserId(),
-            hostname
-        );
-    }
-
-    private void callHook(String name, Consumer<String> hook) {
-        if (hook != null) {
-            hook.accept(name);
-        }
     }
 }
