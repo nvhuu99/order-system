@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface ProductAvailabilityService {
+public interface ProductAvailabilitiesService {
 
     Mono<ProductAvailability> syncWithReservations(String productId);
 

@@ -22,7 +22,11 @@ public class DatabaseSeeder {
     @Autowired
     private DatabaseInitializer db;
 
-    public Mono<Void> seedProductsAndProductReservations(R2dbcEntityTemplate template) {
+    @Autowired
+    private R2dbcEntityTemplate template;
+
+
+    public Mono<Void> seedProductsAndProductReservations() {
         /*
         USERS: usr01, usr02
         PRODUCTS SUMMARY

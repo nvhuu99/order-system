@@ -10,10 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Service
-public class ProductAvailabilityServiceImp implements ProductAvailabilityService {
+public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesService {
 
     @Autowired
     private ProductReservationsRepository reservationsRepo;
@@ -26,12 +30,15 @@ public class ProductAvailabilityServiceImp implements ProductAvailabilityService
 
 
     public Mono<ProductAvailability> syncWithReservations(String productId) {
+        var productResult = productsRepo.findById(productId);
         var reservedResult = reservationsRepo
             .sumReservedAmountByProductIds(List.of(productId))
             .collectMap(ProductReservedAmount::getProductId, ProductReservedAmount::getReserved)
         ;
-        var productResult = productsRepo.findById(productId);
-        var availabilityResult = productAvailabilitiesRepo.findByProductId(productId);
+        var availabilityResult = productAvailabilitiesRepo
+            .findByProductId(productId)
+            .defaultIfEmpty(new ProductAvailability(productId, 0, 0, null))
+        ;
 
         return Mono
             .zip(reservedResult, productResult, availabilityResult)
@@ -43,6 +50,7 @@ public class ProductAvailabilityServiceImp implements ProductAvailabilityService
                 var prodId = availability.getProductId();
                 availability.setReserved(reservedAmounts.getOrDefault(prodId, 0));
                 availability.setStock(product.getStock());
+                availability.setUpdatedAt(Instant.now());
 
                 return productAvailabilitiesRepo.save(availability);
             })
@@ -67,14 +75,23 @@ public class ProductAvailabilityServiceImp implements ProductAvailabilityService
             .flatMap(t3 -> {
                 var reservedAmounts = t3.getT1();
                 var stocks = t3.getT2();
-                var availabilities = t3.getT3();
-
-                for (var availability: availabilities) {
-                    var prodId = availability.getProductId();
-                    availability.setReserved(reservedAmounts.getOrDefault(prodId, 0));
-                    availability.setStock(stocks.getOrDefault(prodId, 0));
+                var availabilitiesMap = new HashMap<String, ProductAvailability>();
+                for (var prodId: productIds) {
+                    var found = t3.getT3().stream().filter(a -> Objects.equals(a.getProductId(), prodId)).toList();
+                    if (found.isEmpty()) {
+                        availabilitiesMap.put(prodId, new ProductAvailability(prodId, 0, 0, null));
+                    } else {
+                        availabilitiesMap.put(prodId, found.getFirst());
+                    }
                 }
-
+                var availabilities = new ArrayList<ProductAvailability>();
+                for (var productId: availabilitiesMap.keySet()) {
+                    var availability = availabilitiesMap.get(productId);
+                    availability.setReserved(reservedAmounts.getOrDefault(productId, 0));
+                    availability.setStock(stocks.getOrDefault(productId, 0));
+                    availability.setUpdatedAt(Instant.now());
+                    availabilities.add(availability);
+                }
                 return productAvailabilitiesRepo.saveMany(availabilities);
             })
         ;

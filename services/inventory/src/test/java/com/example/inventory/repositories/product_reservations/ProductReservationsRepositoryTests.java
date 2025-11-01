@@ -4,7 +4,6 @@ import com.example.inventory.TestBase;
 import com.example.inventory.DatabaseSeeder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,9 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProductReservationsRepositoryTests extends TestBase {
-
-    @Autowired
-    R2dbcEntityTemplate r2dbcTemplate;
 
     @Autowired
     private DatabaseSeeder seeder;
@@ -31,7 +27,7 @@ public class ProductReservationsRepositoryTests extends TestBase {
         var total = new AtomicInteger();
 
         seeder
-            .seedProductsAndProductReservations(r2dbcTemplate)
+            .seedProductsAndProductReservations()
             .thenMany(reservationsRepo.sumReservedAmountByProductIds(ids))
             .doOnNext(data -> {
                 total.addAndGet(data.getReserved());
