@@ -13,7 +13,7 @@ import java.util.List;
 public interface ProductReservationsRepository extends ReactiveCrudRepository<ProductReservation, String> {
     @Query("""
         SELECT
-            product_id AS productId,
+            product_id,
             COALESCE(SUM(quantity), 0) AS reserved
         FROM product_reservations
         WHERE

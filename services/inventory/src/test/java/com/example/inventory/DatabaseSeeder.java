@@ -3,7 +3,9 @@ package com.example.inventory;
 import com.example.inventory.enums.ReservationStatus;
 import com.example.inventory.repositories.products.entities.Product;
 import com.example.inventory.repositories.product_reservations.entities.ProductReservation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -14,9 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class TestData {
+@Component
+public class DatabaseSeeder {
 
-    public static Mono<Void> seedProductsAndProductReservations(R2dbcEntityTemplate template) {
+    @Autowired
+    private DatabaseInitializer db;
+
+    public Mono<Void> seedProductsAndProductReservations(R2dbcEntityTemplate template) {
         /*
         USERS: usr01, usr02
         PRODUCTS SUMMARY
@@ -60,12 +66,14 @@ public class TestData {
 
         reservations.add(newReservation("prod06", "usr02", 1, 1, ReservationStatus.OK));
 
-        return template.delete(ProductReservation.class).all()
+         return db.createTables()
+            .then(template.delete(ProductReservation.class).all())
             .then(template.delete(Product.class).all())
             .thenMany(Flux.fromIterable(products))
             .flatMap(template::insert)
             .thenMany(Flux.fromIterable(reservations))
             .flatMap(template::insert)
+            .doOnComplete(() -> System.out.println("seeder run completely"))
             .then()
         ;
     }

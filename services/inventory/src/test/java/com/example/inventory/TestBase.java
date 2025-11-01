@@ -45,15 +45,16 @@ public class TestBase {
         }
 
         if (Objects.equals(withMySQL, "yes") || Objects.equals(withAllContainers, "yes")) {
-            mysql = new GenericContainer<>("bitnami/mysql:8.1.0-slim");
+            mysql = new GenericContainer<>("mysql:8.0");
             mysql.withExposedPorts(3306);
             mysql.withReuse(true);
             mysql.withEnv(Map.of("MYSQL_ROOT_PASSWORD", "admin"));
             mysql.start();
 
-            System.setProperty("spring.kafka.admin.auto-create", "true");
-            System.setProperty("spring.kafka.listener.auto-startup", "true");
-            System.setProperty("spring.kafka.bootstrap-servers", kafka.getBootstrapServers());
+            var urlTemplate = "r2dbc:mysql://%s:%s/inventory?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverTimeZone=UTC&allowPublicKeyRetrieval=true&useSSL=false";
+            System.setProperty("spring.r2dbc.url", String.format(urlTemplate, mysql.getHost(), mysql.getMappedPort(3306)));
+            System.setProperty("spring.r2dbc.username", "root");
+            System.setProperty("spring.r2dbc.password", "admin");
         }
     }
 }
