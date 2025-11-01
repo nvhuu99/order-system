@@ -64,8 +64,8 @@ public class ReservationHandler {
 
         log.info(logTemplate(request, "Handling product_reservations request"));
 
-        var handlerLock = redisson.getReadWriteLock("order_system:reservation_request_handlers:" + request.getReservationId()).writeLock();
-        var reservationLock = redisson.getReadWriteLock("order_system:product_reservations:" + request.getReservationId()).writeLock();
+        var handlerLock = redisson.getReadWriteLock("order_system:reservation_request_handlers:" + request.getIdentifier()).writeLock();
+        var reservationLock = redisson.getReadWriteLock("order_system:reservation_request_handlers:" + request.getIdentifier()).writeLock();
         var productAvailabilityLock = redisson.getReadWriteLock("order_system:product_availabilities:" + request.getProductId()).writeLock();
 
         var isHandlerLocked = new AtomicBoolean(false);
@@ -133,8 +133,8 @@ public class ReservationHandler {
         Consumer<String> hook
     ) {
         return reservationRepo
-            .findById(request.getReservationId())
-            .defaultIfEmpty(new ProductReservation(request.getReservationId()))
+            .findByProductIdAndUserId(request.getProductId(), request.getUserId())
+            .defaultIfEmpty(new ProductReservation())
             .doOnError(ex -> log.error(logTemplate(request, "get reservation failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(cart -> log.debug(logTemplate(request, "get reservation successfully")))
             .doOnSuccess(reservation -> reservationRef.set(reservation))
@@ -201,8 +201,9 @@ public class ReservationHandler {
 
     private String logTemplate(ReservationRequest request, String append) {
         return String.format(
-            "product_id=%s - handler=%s - " + append,
+            "product_id=%s - user_id=%s - handler=%s - " + append,
             request.getProductId(),
+            request.getUserId(),
             hostname
         );
     }

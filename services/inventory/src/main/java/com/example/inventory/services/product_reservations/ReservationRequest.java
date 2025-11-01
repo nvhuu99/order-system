@@ -10,9 +10,13 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReservationRequest {
-    String reservationId;
     String productId;
+    String userId;
     Integer quantity;
     Integer reservationSnapshot;
     Instant requestedAt;
+
+    public String getIdentifier() {
+        return productId + ":" + userId;
+    }
 }
