@@ -25,6 +25,10 @@ public class DatabaseSeeder {
     @Autowired
     private R2dbcEntityTemplate template;
 
+    private static Boolean hasSeedRun = false;
+
+    public static List<Product> seedProducts = new ArrayList<>();
+    public static List<ProductReservation> seedReservations = new ArrayList<>();
 
     public Mono<Void> seedProductsAndProductReservations() {
         /*
@@ -42,42 +46,40 @@ public class DatabaseSeeder {
         - prod06 (usr02): reserved amount = 1. OK = 1.
         - prod07: no reservation
         */
-        List<Product> products = new ArrayList<>();
-        List<ProductReservation> reservations = new ArrayList<>();
 
-        products.add(newProduct("prod01", 0));
-        products.add(newProduct("prod02", 3));
-        products.add(newProduct("prod03", 7));
-        products.add(newProduct("prod04", 5));
-        products.add(newProduct("prod05", 2));
-        products.add(newProduct("prod06", 5));
-        products.add(newProduct("prod07", 5));
+        if (hasSeedRun) {
+            return Mono.empty();
+        }
 
-        reservations.add(newReservation("prod01", "usr01", 1, 0, ReservationStatus.INSUFFICIENT_STOCK));
+        seedProducts.add(newProduct("prod01", 0));
+        seedProducts.add(newProduct("prod02", 3));
+        seedProducts.add(newProduct("prod03", 7));
+        seedProducts.add(newProduct("prod04", 5));
+        seedProducts.add(newProduct("prod05", 2));
+        seedProducts.add(newProduct("prod06", 5));
+        seedProducts.add(newProduct("prod07", 5));
 
-        reservations.add(newReservation("prod02", "usr01", 1, 1, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod01", "usr01", 1, 0, ReservationStatus.INSUFFICIENT_STOCK));
+        seedReservations.add(newReservation("prod02", "usr01", 1, 1, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod03", "usr01", 2, 2, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod03", "usr01", 3, 5, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod03", "usr01", 3, 5, ReservationStatus.INSUFFICIENT_STOCK));
+        seedReservations.add(newReservation("prod04", "usr01", 1, 1, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod04", "usr01", 1, 2, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod04", "usr01", 1, 3, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod04", "usr01", 1, 3, ReservationStatus.EXPIRED));
+        seedReservations.add(newReservation("prod05", "usr01", 1, 0, ReservationStatus.EXPIRED));
+        seedReservations.add(newReservation("prod06", "usr02", 1, 1, ReservationStatus.OK));
 
-        reservations.add(newReservation("prod03", "usr01", 2, 2, ReservationStatus.OK));
-        reservations.add(newReservation("prod03", "usr01", 3, 5, ReservationStatus.OK));
-        reservations.add(newReservation("prod03", "usr01", 3, 5, ReservationStatus.INSUFFICIENT_STOCK));
-
-        reservations.add(newReservation("prod04", "usr01", 1, 1, ReservationStatus.OK));
-        reservations.add(newReservation("prod04", "usr01", 1, 2, ReservationStatus.OK));
-        reservations.add(newReservation("prod04", "usr01", 1, 3, ReservationStatus.OK));
-        reservations.add(newReservation("prod04", "usr01", 1, 3, ReservationStatus.EXPIRED));
-
-        reservations.add(newReservation("prod05", "usr01", 1, 0, ReservationStatus.EXPIRED));
-
-        reservations.add(newReservation("prod06", "usr02", 1, 1, ReservationStatus.OK));
-
-         return db.createTables()
+        return db.createTables()
             .then(template.delete(ProductReservation.class).all())
             .then(template.delete(Product.class).all())
-            .thenMany(Flux.fromIterable(products))
+            .thenMany(Flux.fromIterable(seedProducts))
             .flatMap(template::insert)
-            .thenMany(Flux.fromIterable(reservations))
+            .thenMany(Flux.fromIterable(seedReservations))
             .flatMap(template::insert)
             .doOnComplete(() -> System.out.println("seeder run completely"))
+            .doOnComplete(() -> hasSeedRun = true)
             .then()
         ;
     }

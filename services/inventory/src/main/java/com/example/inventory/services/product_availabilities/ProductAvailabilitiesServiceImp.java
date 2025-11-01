@@ -77,7 +77,7 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
                 var stocks = t3.getT2();
                 var availabilitiesMap = new HashMap<String, ProductAvailability>();
                 for (var prodId: productIds) {
-                    var found = t3.getT3().stream().filter(a -> Objects.equals(a.getProductId(), prodId)).toList();
+                    var found = t3.getT3().stream().filter(a -> a != null && Objects.equals(a.getProductId(), prodId)).toList();
                     if (found.isEmpty()) {
                         availabilitiesMap.put(prodId, new ProductAvailability(prodId, 0, 0, null));
                     } else {

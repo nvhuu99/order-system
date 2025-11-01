@@ -43,7 +43,7 @@ public class ProductAvailabilitiesRepositoryImp implements ProductAvailabilities
     public Mono<List<ProductAvailability>> saveMany(List<ProductAvailability> productAvailabilities) {
         var map = new HashMap<String, ProductAvailability>();
         for (var p: productAvailabilities) {
-            map.put(p.getProductId(), p);
+            map.put(keyPrefix + p.getProductId(), p);
         }
         return redisTemplate
             .opsForValue()
