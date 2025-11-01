@@ -8,6 +8,3 @@ spring:
     redis:
       host: ${REDIS_HOST:redis-master}
       port: ${REDIS_PORT:6379}
-      connect-timeout: 5
-      timeout: 5
-      shutdown-timeout: 5
