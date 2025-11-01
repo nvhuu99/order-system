@@ -55,7 +55,5 @@ public class TestBase {
             System.setProperty("spring.kafka.listener.auto-startup", "true");
             System.setProperty("spring.kafka.bootstrap-servers", kafka.getBootstrapServers());
         }
-
-
     }
 }
