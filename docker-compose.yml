@@ -1,7 +1,7 @@
-name: order-processing-system
+name: order-system
 
 networks:
-  order-processing-system:
+  order-system:
     driver: bridge
 
 volumes:
@@ -18,7 +18,7 @@ services:
     ports:
       - "6379:6379"
     networks:
-        - order-processing-system
+        - order-system
 
   kafka-controller:
     image: apache/kafka:latest
@@ -28,7 +28,7 @@ services:
     ports:
       - 9093:9093
     networks:
-      - order-processing-system
+      - order-system
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: controller
@@ -46,7 +46,7 @@ services:
     ports:
       - 9092:9092
     networks:
-      - order-processing-system
+      - order-system
     depends_on:
       - kafka-controller
     environment:
@@ -91,7 +91,7 @@ services:
 #    ports:
 #      - "9090:9090"
 #    networks:
-#      - order-processing-system
+#      - order-system
 #
 #  cart-service:
 #    container_name: cart-service
@@ -112,7 +112,7 @@ services:
 #      - redis
 #      - kafka-broker
 #    networks:
-#      - order-processing-system
+#      - order-system
 #
 #  shop-service:
 #    container_name: shop-service
@@ -128,7 +128,7 @@ services:
 #    ports:
 #      - "8080:8080"
 #    networks:
-#      - order-processing-system
+#      - order-system
 #    depends_on:
 #      - cart-service
 
@@ -150,4 +150,4 @@ services:
 #          memory: 128M
 #    restart: "no"
 #    networks:
-#      - order-processing-system
+#      - order-system
