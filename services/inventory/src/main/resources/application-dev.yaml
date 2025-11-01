@@ -2,6 +2,7 @@ logging:
   level:
     org.hibernate: INFO
     org.springframework.r2dbc: INFO
+    com.example.cart.services.inventory: DEBUG
 
 spring:
   data:
