@@ -24,19 +24,13 @@ public class ProductAvailabilitiesRepositoryTests extends TestBase {
     @Autowired
     private ProductAvailabilitiesService productAvailabilitiesService;
 
-    private static Boolean hasSetupRun = false;
-
     private void setup() {
-        if (hasSetupRun) {
-            return;
-        }
         seeder
             .seedProductsAndProductReservations()
             .block()
         ;
         productAvailabilitiesService
             .syncAllWithReservations(List.of("prod01", "prod02", "prod03", "prod04", "prod05", "prod06", "prod07"))
-            .doOnSuccess(ok -> hasSetupRun = true)
             .block()
         ;
     }
@@ -57,7 +51,7 @@ public class ProductAvailabilitiesRepositoryTests extends TestBase {
         assertNotNull(p1.getUpdatedAt());
 
         assertEquals(p3.getProductId(), "prod03");
-        assertEquals(p3.getReserved(), 5);
+        assertEquals(p3.getReserved(), 7);
         assertEquals(p3.getStock(), 7);
         assertNotNull(p3.getUpdatedAt());
     }

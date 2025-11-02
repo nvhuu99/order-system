@@ -26,8 +26,11 @@ public class ProductReservation {
     @Column("product_id")
     String productId;
 
-    @Column("quantity")
-    Integer quantity;
+    @Column("reserved")
+    Integer reserved;
+
+    @Column("desired_amount")
+    Integer desiredAmount;
 
     @Column("expired_at")
     Instant expiredAt;

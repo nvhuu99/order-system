@@ -15,6 +15,7 @@ public class ReservationHandlerProperties {
     public static final String LOCK_RELEASED = "LOCK_RELEASED";
     public static final String REQUEST_COMMITTED = "REQUEST_COMMITTED";
     public static final String RESERVATION_SAVED = "RESERVATION_SAVED";
+    public static final String PRODUCT_AVAILABILITY_SAVED = "PRODUCT_AVAILABILITY_SAVED";
 
     protected final Logger log = LoggerFactory.getLogger(ReservationHandler.class);
 
@@ -26,6 +27,9 @@ public class ReservationHandlerProperties {
 
     @Value("${order-system.handlers.product-reservation-requests.wait-sec}")
     protected Long WAIT_SECONDS;
+
+    @Value("${order-system.handlers.product-reservation-requests.default-reservation-expire-after-seconds}")
+    protected Integer EXPIRES_AFTER_SECONDS;
 
     protected void callHook(String name, String value, BiConsumer<String, String> hook) {
         if (hook != null) {

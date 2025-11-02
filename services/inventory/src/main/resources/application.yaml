@@ -18,6 +18,7 @@ order-system:
     product-reservation-requests:
       timeout-sec: 15
       wait-sec: 10
+      default-reservation-expire-after-seconds: 3600
 
 spring:
   application:

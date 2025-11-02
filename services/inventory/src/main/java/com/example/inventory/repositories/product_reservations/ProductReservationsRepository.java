@@ -14,11 +14,11 @@ public interface ProductReservationsRepository extends ReactiveCrudRepository<Pr
     @Query("""
         SELECT
             product_id,
-            COALESCE(SUM(quantity), 0) AS reserved
+            COALESCE(SUM(reserved), 0) AS reserved
         FROM product_reservations
         WHERE
             product_id IN (:productIds)
-            AND status = 'OK'
+            AND (status = 'OK' OR status = 'INSUFFICIENT_STOCK')
             AND expired_at > CURRENT_TIMESTAMP
         GROUP BY product_id
     """)

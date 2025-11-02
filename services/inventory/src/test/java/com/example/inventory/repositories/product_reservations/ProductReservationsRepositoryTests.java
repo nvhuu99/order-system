@@ -23,7 +23,7 @@ public class ProductReservationsRepositoryTests extends TestBase {
     @Test
     void sumReservedAmountByProductIds_mustReturnCorrectSumForAllByProductIds_AndOnlyIncludeStatusOK_AndExcludesExpiredReservation() {
         var ids = List.of("prod01", "prod02", "prod03", "prod04", "prod05", "prod06", "prod07");
-        var verifyIds = List.of("prod02", "prod03", "prod04", "prod06");
+        var verifyIds = List.of("prod01", "prod02", "prod03", "prod04", "prod06");
         var total = new AtomicInteger();
 
         seeder
@@ -34,7 +34,7 @@ public class ProductReservationsRepositoryTests extends TestBase {
                 assertTrue(verifyIds.contains(data.getProductId()));
             })
             .doOnComplete(() -> {
-                assertEquals(total.get(), 10);
+                assertEquals(total.get(), 12);
             })
             .blockLast()
         ;

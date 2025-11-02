@@ -42,7 +42,7 @@ public class ProductAvailabilitiesServiceTests extends TestBase {
         assertNotNull(r4);
 
         assertEquals(r2.getReserved(), 1);
-        assertEquals(r3.getReserved(), 5);
+        assertEquals(r3.getReserved(), 7);
         assertEquals(r4.getReserved(), 3);
     }
 
@@ -50,20 +50,23 @@ public class ProductAvailabilitiesServiceTests extends TestBase {
     void syncAllWithReservations_afterSync_dataShouldMatch() {
         seeder
             .seedProductsAndProductReservations()
-            .then(productAvailabilitiesService.syncAllWithReservations(List.of("prod01", "prod05", "prod06")))
+            .then(productAvailabilitiesService.syncAllWithReservations(List.of("prod01", "prod03", "prod05", "prod06")))
             .block()
         ;
 
-        var r1 = productAvailabilitiesRepo.findByProductId("prod01").block();
-        var r5 = productAvailabilitiesRepo.findByProductId("prod05").block();
-        var r6 = productAvailabilitiesRepo.findByProductId("prod06").block();
+        var p1 = productAvailabilitiesRepo.findByProductId("prod01").block();
+        var p3 = productAvailabilitiesRepo.findByProductId("prod03").block();
+        var p5 = productAvailabilitiesRepo.findByProductId("prod05").block();
+        var p6 = productAvailabilitiesRepo.findByProductId("prod06").block();
 
-        assertNotNull(r1);
-        assertNotNull(r5);
-        assertNotNull(r6);
+        assertNotNull(p1);
+        assertNotNull(p3);
+        assertNotNull(p5);
+        assertNotNull(p6);
 
-        assertEquals(r1.getReserved(), 0);
-        assertEquals(r5.getReserved(), 0);
-        assertEquals(r6.getReserved(), 1);
+        assertEquals(p1.getReserved(), 0);
+        assertEquals(p3.getReserved(), 7);
+        assertEquals(p5.getReserved(), 0);
+        assertEquals(p6.getReserved(), 1);
     }
 }

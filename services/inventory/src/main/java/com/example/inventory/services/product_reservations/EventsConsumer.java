@@ -36,7 +36,7 @@ public class EventsConsumer {
         log.info(logTemplate(headers, "Message received"));
 
         var isCommited = new AtomicBoolean(false);
-        var execute = reservationRequestHandler.handle(request, (hookName) -> {
+        var execute = reservationRequestHandler.handle(request, (hookName, data) -> {
             if (Objects.equals(hookName, ReservationHandler.REQUEST_COMMITTED)) {
                 ack.acknowledge();
                 isCommited.set(true);
