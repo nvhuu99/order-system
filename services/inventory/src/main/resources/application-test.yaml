@@ -1,6 +1,6 @@
 logging:
   level:
-    com.example.cart.services.inventory: DEBUG
+    com.example.inventory: DEBUG
 
 spring:
   lifecycle:

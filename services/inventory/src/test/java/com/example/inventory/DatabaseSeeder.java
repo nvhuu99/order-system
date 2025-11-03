@@ -33,16 +33,13 @@ public class DatabaseSeeder {
 
     public Mono<Void> seedProductsAndProductReservations() {
         /*
-        USERS:
-        - usr01, usr02
-
         RESERVATION SUMMARY:
         - prod01: stock = 0, reserved amount = 0 - reservations: INSUFFICIENT_STOCK = 1
         - prod02: stock = 3, reserved amount = 1 - reservations: OK = 1.
         - prod03: stock = 7, reserved amount = 7 - reservations: OK = (2, 3). INSUFFICIENT_STOCK = 3
         - prod04: stock = 5, reserved amount = 3 - OK = (1, 1, 1). EXPIRED = 1
         - prod05: stock = 2, reserved amount = 0 - EXPIRED = 1
-        - prod06 (usr02): stock = 5, reserved amount = 1 - OK = 1.
+        - prod06: stock = 5, reserved amount = 1 - OK = 1.
         - prod07: stock = 5 - no reservation
         */
 
@@ -59,16 +56,16 @@ public class DatabaseSeeder {
         seedProducts.add(newProduct("prod07", 5));
 
         seedReservations.add(newReservation("prod01", "usr01", 1, 0, 0, ReservationStatus.INSUFFICIENT_STOCK));
-        seedReservations.add(newReservation("prod02", "usr01", 1, 1, 1, ReservationStatus.OK));
-        seedReservations.add(newReservation("prod03", "usr01", 2, 2, 2, ReservationStatus.OK));
-        seedReservations.add(newReservation("prod03", "usr01", 3, 3, 5, ReservationStatus.OK));
-        seedReservations.add(newReservation("prod03", "usr01", 3, 2, 5, ReservationStatus.INSUFFICIENT_STOCK));
-        seedReservations.add(newReservation("prod04", "usr01", 1, 1, 1, ReservationStatus.OK));
-        seedReservations.add(newReservation("prod04", "usr01", 1, 1, 2, ReservationStatus.OK));
-        seedReservations.add(newReservation("prod04", "usr01", 1, 1, 3, ReservationStatus.OK));
-        seedReservations.add(newReservation("prod04", "usr01", 1, 0, 1, ReservationStatus.EXPIRED));
-        seedReservations.add(newReservation("prod05", "usr01", 1, 0, 0, ReservationStatus.EXPIRED));
-        seedReservations.add(newReservation("prod06", "usr02", 1, 1, 1, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod02", "usr02", 1, 1, 1, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod03", "usr03", 2, 2, 2, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod03", "usr04", 3, 3, 5, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod03", "usr05", 3, 2, 5, ReservationStatus.INSUFFICIENT_STOCK));
+        seedReservations.add(newReservation("prod04", "usr06", 1, 1, 1, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod04", "usr07", 1, 1, 2, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod04", "usr08", 1, 1, 3, ReservationStatus.OK));
+        seedReservations.add(newReservation("prod04", "usr09", 1, 0, 1, ReservationStatus.EXPIRED));
+        seedReservations.add(newReservation("prod05", "usr10", 1, 0, 0, ReservationStatus.EXPIRED));
+        seedReservations.add(newReservation("prod06", "usr11", 1, 1, 1, ReservationStatus.OK));
 
         return db.createTables()
             .then(template.delete(ProductReservation.class).all())

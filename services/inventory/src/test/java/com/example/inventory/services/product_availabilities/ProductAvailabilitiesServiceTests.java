@@ -1,9 +1,8 @@
-package com.example.inventory.services;
+package com.example.inventory.services.product_availabilities;
 
 import com.example.inventory.DatabaseSeeder;
 import com.example.inventory.TestBase;
 import com.example.inventory.repositories.product_availabilities.ProductAvailabilitiesRepository;
-import com.example.inventory.services.product_availabilities.ProductAvailabilitiesService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

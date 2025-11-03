@@ -3,17 +3,18 @@ package com.example.inventory.repositories.product_reservations.entities;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Table("product_reservations")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductReservation {
     @Id
@@ -27,24 +28,20 @@ public class ProductReservation {
     String productId;
 
     @Column("reserved")
-    Integer reserved;
+    Integer reserved = 0;
 
     @Column("desired_amount")
-    Integer desiredAmount;
-
-    @Column("expired_at")
-    Instant expiredAt;
+    Integer desiredAmount = 0;
 
     @Column("total_reserved_snapshot")
-    Integer totalReservedSnapshot;
+    Integer totalReservedSnapshot = 0;
 
     @Column("status")
     String status;
 
+    @Column("expired_at")
+    Instant expiredAt;
+
     @Column("updated_at")
     Instant updatedAt;
-
-    public ProductReservation() {
-        this.id = UUID.randomUUID().toString();
-    }
 }

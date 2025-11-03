@@ -46,12 +46,8 @@ public class ReservationHandler extends ReservationHandlerProperties {
         log.info(logTemplate(request, "handling reservation request"));
 
         var handlerLock = redisson.getReadWriteLock("order_system:reservation_request_handlers:" + request.getIdentifier()).writeLock();
-        var reservationLock = redisson.getReadWriteLock("order_system:reservation_request_handlers:" + request.getIdentifier()).writeLock();
+        var reservationLock = redisson.getReadWriteLock("order_system:product_reservations:" + request.getIdentifier()).writeLock();
         var productAvailabilityLock = redisson.getReadWriteLock("order_system:product_availabilities:" + request.getProductId()).writeLock();
-
-        var isHandlerLocked = new AtomicBoolean(false);
-        var isReservationLocked = new AtomicBoolean(false);
-        var isProductAvailabilityLocked = new AtomicBoolean(false);
 
         var reservationRef = new AtomicReference<ProductReservation>();
         var productAvailabilityRef = new AtomicReference<ProductAvailability>();
@@ -64,9 +60,9 @@ public class ReservationHandler extends ReservationHandlerProperties {
                 validator.checkRequestTimestamp(reservation, request);
                 return reservation;
             })
-            .then(acquireHandlerLock(request, handlerLock, isHandlerLocked, hook))
-            .then(acquireLock(request, reservationLock, isReservationLocked, hook))
-            .then(acquireLock(request, productAvailabilityLock, isProductAvailabilityLocked, hook))
+            .then(acquireHandlerLock(request, handlerLock, hook))
+            .then(acquireLock(request, reservationLock, hook))
+            .then(acquireLock(request, productAvailabilityLock, hook))
             .then(getReservation(request, reservationRef))
             .then(getProductAvailability(request, productAvailabilityRef))
             .map(ignored -> {
@@ -101,25 +97,22 @@ public class ReservationHandler extends ReservationHandlerProperties {
 
                 return Mono.empty();
             })
-            .flatMap(ignored -> putProductAvailability(request, productAvailabilityRef.get(), hook))
-            .flatMap(ignored -> putReservation(request, reservationRef.get(), hook))
+            .flatMap(ignored ->
+                putProductAvailability(request, productAvailabilityRef.get(), hook)
+                    .then(putReservation(request, reservationRef.get(), hook))
+            )
             .then(releaseLock(request, productAvailabilityLock, hook))
             .then(releaseLock(request, reservationLock, hook))
             .then(releaseLock(request, handlerLock, hook))
             .then(commit)
             .onErrorResume(InvalidRequestTimestamp.class, ex -> commit.then(Mono.error(ex)))
             .onErrorResume(RequestHandlerLockUnavailable.class, ex -> commit.then(Mono.error(ex)))
-            .doOnError(ex -> {
-                if (isProductAvailabilityLocked.get()) {
-                    productAvailabilityLock.unlock().subscribe();
-                }
-                if (isReservationLocked.get()) {
-                    reservationLock.unlock().subscribe();
-                }
-                if (isHandlerLocked.get()) {
-                    handlerLock.unlock().subscribe();
-                }
-            })
+            .onErrorResume(ex ->
+                    releaseLock(request, productAvailabilityLock, hook)
+                        .then(releaseLock(request, reservationLock, hook))
+                        .then(releaseLock(request, handlerLock, hook))
+                        .then(Mono.error(ex))
+            )
             .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
             .doOnSuccess(ok -> log.info(logTemplate(request, "handle reservation request successfully")))
             .then()
@@ -133,7 +126,9 @@ public class ReservationHandler extends ReservationHandlerProperties {
     ) {
         return reservationRepo
             .findByProductIdAndUserId(request.getProductId(), request.getUserId())
-            .defaultIfEmpty(new ProductReservation())
+            .defaultIfEmpty(
+                new ProductReservation(null, request.getUserId(), request.getProductId(), 0, 0, 0, null, null, null)
+            )
             .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "get reservation failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "get reservation successfully")))
@@ -141,14 +136,13 @@ public class ReservationHandler extends ReservationHandlerProperties {
         ;
     }
 
-    private Mono<Void> acquireHandlerLock(ReservationRequest request, RLockReactive lock, AtomicBoolean isLocked, BiConsumer<String, String> hook) {
+    private Mono<Void> acquireHandlerLock(ReservationRequest request, RLockReactive lock, BiConsumer<String, String> hook) {
         return lock
             .tryLock(0, TIMEOUT_SECONDS, TimeUnit.SECONDS) // no wait for lock acquisition
             .map(acquired -> {
                 if (! acquired) {
                     throw new RequestHandlerLockUnavailable();
                 }
-                isLocked.set(true);
                 return true;
             })
             .timeout(Duration.ofSeconds(WAIT_SECONDS))
@@ -159,11 +153,10 @@ public class ReservationHandler extends ReservationHandlerProperties {
         ;
     }
 
-    private Mono<Void> acquireLock(ReservationRequest request, RLockReactive lock, AtomicBoolean isLocked, BiConsumer<String, String> hook) {
+    private Mono<Void> acquireLock(ReservationRequest request, RLockReactive lock, BiConsumer<String, String> hook) {
         return lock
             .lock(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .timeout(Duration.ofSeconds(WAIT_SECONDS))
-            .doOnSuccess(ok -> isLocked.set(true))
             .doOnError(ex -> log.error(logTemplate(request, "lock acquire failed - {} - {}"), lock.getName(), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock acquire success - {}"), lock.getName()))
             .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, lock.getName(), hook))
@@ -172,11 +165,12 @@ public class ReservationHandler extends ReservationHandlerProperties {
 
     private Mono<Void> releaseLock(ReservationRequest request, RLockReactive lock, BiConsumer<String, String> hook) {
         return lock
-            .unlock()
+            .forceUnlock()
             .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "lock release failed - {} - {}"), lock.getName(), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock release success - {}"), lock.getName()))
             .doOnSuccess(ok -> callHook(LOCK_RELEASED, lock.getName(), hook))
+            .then()
         ;
     }
 

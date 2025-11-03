@@ -13,9 +13,9 @@ public class ReservationHandlerProperties {
 
     public static final String LOCK_ACQUIRED = "LOCK_ACQUIRED";
     public static final String LOCK_RELEASED = "LOCK_RELEASED";
-    public static final String REQUEST_COMMITTED = "REQUEST_COMMITTED";
     public static final String RESERVATION_SAVED = "RESERVATION_SAVED";
     public static final String PRODUCT_AVAILABILITY_SAVED = "PRODUCT_AVAILABILITY_SAVED";
+    public static final String REQUEST_COMMITTED = "REQUEST_COMMITTED";
 
     protected final Logger log = LoggerFactory.getLogger(ReservationHandler.class);
 
@@ -41,18 +41,6 @@ public class ReservationHandlerProperties {
         if (hook != null) {
             hook.accept(name, null);
         }
-    }
-
-    protected RetryBackoffSpec exponentialRetrySpec() {
-        return Retry.backoff(10, Duration.ofMillis(200)).jitter(0.5).doBeforeRetry(retrySignal -> {
-            log.debug("retry attempt ({}): {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString());
-        });
-    }
-
-    protected RetryBackoffSpec weakRetrySpec() {
-        return Retry.fixedDelay(3, Duration.ofMillis(100)).doBeforeRetry(retrySignal -> {
-            log.debug("weak retry attempt ({}): {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString());
-        });
     }
 
     protected String logTemplate(ReservationRequest request, String append) {
