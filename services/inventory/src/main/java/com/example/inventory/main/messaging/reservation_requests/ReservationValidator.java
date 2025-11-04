@@ -1,7 +1,7 @@
-package com.example.inventory.services.product_reservations;
+package com.example.inventory.main.messaging.reservation_requests;
 
+import com.example.inventory.main.messaging.reservation_requests.exceptions.InvalidRequestTimestamp;
 import com.example.inventory.repositories.product_reservations.entities.ProductReservation;
-import com.example.inventory.services.product_reservations.exceptions.InvalidRequestTimestamp;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 

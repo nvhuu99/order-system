@@ -1,4 +1,4 @@
-package com.example.inventory.grpc.dto;
+package com.example.inventory.main.grpc.dto;
 
 import com.example.inventory.repositories.product_availabilities.entities.ProductAvailability;
 

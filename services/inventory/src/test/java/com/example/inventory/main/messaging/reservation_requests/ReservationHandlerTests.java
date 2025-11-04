@@ -1,15 +1,17 @@
-package com.example.inventory.services.product_reservations;
+package com.example.inventory.main.messaging.reservation_requests;
 
 import com.example.inventory.DatabaseInitializer;
 import com.example.inventory.TestBase;
 import com.example.inventory.enums.ReservationStatus;
+import com.example.inventory.main.messaging.reservation_requests.ReservationHandler;
+import com.example.inventory.main.messaging.reservation_requests.ReservationRequest;
 import com.example.inventory.repositories.product_availabilities.ProductAvailabilitiesRepository;
 import com.example.inventory.repositories.product_reservations.ProductReservationsCrudRepository;
 import com.example.inventory.repositories.product_reservations.entities.ProductReservation;
 import com.example.inventory.repositories.products.ProductsRepository;
 import com.example.inventory.repositories.products.entities.Product;
-import com.example.inventory.services.product_reservations.exceptions.InvalidRequestTimestamp;
-import com.example.inventory.services.product_reservations.exceptions.RequestHandlerLockUnavailable;
+import com.example.inventory.main.messaging.reservation_requests.exceptions.InvalidRequestTimestamp;
+import com.example.inventory.main.messaging.reservation_requests.exceptions.RequestHandlerLockUnavailable;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonReactiveClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.inventory.services.product_reservations.ReservationHandlerProperties.RESERVATION_SAVED;
+import static com.example.inventory.main.messaging.reservation_requests.ReservationHandlerProperties.RESERVATION_SAVED;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReservationHandlerTests extends TestBase {

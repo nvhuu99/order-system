@@ -1,12 +1,9 @@
-package com.example.inventory.services.product_reservations;
+package com.example.inventory.main.messaging.reservation_requests;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import reactor.util.retry.Retry;
-import reactor.util.retry.RetryBackoffSpec;
 
-import java.time.Duration;
 import java.util.function.BiConsumer;
 
 public class ReservationHandlerProperties {

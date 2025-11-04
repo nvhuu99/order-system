@@ -1,13 +1,13 @@
-package com.example.inventory.services.product_reservations;
+package com.example.inventory.main.messaging.reservation_requests;
 
 import com.example.inventory.enums.ReservationStatus;
+import com.example.inventory.main.messaging.reservation_requests.exceptions.InvalidRequestTimestamp;
+import com.example.inventory.main.messaging.reservation_requests.exceptions.RequestHandlerLockUnavailable;
 import com.example.inventory.repositories.product_availabilities.ProductAvailabilitiesRepository;
 import com.example.inventory.repositories.product_availabilities.entities.ProductAvailability;
 import com.example.inventory.repositories.product_reservations.entities.ProductReservation;
 import com.example.inventory.repositories.product_reservations.ProductReservationsCrudRepository;
 import com.example.inventory.services.product_availabilities.ProductAvailabilitiesService;
-import com.example.inventory.services.product_reservations.exceptions.InvalidRequestTimestamp;
-import com.example.inventory.services.product_reservations.exceptions.RequestHandlerLockUnavailable;
 import org.redisson.api.RLockReactive;
 import org.redisson.api.RedissonReactiveClient;
 import org.springframework.beans.factory.annotation.Autowired;

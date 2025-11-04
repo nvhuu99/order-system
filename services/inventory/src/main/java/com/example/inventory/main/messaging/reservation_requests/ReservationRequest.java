@@ -1,4 +1,4 @@
-package com.example.inventory.services.product_reservations;
+package com.example.inventory.main.messaging.reservation_requests;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

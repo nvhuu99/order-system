@@ -1,4 +1,4 @@
-package com.example.inventory.grpc;
+package com.example.inventory.main.grpc;
 
 import com.example.grpc.inventory.stubs.InventoryServiceGrpc;
 import com.example.grpc.inventory.stubs.ListProductAvailabilitiesRequest;
