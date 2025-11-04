@@ -22,7 +22,6 @@ public class DatabaseInitializer {
     private Resource CREATE_PRODUCT_RESERVATIONS;
 
     public Mono<Void> createTables() {
-
         try {
             var db = r2dbcTemplate.getDatabaseClient();
             var createProductTable = db.sql(Files.readString(CREATE_PRODUCTS.getFile().toPath())).fetch().rowsUpdated();

@@ -51,7 +51,7 @@ public class TestBase {
             mysql.withEnv(Map.of("MYSQL_ROOT_PASSWORD", "admin"));
             mysql.start();
 
-            var urlTemplate = "r2dbc:mysql://%s:%s/inventory?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverTimeZone=UTC&allowPublicKeyRetrieval=true&useSSL=false";
+            var urlTemplate = "r2dbc:mysql://%s:%s/inventory?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverZoneId=UTC&allowPublicKeyRetrieval=true&useSSL=false";
             System.setProperty("spring.r2dbc.url", String.format(urlTemplate, mysql.getHost(), mysql.getMappedPort(3306)));
             System.setProperty("spring.r2dbc.username", "root");
             System.setProperty("spring.r2dbc.password", "admin");
