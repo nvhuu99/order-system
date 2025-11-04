@@ -17,9 +17,9 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
-public class EventsConsumer {
+public class ReservationRequestsListener {
 
-    private final Logger log = LoggerFactory.getLogger(EventsConsumer.class);
+    private final Logger log = LoggerFactory.getLogger(ReservationRequestsListener.class);
 
     @Value("${HOSTNAME:inventory-service}")
     private String hostname;

@@ -4,7 +4,7 @@ import com.example.inventory.enums.ReservationStatus;
 import com.example.inventory.repositories.product_availabilities.ProductAvailabilitiesRepository;
 import com.example.inventory.repositories.product_availabilities.entities.ProductAvailability;
 import com.example.inventory.repositories.product_reservations.entities.ProductReservation;
-import com.example.inventory.repositories.product_reservations.ProductReservationsRepository;
+import com.example.inventory.repositories.product_reservations.ProductReservationsCrudRepository;
 import com.example.inventory.services.product_availabilities.ProductAvailabilitiesService;
 import com.example.inventory.services.product_reservations.exceptions.InvalidRequestTimestamp;
 import com.example.inventory.services.product_reservations.exceptions.RequestHandlerLockUnavailable;
@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
@@ -27,7 +26,7 @@ import static com.example.inventory.utils.ErrorUtils.exceptionCause;
 public class ReservationHandler extends ReservationHandlerProperties {
     
     @Autowired
-    private ProductReservationsRepository reservationRepo;
+    private ProductReservationsCrudRepository reservationRepo;
 
     @Autowired
     private ProductAvailabilitiesRepository productAvailabilitiesRepo;
@@ -86,7 +85,6 @@ public class ReservationHandler extends ReservationHandlerProperties {
                 reservation.setProductId(request.getProductId());
                 reservation.setReserved(maxAdditional);
                 reservation.setDesiredAmount(request.getQuantity());
-                reservation.setTotalReservedSnapshot(availability.getReserved());
                 if (request.getQuantity() > maxAdditional) {
                     reservation.setStatus(ReservationStatus.INSUFFICIENT_STOCK.getValue());
                 } else {
@@ -98,8 +96,8 @@ public class ReservationHandler extends ReservationHandlerProperties {
                 return Mono.empty();
             })
             .flatMap(ignored ->
-                putProductAvailability(request, productAvailabilityRef.get(), hook)
-                    .then(putReservation(request, reservationRef.get(), hook))
+                putReservation(request, reservationRef.get(), hook)
+                    .then(putProductAvailability(request, productAvailabilityRef.get(), hook))
             )
             .then(releaseLock(request, productAvailabilityLock, hook))
             .then(releaseLock(request, reservationLock, hook))
@@ -127,7 +125,7 @@ public class ReservationHandler extends ReservationHandlerProperties {
         return reservationRepo
             .findByProductIdAndUserId(request.getProductId(), request.getUserId())
             .defaultIfEmpty(
-                new ProductReservation(null, request.getUserId(), request.getProductId(), 0, 0, 0, null, null, null)
+                new ProductReservation(null, request.getUserId(), request.getProductId(), 0, 0, null, null, null)
             )
             .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "get reservation failed: {}"), exceptionCause(ex).getMessage()))

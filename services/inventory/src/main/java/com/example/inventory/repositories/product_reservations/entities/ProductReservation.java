@@ -33,9 +33,6 @@ public class ProductReservation {
     @Column("desired_amount")
     Integer desiredAmount = 0;
 
-    @Column("total_reserved_snapshot")
-    Integer totalReservedSnapshot = 0;
-
     @Column("status")
     String status;
 

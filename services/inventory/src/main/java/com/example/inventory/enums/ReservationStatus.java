@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum ReservationStatus {
     OK("OK"),
     INSUFFICIENT_STOCK("INSUFFICIENT_STOCK"),
-    EXPIRED("EXPIRED");
+    EXPIRED("EXPIRED"),
+    UNKOWN("UNKOWN");
 
     private final String value;
 
