@@ -3,38 +3,35 @@ package com.example.inventory.main.messaging.reservation_requests;
 import com.example.inventory.DatabaseInitializer;
 import com.example.inventory.TestBase;
 import com.example.inventory.enums.ReservationStatus;
-import com.example.inventory.main.messaging.reservation_requests.ReservationHandler;
-import com.example.inventory.main.messaging.reservation_requests.ReservationRequest;
 import com.example.inventory.repositories.product_availabilities.ProductAvailabilitiesRepository;
 import com.example.inventory.repositories.product_reservations.ProductReservationsCrudRepository;
 import com.example.inventory.repositories.product_reservations.entities.ProductReservation;
 import com.example.inventory.repositories.products.ProductsRepository;
 import com.example.inventory.repositories.products.entities.Product;
 import com.example.inventory.main.messaging.reservation_requests.exceptions.InvalidRequestTimestamp;
-import com.example.inventory.main.messaging.reservation_requests.exceptions.RequestHandlerLockUnavailable;
+import com.example.inventory.services.collection_locks.CollectionLocksService;
 import org.junit.jupiter.api.Test;
-import org.redisson.api.RedissonReactiveClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
-import static com.example.inventory.main.messaging.reservation_requests.ReservationHandlerProperties.RESERVATION_SAVED;
+import static com.example.inventory.main.messaging.reservation_requests.ReservationsHandlerProperties.RESERVATION_SAVED;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ReservationHandlerTests extends TestBase {
+public class ReservationsHandlerTests extends TestBase {
 
     @Autowired
     private DatabaseInitializer initializer;
 
     @Autowired
-    private ReservationHandler handler;
+    private ReservationsHandler handler;
 
     @Autowired
     private ProductReservationsCrudRepository reservationsRepo;
@@ -46,7 +43,8 @@ public class ReservationHandlerTests extends TestBase {
     private ProductAvailabilitiesRepository availabilitiesRepo;
 
     @Autowired
-    private RedissonReactiveClient redisson;
+    private CollectionLocksService locksService;
+
 
     private ProductReservation setupReservation(Integer stock, Integer reserved, Integer desired, ReservationStatus status) {
         var now = Instant.now();
@@ -77,7 +75,7 @@ public class ReservationHandlerTests extends TestBase {
     void ifRequestHasInvalidTimestamp_failFastWithRequestCommitted_andDoNotAcquireHandlerLock() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var reservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(reservation.getProductId(), reservation.getUserId(), 1, Instant.now().minusSeconds(1000));
+        var request = new Reservation(reservation.getProductId(), reservation.getUserId(), 1, Instant.now().minusSeconds(1000));
 
         var execute = handler
             .handle(request, (hook, value) -> putHookToMap(hooks, hook, value))
@@ -94,18 +92,17 @@ public class ReservationHandlerTests extends TestBase {
     void ifFailedToAcquireHandlerLock_failFastWithRequestCommitted() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
+        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
 
-        var handlerLock = redisson
-            .getReadWriteLock("order_system:reservation_request_handlers:" + request.getIdentifier())
-            .writeLock()
+        var acquireHandlerLock = locksService
+            .tryLock("order_system:reservation_request_handlers", List.of(request.getIdentifier()), "lockValue", Duration.ofSeconds(10))
         ;
-        var execute = handlerLock
-            .tryLock(0, 10, TimeUnit.SECONDS)
+        acquireHandlerLock
             .then(handler.handle(request, (hook, value) -> putHookToMap(hooks, hook, value)))
+            .onErrorComplete()
+            .block()
         ;
 
-        assertThrows(RequestHandlerLockUnavailable.class, execute::block);
         assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
         assertFalse(hooks.containsKey("LOCK_ACQUIRED"));
         assertFalse(hooks.containsKey("RESERVATION_SAVED"));
@@ -116,22 +113,22 @@ public class ReservationHandlerTests extends TestBase {
     void ifRequestTimestampIsValid_allLockMustBeAcquired() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
+        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
 
         handler.handle(request, (hook, value) -> putHookToMap(hooks, hook, value)).block();
 
         assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
         assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
-        assertEquals(hooks.get("LOCK_ACQUIRED").get(0), "order_system:reservation_request_handlers:" + request.getIdentifier());
-        assertEquals(hooks.get("LOCK_ACQUIRED").get(1), "order_system:product_reservations:" + request.getIdentifier());
-        assertEquals(hooks.get("LOCK_ACQUIRED").get(2), "order_system:product_availabilities:" + request.getProductId());
+        assertEquals(hooks.get("LOCK_ACQUIRED").get(0), "order_system:reservation_request_handlers");
+        assertEquals(hooks.get("LOCK_ACQUIRED").get(1), "order_system:product_reservations");
+        assertEquals(hooks.get("LOCK_ACQUIRED").get(2), "order_system:product_availabilities");
     }
 
     @Test
     void whenUnhandledErrorOccurred_mustNotCommitRequest_andAllLocksAreReleased() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
+        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
 
         handler
             .handle(request, (hook, value) -> {
@@ -148,16 +145,16 @@ public class ReservationHandlerTests extends TestBase {
 
         assertFalse(hooks.containsKey("REQUEST_COMMITTED"));
         assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
-        assertEquals(hooks.get("LOCK_RELEASED").get(0), "order_system:product_availabilities:" + request.getProductId());
-        assertEquals(hooks.get("LOCK_RELEASED").get(1), "order_system:product_reservations:" + request.getIdentifier());
-        assertEquals(hooks.get("LOCK_RELEASED").get(2), "order_system:reservation_request_handlers:" + request.getIdentifier());
+        assertEquals(hooks.get("LOCK_RELEASED").get(0), "order_system:product_availabilities");
+        assertEquals(hooks.get("LOCK_RELEASED").get(1), "order_system:product_reservations");
+        assertEquals(hooks.get("LOCK_RELEASED").get(2), "order_system:reservation_request_handlers");
     }
 
     @Test
     void ifReservationNotExisted_createNewReservation() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
+        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
 
         var reservationResult = handler
             .handle(request, (hook, value) -> putHookToMap(hooks, hook, value))
@@ -182,7 +179,7 @@ public class ReservationHandlerTests extends TestBase {
     void ifReservationAlreadyExisted_putReservation() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var reservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(reservation.getProductId(), reservation.getUserId(), 1, Instant.now().plusSeconds(10));
+        var request = new Reservation(reservation.getProductId(), reservation.getUserId(), 1, Instant.now().plusSeconds(10));
 
         var reservationResult = handler
             .handle(request, (hook, value) -> putHookToMap(hooks, hook, value))
@@ -207,7 +204,7 @@ public class ReservationHandlerTests extends TestBase {
     void ifInSufficientStockForReservation_putReservationWithCorrectStatus() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 5, Instant.now().plusSeconds(10));
+        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 5, Instant.now().plusSeconds(10));
 
         var secondReservation = handler
             .handle(request, (hook, value) -> putHookToMap(hooks, hook, value))
@@ -226,7 +223,7 @@ public class ReservationHandlerTests extends TestBase {
     void ifStockSufficientForReservation_putReservationWithCorrectStatus() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 2, Instant.now().plusSeconds(10));
+        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 2, Instant.now().plusSeconds(10));
 
         var secondReservation = handler
             .handle(request, (hook, value) -> putHookToMap(hooks, hook, value))
@@ -244,7 +241,7 @@ public class ReservationHandlerTests extends TestBase {
     @Test
     void ifNewReservation_andStockSufficient_updateProductAvailabilityAddByQuantity() {
         var reservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(reservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
+        var request = new Reservation(reservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
         var availability = handler
             .handle(request, null)
             .then(availabilitiesRepo.findByProductId(reservation.getProductId()))
@@ -260,7 +257,7 @@ public class ReservationHandlerTests extends TestBase {
     @Test
     void ifExistingReservation_andStockSufficient_updateProductAvailabilityReplaceByQuantity() {
         var reservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(reservation.getProductId(), reservation.getUserId(), 2, Instant.now().plusSeconds(10));
+        var request = new Reservation(reservation.getProductId(), reservation.getUserId(), 2, Instant.now().plusSeconds(10));
         var availability = handler
             .handle(request, null)
             .then(availabilitiesRepo.findByProductId(reservation.getProductId()))
@@ -276,7 +273,7 @@ public class ReservationHandlerTests extends TestBase {
     @Test
     void ifExistingReservation_andInSufficientStock_updateProductAvailabilityAddMaxAvailableQuantity() {
         var reservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new ReservationRequest(reservation.getProductId(), reservation.getUserId(), 7, Instant.now().plusSeconds(10));
+        var request = new Reservation(reservation.getProductId(), reservation.getUserId(), 7, Instant.now().plusSeconds(10));
         var availability = handler
             .handle(request, null)
             .then(availabilitiesRepo.findByProductId(request.getProductId()))

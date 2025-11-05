@@ -12,13 +12,13 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ReservationRequest {
+public class Reservation {
     String productId;
     String userId;
     Integer quantity;
     Instant requestedAt;
 
     public String getIdentifier() {
-        return productId + ":" + userId;
+        return productId + "_" + userId;
     }
 }

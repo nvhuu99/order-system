@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 public class ReservationValidator {
 
-    public void checkRequestTimestamp(ProductReservation reservation, ReservationRequest request) throws InvalidRequestTimestamp {
+    public void checkRequestTimestamp(ProductReservation reservation, Reservation request) throws InvalidRequestTimestamp {
         if (reservation.getUpdatedAt() != null && reservation.getUpdatedAt().isAfter(request.getRequestedAt())) {
             throw new InvalidRequestTimestamp();
         }

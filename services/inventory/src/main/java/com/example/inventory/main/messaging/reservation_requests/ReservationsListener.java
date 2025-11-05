@@ -17,27 +17,27 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
-public class ReservationRequestsListener {
+public class ReservationsListener {
 
-    private final Logger log = LoggerFactory.getLogger(ReservationRequestsListener.class);
+    private final Logger log = LoggerFactory.getLogger(ReservationsListener.class);
 
     @Value("${HOSTNAME:inventory-service}")
     private String hostname;
 
     @Autowired
-    private ReservationHandler reservationRequestHandler;
+    private ReservationsHandler reservationRequestHandler;
 
     @KafkaListener(topicPartitions = { @TopicPartition(
         topic = "${order-system.messaging.product-reservation-requests.topic-name}",
         partitions = "${order-system.messaging.product-reservation-requests.topic-partitions}")
     })
-    public void handle(ReservationRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
+    public void handle(Reservation request, Acknowledgment ack, @Headers Map<String, Object> headers) {
 
         log.info(logTemplate(headers, "Message received"));
 
         var isCommited = new AtomicBoolean(false);
         var execute = reservationRequestHandler.handle(request, (hookName, data) -> {
-            if (Objects.equals(hookName, ReservationHandler.REQUEST_COMMITTED)) {
+            if (Objects.equals(hookName, ReservationsHandler.REQUEST_COMMITTED)) {
                 ack.acknowledge();
                 isCommited.set(true);
             }

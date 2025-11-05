@@ -14,11 +14,16 @@ order-system:
     product-reservation-requests:
       topic-name: "product-reservation-requests"
       topic-partitions: "0"
-  handlers:
-    product-reservation-requests:
       timeout-sec: 15
       wait-sec: 10
       default-reservation-expire-after-seconds: 3600
+    product-reservation-sync-requests:
+      topic-name: "product-reservation-sync-requests"
+      topic-partitions: "0"
+      timeout-sec: 15
+      wait-sec: 10
+      batch-size: 2
+      request-expires-after-seconds: 300
 
 spring:
   application:
