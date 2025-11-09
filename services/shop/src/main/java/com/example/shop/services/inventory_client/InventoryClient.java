@@ -1,6 +1,6 @@
-package com.example.shop.services.inventory;
+package com.example.shop.services.inventory_client;
 
-import com.example.shop.services.inventory.entities.ProductReservation;
+import com.example.shop.services.inventory_client.entities.ProductReservation;
 import reactor.core.publisher.Flux;
 
 public interface InventoryClient {

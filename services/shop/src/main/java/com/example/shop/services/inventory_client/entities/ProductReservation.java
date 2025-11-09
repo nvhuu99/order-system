@@ -1,14 +1,12 @@
-package com.example.shop.services.inventory.entities;
+package com.example.shop.services.inventory_client.entities;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -20,9 +18,9 @@ public class ProductReservation {
 
     String productId;
 
-    Integer reserved = 0;
+    Integer reservedAmount;
 
-    Integer desiredAmount = 0;
+    Integer desiredAmount;
 
     String status;
 

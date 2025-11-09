@@ -4,9 +4,18 @@ server:
 logging:
   level:
     io.grpc: ERROR
-    io.opentelemetry.exporter: OFF
-    io.opentelemetry.exporter.internal.http.HttpExporter: OFF
-    io.lettuce.core: OFF
+    org.springframework.kafka: ERROR
+    org.apache.kafka: ERROR
+    io.opentelemetry.exporter: ERROR
+    io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
+    io.lettuce.core: ERROR
+    org.springframework.r2dbc: ERROR
+
+order-system:
+  messaging:
+    product-reservation-requests:
+      topic-name: "product-reservation-requests"
+      timeout-seconds: 15
 
 spring:
   application:
@@ -15,8 +24,8 @@ spring:
   grpc:
     client:
       channels:
-        cart-service:
-          address: ${CART_SVC_HOST:cart-service}:${CART_SVC_GRPC_PORT:9091}
+        inventory-service:
+          address: ${INVENTORY_SVC_HOST:inventory-service}:${INVENTORY_SVC_GRPC_PORT:9090}
           plaintext: true
 
 management:

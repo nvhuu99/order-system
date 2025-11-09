@@ -4,7 +4,7 @@ import com.example.shop.repositories.products.ProductsRepository;
 import com.example.shop.services.cart_service.entities.Cart;
 import com.example.shop.services.cart_service.entities.CartItem;
 import com.example.shop.services.cart_service.dto.CartUpdateRequest;
-import com.example.shop.services.inventory.InventoryClient;
+import com.example.shop.services.inventory_client.InventoryClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;

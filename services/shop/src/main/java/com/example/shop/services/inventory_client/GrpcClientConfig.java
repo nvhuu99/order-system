@@ -1,4 +1,4 @@
-package com.example.shop.services.inventory;
+package com.example.shop.services.inventory_client;
 
 import com.example.grpc.inventory.stubs.InventoryServiceGrpc;
 

@@ -1,9 +1,9 @@
-package com.example.shop.services.inventory;
+package com.example.shop.services.inventory_client;
 
 import com.example.grpc.inventory.stubs.InventoryServiceGrpc;
 import com.example.grpc.inventory.stubs.ListProductReservationsRequest;
-import com.example.shop.services.inventory.dto.ProductReservationResponse;
-import com.example.shop.services.inventory.entities.ProductReservation;
+import com.example.shop.services.inventory_client.dto.ProductReservationResponse;
+import com.example.shop.services.inventory_client.entities.ProductReservation;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,7 @@ public class InventoryClientImp implements InventoryClient {
         Sinks.Many<ProductReservation> sink = Sinks.many().multicast().directBestEffort();
 
         var request = ListProductReservationsRequest.newBuilder().setUserId(userId).build();
+
         inventorySvcGRPC.listProductReservations(request, new StreamObserver<>() {
             @Override
             public void onNext(com.example.grpc.inventory.stubs.ProductReservation data) {
@@ -29,7 +30,6 @@ public class InventoryClientImp implements InventoryClient {
                     sink.emitNext(ProductReservationResponse.mapToEntity(data), Sinks.EmitFailureHandler.FAIL_FAST);
                 }
             }
-
             @Override public void onError(Throwable t) { sink.emitError(t, Sinks.EmitFailureHandler.FAIL_FAST); }
             @Override public void onCompleted() { sink.emitComplete(Sinks.EmitFailureHandler.FAIL_FAST); }
         });

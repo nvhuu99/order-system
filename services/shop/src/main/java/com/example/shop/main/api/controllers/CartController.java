@@ -3,7 +3,6 @@ package com.example.shop.main.api.controllers;
 import com.example.shop.main.api.responses.ApiResponse;
 import com.example.shop.services.cart_service.CartService;
 import com.example.shop.services.cart_service.dto.CartUpdateRequest;
-import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +21,21 @@ public class CartController {
 
     @GetMapping("{userId}")
     public Mono<ResponseEntity<ApiResponse>> getCart(@PathVariable String userId) {
-        return cartSvc.getCartByUserId(userId)
+        return cartSvc
+            .getCartByUserId(userId)
             .map(ApiResponse::ok)
             .doOnError(ex -> log.error(ex.getMessage()))
-            .onErrorResume(ex ->  Mono.just(ApiResponse.internalServerError(ex)))
+            .onErrorResume(ex ->  Mono.just(ApiResponse.internalServerError("fail to get user cart")))
         ;
     }
 
     @PutMapping("{userId}")
     public Mono<?> updateCart(@RequestBody CartUpdateRequest request) {
-        return cartSvc.cartUpdateRequest(request)
+        return cartSvc
+            .cartUpdateRequest(request)
             .map(ok -> ApiResponse.ok(null))
             .doOnError(ex -> log.error(ex.getMessage()))
-            .onErrorResume(ex -> Mono.just(ApiResponse.internalServerError(ex)))
+            .onErrorResume(ex -> Mono.just(ApiResponse.internalServerError("fail to publish cart update request")))
         ;
     }
 }

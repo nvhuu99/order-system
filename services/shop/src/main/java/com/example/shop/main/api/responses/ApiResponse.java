@@ -17,8 +17,8 @@ public class ApiResponse {
         return ResponseEntity.ok(new ApiResponse(true, "", data));
     }
 
-    public static ResponseEntity<ApiResponse> internalServerError(Throwable exception) {
-        return ResponseEntity.internalServerError().body(new ApiResponse(false, exception.getMessage(), null));
+    public static ResponseEntity<ApiResponse> internalServerError(String message) {
+        return ResponseEntity.internalServerError().body(new ApiResponse(false, message, null));
     }
 
     public static ResponseEntity<ApiResponse> notFound() {

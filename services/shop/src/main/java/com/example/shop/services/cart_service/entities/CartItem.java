@@ -1,7 +1,7 @@
 package com.example.shop.services.cart_service.entities;
 
 import com.example.shop.repositories.products.entities.Product;
-import com.example.shop.services.inventory.entities.ProductReservation;
+import com.example.shop.services.inventory_client.entities.ProductReservation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +25,7 @@ public class CartItem {
         setProductId(product.getId());
         setProductName(product.getName());
         setProductPrice(product.getPrice());
-        setReservedAmount(reservation.getReserved());
+        setReservedAmount(reservation.getReservedAmount());
         setDesiredAmount(reservation.getDesiredAmount());
         setReservationStatus(reservation.getStatus());
     }

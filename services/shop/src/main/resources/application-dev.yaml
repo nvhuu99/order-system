@@ -1,0 +1,5 @@
+logging:
+  level:
+    org.hibernate: INFO
+    org.springframework.r2dbc: INFO
+    com.example.shop: DEBUG
