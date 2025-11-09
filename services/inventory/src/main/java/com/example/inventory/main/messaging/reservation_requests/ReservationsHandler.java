@@ -42,7 +42,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
     @Autowired
     private CollectionLocksService locksService;
 
-    public Mono<Void> handle(Reservation request, BiConsumer<String, String> hook) {
+    public Mono<Void> handle(ReservationRequest request, BiConsumer<String, String> hook) {
 
         log.info(logTemplate(request, "handling reservation request"));
 
@@ -123,7 +123,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         ;
     }
 
-    private Mono<Void> tryAcquireHandlerLock(Reservation request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
+    private Mono<Void> tryAcquireHandlerLock(ReservationRequest request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
         return locksService
             .tryLock(collection, recordIds, lockValue, Duration.ofSeconds(TIMEOUT_SECONDS))
             .timeout(Duration.ofSeconds(WAIT_SECONDS))
@@ -136,7 +136,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
     }
 
 
-    private Mono<Void> acquireLock(Reservation request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
+    private Mono<Void> acquireLock(ReservationRequest request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
         return locksService
             .tryLock(collection, recordIds, lockValue, Duration.ofSeconds(TIMEOUT_SECONDS))
             .retryWhen(fixedDelayRetrySpec())
@@ -148,7 +148,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             ;
     }
 
-    private Mono<Void> releaseLock(Reservation request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
+    private Mono<Void> releaseLock(ReservationRequest request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
         return locksService
             .unlock(collection, recordIds, lockValue)
             .retryWhen(fixedDelayRetrySpec().filter(ex -> !(ex instanceof LockValueMismatch)))
@@ -160,7 +160,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             ;
     }
 
-    private Mono<ProductReservation> getReservation(Reservation request, AtomicReference<ProductReservation> reservationRef) {
+    private Mono<ProductReservation> getReservation(ReservationRequest request, AtomicReference<ProductReservation> reservationRef) {
         return reservationRepo
             .findByProductIdAndUserId(request.getProductId(), request.getUserId())
             .defaultIfEmpty(
@@ -174,7 +174,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
     }
 
     private Mono<ProductAvailability> getProductAvailability(
-        Reservation request,
+        ReservationRequest request,
         AtomicReference<ProductAvailability> producAvailabilityRef
     ) {
         return productAvailabilitiesRepo
@@ -187,7 +187,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         ;
     }
 
-    private Mono<Void> putProductAvailability(Reservation request, ProductAvailability availability, BiConsumer<String, String> hook) {
+    private Mono<Void> putProductAvailability(ReservationRequest request, ProductAvailability availability, BiConsumer<String, String> hook) {
         return productAvailabilitiesRepo
             .save(availability)
             .timeout(Duration.ofSeconds(WAIT_SECONDS))
@@ -198,7 +198,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         ;
     }
 
-    private Mono<Void> putReservation(Reservation request, ProductReservation reservation, BiConsumer<String, String> hook) {
+    private Mono<Void> putReservation(ReservationRequest request, ProductReservation reservation, BiConsumer<String, String> hook) {
         return reservationRepo
             .save(reservation)
             .timeout(Duration.ofSeconds(WAIT_SECONDS))

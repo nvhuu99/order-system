@@ -10,12 +10,12 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ReservationValidatorTests extends TestBase {
+public class ReservationRequestValidatorTests extends TestBase {
 
     @Test
     void ifInvalidTimestamp_throwException() {
         var reservation = new ProductReservation();
-        var request = new Reservation();
+        var request = new ReservationRequest();
         var validator = new ReservationValidator();
 
         var now = Instant.now();
@@ -30,7 +30,7 @@ public class ReservationValidatorTests extends TestBase {
     @Test
     void ifValidTimestamp_doNotThrowException() {
         var reservation = new ProductReservation();
-        var request = new Reservation();
+        var request = new ReservationRequest();
         var validator = new ReservationValidator();
 
         var now = Instant.now();

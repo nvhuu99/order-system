@@ -75,7 +75,7 @@ public class ReservationsHandlerTests extends TestBase {
     void ifRequestHasInvalidTimestamp_failFastWithRequestCommitted_andDoNotAcquireHandlerLock() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var reservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(reservation.getProductId(), reservation.getUserId(), 1, Instant.now().minusSeconds(1000));
+        var request = new ReservationRequest(reservation.getProductId(), reservation.getUserId(), 1, Instant.now().minusSeconds(1000));
 
         var execute = handler
             .handle(request, (hook, value) -> putHookToMap(hooks, hook, value))
@@ -92,7 +92,7 @@ public class ReservationsHandlerTests extends TestBase {
     void ifFailedToAcquireHandlerLock_failFastWithRequestCommitted() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
+        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
 
         var acquireHandlerLock = locksService
             .tryLock("order_system:reservation_request_handlers", List.of(request.getIdentifier()), "lockValue", Duration.ofSeconds(10))
@@ -113,7 +113,7 @@ public class ReservationsHandlerTests extends TestBase {
     void ifRequestTimestampIsValid_allLockMustBeAcquired() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
+        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
 
         handler.handle(request, (hook, value) -> putHookToMap(hooks, hook, value)).block();
 
@@ -128,7 +128,7 @@ public class ReservationsHandlerTests extends TestBase {
     void whenUnhandledErrorOccurred_mustNotCommitRequest_andAllLocksAreReleased() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
+        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
 
         handler
             .handle(request, (hook, value) -> {
@@ -154,7 +154,7 @@ public class ReservationsHandlerTests extends TestBase {
     void ifReservationNotExisted_createNewReservation() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
+        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
 
         var reservationResult = handler
             .handle(request, (hook, value) -> putHookToMap(hooks, hook, value))
@@ -179,7 +179,7 @@ public class ReservationsHandlerTests extends TestBase {
     void ifReservationAlreadyExisted_putReservation() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var reservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(reservation.getProductId(), reservation.getUserId(), 1, Instant.now().plusSeconds(10));
+        var request = new ReservationRequest(reservation.getProductId(), reservation.getUserId(), 1, Instant.now().plusSeconds(10));
 
         var reservationResult = handler
             .handle(request, (hook, value) -> putHookToMap(hooks, hook, value))
@@ -204,7 +204,7 @@ public class ReservationsHandlerTests extends TestBase {
     void ifInSufficientStockForReservation_putReservationWithCorrectStatus() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 5, Instant.now().plusSeconds(10));
+        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 5, Instant.now().plusSeconds(10));
 
         var secondReservation = handler
             .handle(request, (hook, value) -> putHookToMap(hooks, hook, value))
@@ -223,7 +223,7 @@ public class ReservationsHandlerTests extends TestBase {
     void ifStockSufficientForReservation_putReservationWithCorrectStatus() {
         var hooks = new ConcurrentHashMap<String, List<String>>();
         var firstReservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(firstReservation.getProductId(), UUID.randomUUID().toString(), 2, Instant.now().plusSeconds(10));
+        var request = new ReservationRequest(firstReservation.getProductId(), UUID.randomUUID().toString(), 2, Instant.now().plusSeconds(10));
 
         var secondReservation = handler
             .handle(request, (hook, value) -> putHookToMap(hooks, hook, value))
@@ -241,7 +241,7 @@ public class ReservationsHandlerTests extends TestBase {
     @Test
     void ifNewReservation_andStockSufficient_updateProductAvailabilityAddByQuantity() {
         var reservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(reservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
+        var request = new ReservationRequest(reservation.getProductId(), UUID.randomUUID().toString(), 1, Instant.now().plusSeconds(10));
         var availability = handler
             .handle(request, null)
             .then(availabilitiesRepo.findByProductId(reservation.getProductId()))
@@ -257,7 +257,7 @@ public class ReservationsHandlerTests extends TestBase {
     @Test
     void ifExistingReservation_andStockSufficient_updateProductAvailabilityReplaceByQuantity() {
         var reservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(reservation.getProductId(), reservation.getUserId(), 2, Instant.now().plusSeconds(10));
+        var request = new ReservationRequest(reservation.getProductId(), reservation.getUserId(), 2, Instant.now().plusSeconds(10));
         var availability = handler
             .handle(request, null)
             .then(availabilitiesRepo.findByProductId(reservation.getProductId()))
@@ -273,7 +273,7 @@ public class ReservationsHandlerTests extends TestBase {
     @Test
     void ifExistingReservation_andInSufficientStock_updateProductAvailabilityAddMaxAvailableQuantity() {
         var reservation = setupReservation(4, 1, 1, ReservationStatus.OK);
-        var request = new Reservation(reservation.getProductId(), reservation.getUserId(), 7, Instant.now().plusSeconds(10));
+        var request = new ReservationRequest(reservation.getProductId(), reservation.getUserId(), 7, Instant.now().plusSeconds(10));
         var availability = handler
             .handle(request, null)
             .then(availabilitiesRepo.findByProductId(request.getProductId()))

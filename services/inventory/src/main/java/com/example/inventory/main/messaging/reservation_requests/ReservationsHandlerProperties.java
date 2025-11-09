@@ -43,7 +43,7 @@ public class ReservationsHandlerProperties {
         }
     }
 
-    protected String logTemplate(Reservation request, String append) {
+    protected String logTemplate(ReservationRequest request, String append) {
         return String.format(
             "product_id=%s - user_id=%s - handler=%s - " + append,
             request.getProductId(),

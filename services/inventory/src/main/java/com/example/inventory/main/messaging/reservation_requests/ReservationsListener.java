@@ -31,7 +31,7 @@ public class ReservationsListener {
         topic = "${order-system.messaging.product-reservation-requests.topic-name}",
         partitions = "${order-system.messaging.product-reservation-requests.topic-partitions}")
     })
-    public void handle(Reservation request, Acknowledgment ack, @Headers Map<String, Object> headers) {
+    public void handle(ReservationRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
 
         log.info(logTemplate(headers, "Message received"));
 

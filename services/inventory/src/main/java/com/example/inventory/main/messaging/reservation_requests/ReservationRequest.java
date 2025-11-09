@@ -12,7 +12,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Reservation {
+public class ReservationRequest {
     String productId;
     String userId;
     Integer quantity;
