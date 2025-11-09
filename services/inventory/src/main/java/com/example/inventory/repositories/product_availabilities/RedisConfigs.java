@@ -1,4 +1,4 @@
-package com.example.inventory.configs;
+package com.example.inventory.repositories.product_availabilities;
 
 import com.example.inventory.repositories.product_availabilities.entities.ProductAvailability;
 import com.fasterxml.jackson.databind.ObjectMapper;

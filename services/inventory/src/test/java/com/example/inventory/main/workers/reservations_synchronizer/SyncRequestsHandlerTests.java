@@ -3,10 +3,9 @@ package com.example.inventory.main.workers.reservations_synchronizer;
 import com.example.inventory.DatabaseInitializer;
 import com.example.inventory.DatabaseSeeder;
 import com.example.inventory.TestBase;
-import com.example.inventory.enums.ReservationStatus;
+import com.example.inventory.repositories.product_reservations.entities.ReservationStatus;
 import com.example.inventory.repositories.product_availabilities.ProductAvailabilitiesRepository;
 import com.example.inventory.repositories.product_reservations.ProductReservationsCrudRepository;
-import com.example.inventory.services.product_availabilities.ProductAvailabilitiesService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -112,16 +110,16 @@ public class SyncRequestsHandlerTests extends TestBase {
         assertNotNull(r43);
         assertNotNull(r51);
 
-        assertEquals(r11.getReserved(), 0);
-        assertEquals(r21.getReserved(), 3);
-        assertEquals(r22.getReserved(), 2);
-        assertEquals(r23.getReserved(), 0);
-        assertEquals(r31.getReserved(), 0);
-        assertEquals(r32.getReserved(), 3);
-        assertEquals(r41.getReserved(), 2);
-        assertEquals(r42.getReserved(), 3);
-        assertEquals(r43.getReserved(), 0);
-        assertEquals(r51.getReserved(), 2);
+        assertEquals(r11.getReservedAmount(), 0);
+        assertEquals(r21.getReservedAmount(), 3);
+        assertEquals(r22.getReservedAmount(), 2);
+        assertEquals(r23.getReservedAmount(), 0);
+        assertEquals(r31.getReservedAmount(), 0);
+        assertEquals(r32.getReservedAmount(), 3);
+        assertEquals(r41.getReservedAmount(), 2);
+        assertEquals(r42.getReservedAmount(), 3);
+        assertEquals(r43.getReservedAmount(), 0);
+        assertEquals(r51.getReservedAmount(), 2);
 
         assertEquals(r11.getStatus(), ReservationStatus.INSUFFICIENT_STOCK.getValue());
         assertEquals(r21.getStatus(), ReservationStatus.OK.getValue());
@@ -155,10 +153,10 @@ public class SyncRequestsHandlerTests extends TestBase {
         assertNotNull(a4);
         assertNotNull(a5);
 
-        assertEquals(a1.getReserved(), 0);
-        assertEquals(a2.getReserved(), 5);
-        assertEquals(a3.getReserved(), 3);
-        assertEquals(a4.getReserved(), 5);
-        assertEquals(a5.getReserved(), 2);
+        assertEquals(a1.getReservedAmount(), 0);
+        assertEquals(a2.getReservedAmount(), 5);
+        assertEquals(a3.getReservedAmount(), 3);
+        assertEquals(a4.getReservedAmount(), 5);
+        assertEquals(a5.getReservedAmount(), 2);
     }
 }

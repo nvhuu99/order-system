@@ -16,7 +16,7 @@ public class ProductAvailability {
 
     String productId;
 
-    Integer reserved;
+    Integer reservedAmount;
 
     Integer stock;
 

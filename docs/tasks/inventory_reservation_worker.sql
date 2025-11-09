@@ -6,7 +6,7 @@ INSERT INTO products (id, price, name, stock, updated_at) VALUES
 ('prod05', 50.00, 'Product 05 - stock 2', 2, '2025-11-01 00:00:00');
 
 INSERT INTO product_reservations
-  (id, product_id, user_id, desired_amount, reserved, status, expired_at, updated_at)
+  (id, product_id, user_id, desired_amount, reserved, status, expires_at, updated_at)
 VALUES
 ('r-prod01-1', 'prod01', 'user1', 1, 0, 'PENDING', '2025-11-10 00:00:00', '2025-11-04 12:00:00'),
 
@@ -33,13 +33,13 @@ JOIN (
     pr_inner.id,
     pr_inner.product_id,
     pr_inner.desired_amount,
-    pr_inner.expired_at,
+    pr_inner.expires_at,
     pr_inner.updated_at,
     p.stock,
     COALESCE(
       SUM(
         CASE
-          WHEN pr_inner.expired_at > CURRENT_TIMESTAMP() AND pr_inner.status != 'EXPIRED'
+          WHEN pr_inner.expires_at > CURRENT_TIMESTAMP() AND pr_inner.status != 'EXPIRED'
             THEN pr_inner.desired_amount
           ELSE 0
         END
@@ -56,7 +56,7 @@ JOIN (
 SET
   pr.reserved = CASE
     -- expired: clear reservation
-    WHEN a.expired_at <= CURRENT_TIMESTAMP() THEN 0
+    WHEN a.expires_at <= CURRENT_TIMESTAMP() THEN 0
     -- product already fully consumed by prior reservations
     WHEN a.stock <= a.reservation_accumulation THEN 0
     -- partially available: reserve leftover stock
@@ -66,7 +66,7 @@ SET
     ELSE a.desired_amount
   END,
   pr.status = CASE
-    WHEN a.expired_at <= CURRENT_TIMESTAMP() THEN 'EXPIRED'
+    WHEN a.expires_at <= CURRENT_TIMESTAMP() THEN 'EXPIRED'
     WHEN a.stock <= a.reservation_accumulation THEN 'INSUFFICIENT_STOCK'
     WHEN a.stock < a.reservation_accumulation + a.desired_amount THEN 'INSUFFICIENT_STOCK'
     ELSE 'OK'

@@ -3,7 +3,7 @@ package com.example.inventory.repositories.product_reservations;
 import com.example.inventory.DatabaseInitializer;
 import com.example.inventory.TestBase;
 import com.example.inventory.DatabaseSeeder;
-import com.example.inventory.enums.ReservationStatus;
+import com.example.inventory.repositories.product_reservations.entities.ReservationStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -54,7 +54,7 @@ public class ProductReservationsRepositoryTests extends TestBase {
         reservationsRepo
             .sumReservedAmountByProductIds(ids)
             .doOnNext(data -> {
-                total.addAndGet(data.getReserved());
+                total.addAndGet(data.getReservedAmount());
                 assertTrue(ids.contains(data.getProductId()));
             })
             .doOnComplete(() -> {
@@ -111,16 +111,16 @@ public class ProductReservationsRepositoryTests extends TestBase {
         assertNotNull(r51);
 
 
-        assertEquals(r11.getReserved(), 0);
-        assertEquals(r21.getReserved(), 3);
-        assertEquals(r22.getReserved(), 2);
-        assertEquals(r23.getReserved(), 0);
-        assertEquals(r31.getReserved(), 0);
-        assertEquals(r32.getReserved(), 3);
-        assertEquals(r41.getReserved(), 2);
-        assertEquals(r42.getReserved(), 3);
-        assertEquals(r43.getReserved(), 0);
-        assertEquals(r51.getReserved(), 2);
+        assertEquals(r11.getReservedAmount(), 0);
+        assertEquals(r21.getReservedAmount(), 3);
+        assertEquals(r22.getReservedAmount(), 2);
+        assertEquals(r23.getReservedAmount(), 0);
+        assertEquals(r31.getReservedAmount(), 0);
+        assertEquals(r32.getReservedAmount(), 3);
+        assertEquals(r41.getReservedAmount(), 2);
+        assertEquals(r42.getReservedAmount(), 3);
+        assertEquals(r43.getReservedAmount(), 0);
+        assertEquals(r51.getReservedAmount(), 2);
 
         assertEquals(r11.getStatus(), ReservationStatus.INSUFFICIENT_STOCK.getValue());
         assertEquals(r21.getStatus(), ReservationStatus.OK.getValue());

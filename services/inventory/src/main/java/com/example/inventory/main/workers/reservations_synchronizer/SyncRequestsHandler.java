@@ -43,7 +43,7 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
         var lockVal = UUID.randomUUID().toString();
         var commit = Mono.fromRunnable(() -> callHook(REQUEST_COMMITTED, hook));
 
-        if (request.getExpiredAt() != null && request.getExpiredAt().isBefore(Instant.now())) {
+        if (request.getExpiresAt() != null && request.getExpiresAt().isBefore(Instant.now())) {
             log.info(logTemplate(request, "sync request expired"));
             return commit.then();
         }
@@ -77,7 +77,6 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
             .getProductListIds(PageRequest.of(request.getBatchNumber(), request.getBatchSize(), Sort.by("id").ascending()))
             .collectList()
             .defaultIfEmpty(new ArrayList<>())
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "get product_ids failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "get product_ids successfully")))
         ;
@@ -87,7 +86,6 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
         return locksService
             .tryLock(collection, recordIds, lockValue, Duration.ofSeconds(TIMEOUT_SECONDS))
             .retryWhen(fixedDelayRetrySpec())
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "lock acquire failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock acquire success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, collection, hook))
@@ -99,7 +97,6 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
         return locksService
             .unlock(collection, recordIds, lockValue)
             .retryWhen(fixedDelayRetrySpec().filter(ex -> !(ex instanceof LockValueMismatch)))
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "lock release failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock release success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_RELEASED, collection, hook))
@@ -110,7 +107,6 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
     private Mono<Void> syncProductAvailability(SyncRequest request, List<String> productIds, BiConsumer<String, String> hook) {
         return productAvailabilitiesService
             .syncAllWithReservations(productIds)
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "sync product_availability failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "sync product_availability successfully")))
             .doOnSuccess(ok -> callHook(PRODUCT_AVAILABILITY_SYNCED, hook))
@@ -121,7 +117,6 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
     private Mono<Void> syncReservations(SyncRequest request, List<String> productIds, BiConsumer<String, String> hook) {
         return reservationRepo
             .syncReservations(productIds)
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "sync product_reservations failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "sync product_reservations successfully")))
             .doOnSuccess(ok -> callHook(RESERVATIONS_SYNCED, hook))

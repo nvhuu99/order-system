@@ -34,12 +34,12 @@ public class ProductReservationsRepositoryImp implements ProductReservationsRepo
         var sql = """
             SELECT
                 product_id,
-                COALESCE(SUM(reserved), 0) AS reserved
+                COALESCE(SUM(reserved_amount), 0) AS reserved_amount
             FROM product_reservations
             WHERE
                 product_id IN (%s)
                 AND (status = 'OK' OR status = 'INSUFFICIENT_STOCK')
-                AND expired_at > CURRENT_TIMESTAMP
+                AND expires_at > CURRENT_TIMESTAMP
             GROUP BY product_id
         """;
         sql = String.format(sql, String.join(",", idsSQLVarNames));
@@ -50,7 +50,7 @@ public class ProductReservationsRepositoryImp implements ProductReservationsRepo
         }
 
         return spec
-            .map((row, meta) -> new ProductReservedAmount(row.get("product_id", String.class), row.get("reserved", Integer.class)))
+            .map((row, meta) -> new ProductReservedAmount(row.get("product_id", String.class), row.get("reserved_amount", Integer.class)))
             .all()
         ;
     }
@@ -75,13 +75,13 @@ public class ProductReservationsRepositoryImp implements ProductReservationsRepo
                 pr_inner.id,
                 pr_inner.product_id,
                 pr_inner.desired_amount,
-                pr_inner.expired_at,
+                pr_inner.expires_at,
                 pr_inner.updated_at,
                 p.stock,
                 COALESCE(
                   SUM(
                     CASE
-                      WHEN pr_inner.expired_at > CURRENT_TIMESTAMP() AND pr_inner.status != 'EXPIRED'
+                      WHEN pr_inner.expires_at > CURRENT_TIMESTAMP() AND pr_inner.status != 'EXPIRED'
                         THEN pr_inner.desired_amount
                       ELSE 0
                     END
@@ -96,15 +96,15 @@ public class ProductReservationsRepositoryImp implements ProductReservationsRepo
               WHERE pr_inner.product_id IN (%s)
             ) AS a ON pr.id = a.id
             SET
-              pr.reserved = CASE
-                WHEN a.expired_at <= CURRENT_TIMESTAMP() THEN 0
+              pr.reserved_amount = CASE
+                WHEN a.expires_at <= CURRENT_TIMESTAMP() THEN 0
                 WHEN a.stock <= a.reservation_accumulation THEN 0
                 WHEN a.stock < a.reservation_accumulation + a.desired_amount
                   THEN a.stock - a.reservation_accumulation
                 ELSE a.desired_amount
               END,
               pr.status = CASE
-                WHEN a.expired_at <= CURRENT_TIMESTAMP() THEN 'EXPIRED'
+                WHEN a.expires_at <= CURRENT_TIMESTAMP() THEN 'EXPIRED'
                 WHEN a.stock <= a.reservation_accumulation THEN 'INSUFFICIENT_STOCK'
                 WHEN a.stock < a.reservation_accumulation + a.desired_amount THEN 'INSUFFICIENT_STOCK'
                 ELSE 'OK'

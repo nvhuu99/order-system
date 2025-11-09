@@ -11,5 +11,5 @@ public class ProductReservedAmount {
 
     String productId;
 
-    Integer reserved;
+    Integer reservedAmount;
 }

@@ -1,4 +1,4 @@
-package com.example.inventory.enums;
+package com.example.inventory.repositories.product_reservations.entities;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

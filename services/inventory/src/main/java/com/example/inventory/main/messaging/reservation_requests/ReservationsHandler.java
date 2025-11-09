@@ -1,6 +1,6 @@
 package com.example.inventory.main.messaging.reservation_requests;
 
-import com.example.inventory.enums.ReservationStatus;
+import com.example.inventory.repositories.product_reservations.entities.ReservationStatus;
 import com.example.inventory.main.messaging.reservation_requests.exceptions.InvalidRequestTimestamp;
 import com.example.inventory.main.messaging.reservation_requests.exceptions.RequestHandlerLockUnavailable;
 import com.example.inventory.repositories.product_availabilities.ProductAvailabilitiesRepository;
@@ -78,25 +78,25 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
                 var availability = productAvailabilityRef.get();
                 var reservation = reservationRef.get();
 
-                var reservedTotalAfterExcludeReservation = availability.getReserved() - reservation.getReserved();
+                var reservedTotalAfterExcludeReservation = availability.getReservedAmount() - reservation.getReservedAmount();
                 var desiredReserveTotal = reservedTotalAfterExcludeReservation + request.getQuantity();
                 var maxAdditional = availability.getStock() < desiredReserveTotal
                     ? availability.getStock() - reservedTotalAfterExcludeReservation
                     : request.getQuantity()
                 ;
 
-                availability.setReserved(reservedTotalAfterExcludeReservation + maxAdditional);
+                availability.setReservedAmount(reservedTotalAfterExcludeReservation + maxAdditional);
                 availability.setUpdatedAt(now);
 
                 reservation.setProductId(request.getProductId());
-                reservation.setReserved(maxAdditional);
+                reservation.setReservedAmount(maxAdditional);
                 reservation.setDesiredAmount(request.getQuantity());
                 if (request.getQuantity() > maxAdditional) {
                     reservation.setStatus(ReservationStatus.INSUFFICIENT_STOCK.getValue());
                 } else {
                     reservation.setStatus(ReservationStatus.OK.getValue());
                 }
-                reservation.setExpiredAt(now.plusSeconds(EXPIRES_AFTER_SECONDS));
+                reservation.setExpiresAt(now.plusSeconds(EXPIRES_AFTER_SECONDS));
                 reservation.setUpdatedAt(now);
 
                 return Mono.empty();
@@ -126,7 +126,6 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
     private Mono<Void> tryAcquireHandlerLock(ReservationRequest request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
         return locksService
             .tryLock(collection, recordIds, lockValue, Duration.ofSeconds(TIMEOUT_SECONDS))
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "try acquire lock failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "try acquire lock success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, collection, hook))
@@ -140,24 +139,22 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         return locksService
             .tryLock(collection, recordIds, lockValue, Duration.ofSeconds(TIMEOUT_SECONDS))
             .retryWhen(fixedDelayRetrySpec())
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "lock acquire failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock acquire success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, collection, hook))
             .then()
-            ;
+        ;
     }
 
     private Mono<Void> releaseLock(ReservationRequest request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
         return locksService
             .unlock(collection, recordIds, lockValue)
             .retryWhen(fixedDelayRetrySpec().filter(ex -> !(ex instanceof LockValueMismatch)))
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "lock release failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock release success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_RELEASED, collection, hook))
             .then()
-            ;
+        ;
     }
 
     private Mono<ProductReservation> getReservation(ReservationRequest request, AtomicReference<ProductReservation> reservationRef) {
@@ -166,7 +163,6 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .defaultIfEmpty(
                 new ProductReservation(null, request.getUserId(), request.getProductId(), 0, 0, null, null, null)
             )
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "get reservation failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "get reservation successfully")))
             .doOnSuccess(reservationRef::set)
@@ -180,7 +176,6 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         return productAvailabilitiesRepo
             .findByProductId(request.getProductId())
             .switchIfEmpty(productAvailabilitiesService.syncWithReservations(request.getProductId()))
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "get product availability failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "get product availability successfully")))
             .doOnSuccess(producAvailabilityRef::set)
@@ -190,7 +185,6 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
     private Mono<Void> putProductAvailability(ReservationRequest request, ProductAvailability availability, BiConsumer<String, String> hook) {
         return productAvailabilitiesRepo
             .save(availability)
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "put product_availability failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "put product_availability successfully")))
             .doOnSuccess(ok -> callHook(PRODUCT_AVAILABILITY_SAVED, hook))
@@ -201,7 +195,6 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
     private Mono<Void> putReservation(ReservationRequest request, ProductReservation reservation, BiConsumer<String, String> hook) {
         return reservationRepo
             .save(reservation)
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
             .doOnError(ex -> log.error(logTemplate(request, "put product_reservation failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "put product_reservation successfully")))
             .doOnSuccess(ok -> callHook(RESERVATION_SAVED, hook))

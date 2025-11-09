@@ -2,7 +2,6 @@ package com.example.inventory.repositories.product_availabilities;
 
 import com.example.inventory.repositories.product_availabilities.entities.ProductAvailability;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

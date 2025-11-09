@@ -27,8 +27,8 @@ public class ProductReservation {
     @Column("product_id")
     String productId;
 
-    @Column("reserved")
-    Integer reserved = 0;
+    @Column("reserved_amount")
+    Integer reservedAmount = 0;
 
     @Column("desired_amount")
     Integer desiredAmount = 0;
@@ -36,8 +36,8 @@ public class ProductReservation {
     @Column("status")
     String status;
 
-    @Column("expired_at")
-    Instant expiredAt;
+    @Column("expires_at")
+    Instant expiresAt;
 
     @Column("updated_at")
     Instant updatedAt;

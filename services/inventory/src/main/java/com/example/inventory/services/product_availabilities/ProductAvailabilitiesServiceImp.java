@@ -30,7 +30,7 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
         var productResult = productsRepo.findById(productId);
         var reservedResult = reservationsRepo
             .sumReservedAmountByProductIds(List.of(productId))
-            .collectMap(ProductReservedAmount::getProductId, ProductReservedAmount::getReserved)
+            .collectMap(ProductReservedAmount::getProductId, ProductReservedAmount::getReservedAmount)
         ;
         var availabilityResult = productAvailabilitiesRepo
             .findByProductId(productId)
@@ -45,7 +45,7 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
                 var availability = t3.getT3();
 
                 var prodId = availability.getProductId();
-                availability.setReserved(reservedAmounts.getOrDefault(prodId, 0));
+                availability.setReservedAmount(reservedAmounts.getOrDefault(prodId, 0));
                 availability.setStock(product.getStock());
                 availability.setUpdatedAt(Instant.now());
 
@@ -57,7 +57,7 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
     public Mono<List<ProductAvailability>> syncAllWithReservations(List<String> productIds) {
         var reservedAmountsResult = reservationsRepo
             .sumReservedAmountByProductIds(productIds)
-            .collectMap(ProductReservedAmount::getProductId, ProductReservedAmount::getReserved)
+            .collectMap(ProductReservedAmount::getProductId, ProductReservedAmount::getReservedAmount)
         ;
         var stocksResult = productsRepo
             .findAllById(productIds)
@@ -84,7 +84,7 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
                 var availabilities = new ArrayList<ProductAvailability>();
                 for (var productId: availabilitiesMap.keySet()) {
                     var availability = availabilitiesMap.get(productId);
-                    availability.setReserved(reservedAmounts.getOrDefault(productId, 0));
+                    availability.setReservedAmount(reservedAmounts.getOrDefault(productId, 0));
                     availability.setStock(stocks.getOrDefault(productId, 0));
                     availability.setUpdatedAt(Instant.now());
                     availabilities.add(availability);

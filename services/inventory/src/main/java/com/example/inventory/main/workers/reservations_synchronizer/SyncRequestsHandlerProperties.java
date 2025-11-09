@@ -22,14 +22,8 @@ public class SyncRequestsHandlerProperties {
     @Value("${HOSTNAME:inventory-service}")
     protected String HOSTNAME;
 
-    @Value("${order-system.messaging.product-reservation-requests.timeout-sec}")
+    @Value("${order-system.messaging.product-reservation-requests.timeout-seconds}")
     protected Long TIMEOUT_SECONDS;
-
-    @Value("${order-system.messaging.product-reservation-requests.wait-sec}")
-    protected Long WAIT_SECONDS;
-
-    @Value("${order-system.messaging.product-reservation-requests.default-reservation-expire-after-seconds}")
-    protected Integer EXPIRES_AFTER_SECONDS;
 
     protected void callHook(String name, String value, BiConsumer<String, String> hook) {
         if (hook != null) {
@@ -54,7 +48,7 @@ public class SyncRequestsHandlerProperties {
 
     protected RetryBackoffSpec fixedDelayRetrySpec() {
         var delayMs = 50;
-        var maxAttempt = (WAIT_SECONDS * 1000)/delayMs;
+        var maxAttempt = (TIMEOUT_SECONDS * 1000)/delayMs;
         return Retry.fixedDelay(maxAttempt, Duration.ofMillis(delayMs)).doBeforeRetry(retrySignal ->
             log.debug("retry attempt ({}): {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString())
         );

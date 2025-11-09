@@ -3,7 +3,7 @@ package com.example.inventory.services.product_availabilities;
 import com.example.inventory.DatabaseInitializer;
 import com.example.inventory.DatabaseSeeder;
 import com.example.inventory.TestBase;
-import com.example.inventory.enums.ReservationStatus;
+import com.example.inventory.repositories.product_reservations.entities.ReservationStatus;
 import com.example.inventory.repositories.product_availabilities.ProductAvailabilitiesRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,9 +66,9 @@ public class ProductAvailabilitiesServiceTests extends TestBase {
         var a3 = productAvailabilitiesRepo.findByProductId(p+"3").block();
         var a4 = productAvailabilitiesRepo.findByProductId(p+"4").block();
 
-        assertEquals(a2.getReserved(), 0);
-        assertEquals(a3.getReserved(), 0);
-        assertEquals(a4.getReserved(), 4);
+        assertEquals(a2.getReservedAmount(), 0);
+        assertEquals(a3.getReservedAmount(), 0);
+        assertEquals(a4.getReservedAmount(), 4);
     }
 
     @Test
@@ -83,11 +83,11 @@ public class ProductAvailabilitiesServiceTests extends TestBase {
         var a5 = productAvailabilitiesRepo.findByProductId(p+"5").block();
         var a6 = productAvailabilitiesRepo.findByProductId(p+"6").block();
 
-        assertEquals(a1.getReserved(), 1);
-        assertEquals(a2.getReserved(), 0);
-        assertEquals(a3.getReserved(), 0);
-        assertEquals(a4.getReserved(), 4);
-        assertEquals(a5.getReserved(), 1);
-        assertEquals(a6.getReserved(), 1);
+        assertEquals(a1.getReservedAmount(), 1);
+        assertEquals(a2.getReservedAmount(), 0);
+        assertEquals(a3.getReservedAmount(), 0);
+        assertEquals(a4.getReservedAmount(), 4);
+        assertEquals(a5.getReservedAmount(), 1);
+        assertEquals(a6.getReservedAmount(), 1);
     }
 }

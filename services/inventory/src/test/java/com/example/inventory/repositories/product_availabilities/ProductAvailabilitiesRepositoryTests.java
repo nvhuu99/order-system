@@ -3,7 +3,7 @@ package com.example.inventory.repositories.product_availabilities;
 import com.example.inventory.DatabaseInitializer;
 import com.example.inventory.DatabaseSeeder;
 import com.example.inventory.TestBase;
-import com.example.inventory.enums.ReservationStatus;
+import com.example.inventory.repositories.product_reservations.entities.ReservationStatus;
 import com.example.inventory.repositories.product_availabilities.entities.ProductAvailability;
 import com.example.inventory.services.product_availabilities.ProductAvailabilitiesService;
 import org.junit.jupiter.api.Test;
@@ -65,12 +65,12 @@ public class ProductAvailabilitiesRepositoryTests extends TestBase {
         assertNotNull(a4);
 
         assertEquals(a1.getProductId(), p+"1");
-        assertEquals(a1.getReserved(), 1);
+        assertEquals(a1.getReservedAmount(), 1);
         assertEquals(a1.getStock(), 2);
         assertTrue(a1.getUpdatedAt().isBefore(now));
 
         assertEquals(a4.getProductId(), p+"4");
-        assertEquals(a4.getReserved(), 4);
+        assertEquals(a4.getReservedAmount(), 4);
         assertEquals(a4.getStock(), 4);
         assertTrue(a4.getUpdatedAt().isBefore(now));
     }
@@ -92,12 +92,12 @@ public class ProductAvailabilitiesRepositoryTests extends TestBase {
         assertNotNull(a5);
 
         assertEquals(a3.getProductId(), p+"3");
-        assertEquals(a3.getReserved(), 0);
+        assertEquals(a3.getReservedAmount(), 0);
         assertEquals(a3.getStock(), 3);
         assertTrue(a3.getUpdatedAt().isBefore(now));
 
         assertEquals(a5.getProductId(), p+"5");
-        assertEquals(a5.getReserved(), 1);
+        assertEquals(a5.getReservedAmount(), 1);
         assertEquals(a5.getStock(), 2);
         assertTrue(a5.getUpdatedAt().isBefore(now));
     }
@@ -110,7 +110,7 @@ public class ProductAvailabilitiesRepositoryTests extends TestBase {
         var data = new ProductAvailability();
         data.setProductId(UUID.randomUUID().toString());
         data.setStock(4);
-        data.setReserved(2);
+        data.setReservedAmount(2);
         data.setUpdatedAt(Instant.now());
         productAvailabilitiesRepo.save(data).block();
 
@@ -120,7 +120,7 @@ public class ProductAvailabilitiesRepositoryTests extends TestBase {
         assertNotNull(findResult);
         assertEquals(data.getProductId(), findResult.getProductId());
         assertEquals(data.getStock(), findResult.getStock());
-        assertEquals(data.getReserved(), findResult.getReserved());
+        assertEquals(data.getReservedAmount(), findResult.getReservedAmount());
         assertTrue(findResult.getUpdatedAt().isBefore(now));
     }
 
@@ -133,11 +133,11 @@ public class ProductAvailabilitiesRepositoryTests extends TestBase {
         var r2 = new ProductAvailability();
         r1.setProductId(UUID.randomUUID().toString());
         r1.setStock(4);
-        r1.setReserved(2);
+        r1.setReservedAmount(2);
         r1.setUpdatedAt(Instant.now());
         r2.setProductId(UUID.randomUUID().toString());
         r2.setStock(6);
-        r2.setReserved(1);
+        r2.setReservedAmount(1);
         r2.setUpdatedAt(Instant.now());
         productAvailabilitiesRepo.saveMany(List.of(r1, r2)).block();
 
@@ -148,13 +148,13 @@ public class ProductAvailabilitiesRepositoryTests extends TestBase {
         assertNotNull(f1);
         assertEquals(r1.getProductId(), f1.getProductId());
         assertEquals(r1.getStock(), f1.getStock());
-        assertEquals(r1.getReserved(), f1.getReserved());
+        assertEquals(r1.getReservedAmount(), f1.getReservedAmount());
         assertTrue(r1.getUpdatedAt().isBefore(now));
 
         assertNotNull(f2);
         assertEquals(r2.getProductId(), f2.getProductId());
         assertEquals(r2.getStock(), f2.getStock());
-        assertEquals(r2.getReserved(), f2.getReserved());
+        assertEquals(r2.getReservedAmount(), f2.getReservedAmount());
         assertTrue(r2.getUpdatedAt().isBefore(now));
     }
 }

@@ -24,7 +24,7 @@ public class ProductReservation {
 
     String status;
 
-    Instant expiredAt;
+    Instant expiresAt;
 
     Instant updatedAt;
 }

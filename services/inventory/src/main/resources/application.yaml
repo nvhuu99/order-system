@@ -6,7 +6,6 @@ logging:
     io.opentelemetry.exporter: ERROR
     io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
     io.lettuce.core: ERROR
-    org.hibernate: ERROR
     org.springframework.r2dbc: ERROR
 
 order-system:
@@ -14,14 +13,12 @@ order-system:
     product-reservation-requests:
       topic-name: "product-reservation-requests"
       topic-partitions: "0"
-      timeout-sec: 15
-      wait-sec: 10
-      default-reservation-expire-after-seconds: 3600
+      timeout-seconds: 15
+      reservation-expires-after-seconds: 3600
     product-reservation-sync-requests:
       topic-name: "product-reservation-sync-requests"
       topic-partitions: "0"
-      timeout-sec: 15
-      wait-sec: 10
+      timeout-seconds: 15
       batch-size: 2
       request-expires-after-seconds: 300
 

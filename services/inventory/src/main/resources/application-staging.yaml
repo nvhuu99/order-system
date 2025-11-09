@@ -2,3 +2,6 @@ order-system:
   messaging:
     product-reservation-requests:
       topic-partitions: "0-2"
+    product-reservation-sync-requests:
+      topic-partitions: "0-2"
+      batch-size: 100

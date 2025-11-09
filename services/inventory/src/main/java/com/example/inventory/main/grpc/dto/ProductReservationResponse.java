@@ -4,9 +4,9 @@ import com.example.inventory.repositories.product_reservations.entities.ProductR
 
 public class ProductReservationResponse {
     public static com.example.grpc.inventory.stubs.ProductReservation fromEntity(ProductReservation entity) {
-        var expiredAt = com.google.protobuf.Timestamp.newBuilder()
-            .setSeconds(entity.getExpiredAt().getEpochSecond())
-            .setNanos(entity.getExpiredAt().getNano())
+        var expiresAt = com.google.protobuf.Timestamp.newBuilder()
+            .setSeconds(entity.getExpiresAt().getEpochSecond())
+            .setNanos(entity.getExpiresAt().getNano())
             .build();
         var updatedAt = com.google.protobuf.Timestamp.newBuilder()
             .setSeconds(entity.getUpdatedAt().getEpochSecond())
@@ -15,10 +15,10 @@ public class ProductReservationResponse {
         return com.example.grpc.inventory.stubs.ProductReservation.newBuilder()
             .setId(entity.getId())
             .setProductId(entity.getProductId())
-            .setReserved(entity.getReserved())
+            .setReservedAmount(entity.getReservedAmount())
             .setDesiredAmount(entity.getDesiredAmount())
             .setStatus(entity.getStatus())
-            .setExpiredAt(expiredAt)
+            .setExpiresAt(expiresAt)
             .setUpdatedAt(updatedAt)
             .build()
         ;

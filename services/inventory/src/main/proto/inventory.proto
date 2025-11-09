@@ -14,10 +14,10 @@ message ProductReservation {
   string id = 1;
   string user_id = 2;
   string product_id = 3;
-  int32 reserved = 4;
+  int32 reserved_amount = 4;
   int32 desired_amount = 5;
   string status = 6;
-  google.protobuf.Timestamp expired_at = 7;
+  google.protobuf.Timestamp expires_at = 7;
   google.protobuf.Timestamp updated_at = 8;
 }
 

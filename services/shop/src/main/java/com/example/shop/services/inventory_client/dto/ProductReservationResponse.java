@@ -13,7 +13,7 @@ public class ProductReservationResponse {
             .reservedAmount(data.getReservedAmount())
             .desiredAmount(data.getDesiredAmount())
             .status(data.getStatus())
-            .expiredAt(Instant.ofEpochSecond(data.getExpiredAt().getSeconds()))
+            .expiresAt(Instant.ofEpochSecond(data.getExpiresAt().getSeconds()))
             .updatedAt(Instant.ofEpochSecond(data.getUpdatedAt().getSeconds()))
             .build()
         ;

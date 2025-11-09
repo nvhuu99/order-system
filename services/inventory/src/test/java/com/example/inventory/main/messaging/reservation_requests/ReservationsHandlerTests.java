@@ -2,7 +2,7 @@ package com.example.inventory.main.messaging.reservation_requests;
 
 import com.example.inventory.DatabaseInitializer;
 import com.example.inventory.TestBase;
-import com.example.inventory.enums.ReservationStatus;
+import com.example.inventory.repositories.product_reservations.entities.ReservationStatus;
 import com.example.inventory.repositories.product_availabilities.ProductAvailabilitiesRepository;
 import com.example.inventory.repositories.product_reservations.ProductReservationsCrudRepository;
 import com.example.inventory.repositories.product_reservations.entities.ProductReservation;
@@ -169,7 +169,7 @@ public class ReservationsHandlerTests extends TestBase {
         assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
 
         assertNotNull(reservationResult);
-        assertEquals(reservationResult.getReserved(), request.getQuantity());
+        assertEquals(reservationResult.getReservedAmount(), request.getQuantity());
         assertEquals(reservationResult.getDesiredAmount(), request.getQuantity());
         assertNotNull(reservationResult.getUpdatedAt());
         assertEquals(reservationResult.getStatus(), ReservationStatus.OK.getValue());
@@ -194,7 +194,7 @@ public class ReservationsHandlerTests extends TestBase {
         assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
 
         assertNotNull(reservationResult);
-        assertEquals(reservationResult.getReserved(), request.getQuantity());
+        assertEquals(reservationResult.getReservedAmount(), request.getQuantity());
         assertEquals(reservationResult.getDesiredAmount(), request.getQuantity());
         assertNotNull(reservationResult.getUpdatedAt());
         assertEquals(reservationResult.getStatus(), ReservationStatus.OK.getValue());
@@ -213,7 +213,7 @@ public class ReservationsHandlerTests extends TestBase {
         ;
 
         assertNotNull(secondReservation);
-        assertEquals(secondReservation.getReserved(), 3);
+        assertEquals(secondReservation.getReservedAmount(), 3);
         assertEquals(secondReservation.getDesiredAmount(), 5);
         assertNotNull(secondReservation.getUpdatedAt());
         assertEquals(secondReservation.getStatus(), ReservationStatus.INSUFFICIENT_STOCK.getValue());
@@ -232,7 +232,7 @@ public class ReservationsHandlerTests extends TestBase {
         ;
 
         assertNotNull(secondReservation);
-        assertEquals(secondReservation.getReserved(), request.getQuantity());
+        assertEquals(secondReservation.getReservedAmount(), request.getQuantity());
         assertEquals(secondReservation.getDesiredAmount(), request.getQuantity());
         assertNotNull(secondReservation.getUpdatedAt());
         assertEquals(secondReservation.getStatus(), ReservationStatus.OK.getValue());
@@ -250,7 +250,7 @@ public class ReservationsHandlerTests extends TestBase {
 
         assertNotNull(availability);
         assertEquals(availability.getStock(), 4);
-        assertEquals(availability.getReserved(), reservation.getReserved() + request.getQuantity());
+        assertEquals(availability.getReservedAmount(), reservation.getReservedAmount() + request.getQuantity());
         assertNotNull(availability.getUpdatedAt());
     }
 
@@ -266,7 +266,7 @@ public class ReservationsHandlerTests extends TestBase {
 
         assertNotNull(availability);
         assertEquals(availability.getStock(), 4);
-        assertEquals(availability.getReserved(), request.getQuantity());
+        assertEquals(availability.getReservedAmount(), request.getQuantity());
         assertNotNull(availability.getUpdatedAt());
     }
 
@@ -282,7 +282,7 @@ public class ReservationsHandlerTests extends TestBase {
 
         assertNotNull(availability);
         assertEquals(availability.getStock(), 4);
-        assertEquals(availability.getReserved(), 4);
+        assertEquals(availability.getReservedAmount(), 4);
         assertNotNull(availability.getUpdatedAt());
     }
 }

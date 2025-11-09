@@ -15,5 +15,5 @@ import java.time.Instant;
 public class SyncRequest {
     Integer batchSize;
     Integer batchNumber;
-    Instant expiredAt;
+    Instant expiresAt;
 }

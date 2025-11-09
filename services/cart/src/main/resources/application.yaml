@@ -19,8 +19,7 @@ order-processing-system:
 
   handlers:
     cart-update-requests:
-      timeout-sec: 15
-      wait-sec: 10
+      timeout-seconds: 15
 
 spring:
   application:

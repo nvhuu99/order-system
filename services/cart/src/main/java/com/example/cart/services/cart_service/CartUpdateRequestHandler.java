@@ -46,11 +46,8 @@ public class CartUpdateRequestHandler {
     @Value("${HOSTNAME:cart-service}")
     private String hostname;
 
-    @Value("${order-processing-system.handlers.cart-update-requests.timeout-sec}")
+    @Value("${order-processing-system.handlers.cart-update-requests.timeout-seconds}")
     private Long timeoutSeconds;
-
-    @Value("${order-processing-system.handlers.cart-update-requests.wait-sec}")
-    private Long waitSeconds;
 
     @Autowired
     private LockRepository lockRepo;
