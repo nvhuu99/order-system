@@ -13,6 +13,7 @@ public class SyncRequestsHandlerProperties {
 
     public static final String LOCK_ACQUIRED = "LOCK_ACQUIRED";
     public static final String LOCK_RELEASED = "LOCK_RELEASED";
+    public static final String ZERO_AMOUNT_RESERVATIONS_REMOVED = "ZERO_AMOUNT_RESERVATIONS_REMOVED";
     public static final String RESERVATIONS_SYNCED = "RESERVATIONS_SYNCED";
     public static final String PRODUCT_AVAILABILITY_SYNCED = "PRODUCT_AVAILABILITY_SYNCED";
     public static final String REQUEST_COMMITTED = "REQUEST_COMMITTED";

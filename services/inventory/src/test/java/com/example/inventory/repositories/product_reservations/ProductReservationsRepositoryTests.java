@@ -29,7 +29,7 @@ public class ProductReservationsRepositoryTests extends TestBase {
     
 
     @Test
-    void sumReservedAmountByProductIds_mustReturnCorrectSumForAllByProductIds_andOnlyIncludeStatusOK_andExcludesExpiredReservation() {
+    void sumReservedAmounts_mustReturnCorrectSumForAllByProductIds_andOnlyIncludeStatusOK_andExcludesExpiredReservation() {
 
         var p = UUID.randomUUID().toString().substring(1);
         dbInit.createTables().block();
@@ -52,7 +52,7 @@ public class ProductReservationsRepositoryTests extends TestBase {
         var total = new AtomicInteger();
 
         reservationsRepo
-            .sumReservedAmountByProductIds(ids)
+            .sumReservedAmounts(ids)
             .doOnNext(data -> {
                 total.addAndGet(data.getReservedAmount());
                 assertTrue(ids.contains(data.getProductId()));
@@ -132,5 +132,32 @@ public class ProductReservationsRepositoryTests extends TestBase {
         assertEquals(r42.getStatus(), ReservationStatus.OK.getValue());
         assertEquals(r43.getStatus(), ReservationStatus.EXPIRED.getValue());
         assertEquals(r51.getStatus(), ReservationStatus.INSUFFICIENT_STOCK.getValue());
+    }
+
+    @Test
+    void removeZeroAmountReservations_mustOnlyRemoveReservationsWithDesiredAmountEqualsZero() {
+
+        var p = UUID.randomUUID().toString().substring(1);
+        dbInit.createTables().block();
+        seeder.seedProduct(p+"1", 5);
+        seeder.seedProduct(p+"2", 5);
+        seeder.seedReservation(p+"1", "u1", 1, 1, ReservationStatus.OK, 0);
+        seeder.seedReservation(p+"1", "u2", 0, 0, ReservationStatus.OK, 0);
+        seeder.seedReservation(p+"2", "u1", 1, 1, ReservationStatus.OK, 0);
+        seeder.seedReservation(p+"2", "u2", 0, 0, ReservationStatus.OK, 0);
+
+        var ids = List.of(p+"1", p+"2");
+        reservationsRepo.removeZeroAmountReservations(ids).block();
+
+        var r11 = reservationsCrudRepo.findByProductIdAndUserId(p+"1", "u1").block();
+        var r12 = reservationsCrudRepo.findByProductIdAndUserId(p+"1", "u2").block();
+        var r21 = reservationsCrudRepo.findByProductIdAndUserId(p+"2", "u1").block();
+        var r22 = reservationsCrudRepo.findByProductIdAndUserId(p+"2", "u2").block();
+
+        assertNull(r12);
+        assertNull(r22);
+
+        assertNotNull(r11);
+        assertNotNull(r21);
     }
 }

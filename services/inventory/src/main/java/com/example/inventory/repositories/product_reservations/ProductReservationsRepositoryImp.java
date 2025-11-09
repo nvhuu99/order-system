@@ -19,7 +19,7 @@ public class ProductReservationsRepositoryImp implements ProductReservationsRepo
 
 
     @Override
-    public Flux<ProductReservedAmount> sumReservedAmountByProductIds(List<String> productIds) {
+    public Flux<ProductReservedAmount> sumReservedAmounts(List<String> productIds) {
         if (productIds == null || productIds.isEmpty()) {
             return Flux.empty();
         }
@@ -116,6 +116,33 @@ public class ProductReservationsRepositoryImp implements ProductReservationsRepo
             String.join(",", idsSQLVarNames),
             String.join(",", idsSQLVarNames)
         );
+
+        var spec = db.sql(sql);
+        for (var name: idsSQLVarsMap.keySet()) {
+            spec = spec.bind(name, idsSQLVarsMap.get(name));
+        }
+
+        return spec.fetch().rowsUpdated().then();
+    }
+
+    @Override
+    public Mono<Void> removeZeroAmountReservations(List<String> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            return Mono.empty();
+        }
+
+        var idsSQLVarsMap = new HashMap<String, String>();
+        var idsSQLVarNames = new ArrayList<String>();
+        for (int i = 0; i < productIds.size(); i++) {
+            idsSQLVarsMap.put("id" + i, productIds.get(i));
+            idsSQLVarNames.add(":id" + i);
+        }
+
+        var sql = """
+            DELETE FROM product_reservations
+            WHERE product_id IN (%s) AND desired_amount = 0
+        """;
+        sql = String.format(sql, String.join(",", idsSQLVarNames));
 
         var spec = db.sql(sql);
         for (var name: idsSQLVarsMap.keySet()) {

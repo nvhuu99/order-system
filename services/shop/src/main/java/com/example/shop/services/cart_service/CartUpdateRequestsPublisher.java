@@ -18,8 +18,8 @@ public class CartUpdateRequestsPublisher {
     @Value("${order-processing-system.messaging.product-reservation-requests.topic-name}")
     private String TOPIC_NAME;
 
-    @Value("${order-processing-system.messaging.product-reservation-requests.topic-name}")
-    private Integer WAIT_SECONDS;
+    @Value("${order-processing-system.messaging.product-reservation-requests.timeout-seconds}")
+    private Integer TIMEOUT_SECONDS;
 
     @Autowired
     private KafkaTemplate<String, ReservationRequest> kafka;
@@ -36,7 +36,7 @@ public class CartUpdateRequestsPublisher {
                 reservationRequest.setRequestedAt(now);
                 return Mono.fromFuture(kafka.send(TOPIC_NAME, request.getUserId(), reservationRequest));
             })
-            .timeout(Duration.ofSeconds(WAIT_SECONDS))
+            .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
             .then()
         ;
     }

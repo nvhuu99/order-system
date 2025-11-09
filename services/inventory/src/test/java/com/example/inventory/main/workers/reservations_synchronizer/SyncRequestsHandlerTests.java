@@ -70,6 +70,7 @@ public class SyncRequestsHandlerTests extends TestBase {
 
         assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
         assertTrue(hooks.containsKey("LOCK_RELEASED"));
+        assertTrue(hooks.containsKey("ZERO_AMOUNT_RESERVATIONS_REMOVED"));
         assertTrue(hooks.containsKey("RESERVATIONS_SYNCED"));
         assertTrue(hooks.containsKey("PRODUCT_AVAILABILITY_SYNCED"));
         assertTrue(hooks.containsKey("REQUEST_COMMITTED"));
@@ -158,5 +159,31 @@ public class SyncRequestsHandlerTests extends TestBase {
         assertEquals(a3.getReservedAmount(), 3);
         assertEquals(a4.getReservedAmount(), 5);
         assertEquals(a5.getReservedAmount(), 2);
+    }
+
+    @Test
+    void mustRemoveZeroAmountReservations() {
+        var p = UUID.randomUUID().toString().substring(1);
+        dbInit.createTables().block();
+        seeder.seedProduct(p+"1", 5);
+        seeder.seedProduct(p+"2", 5);
+        seeder.seedReservation(p+"1", "u1", 1, 1, ReservationStatus.OK, 0);
+        seeder.seedReservation(p+"1", "u2", 0, 0, ReservationStatus.OK, 0);
+        seeder.seedReservation(p+"2", "u1", 1, 1, ReservationStatus.OK, 0);
+        seeder.seedReservation(p+"2", "u2", 0, 0, ReservationStatus.OK, 0);
+
+        var request = new SyncRequest(5, 1, Instant.now().plusSeconds(300));
+        handler.handle(request, null).block();
+
+        var r11 = reservationsCrudRepo.findByProductIdAndUserId(p+"1", "u1").block();
+        var r12 = reservationsCrudRepo.findByProductIdAndUserId(p+"1", "u2").block();
+        var r21 = reservationsCrudRepo.findByProductIdAndUserId(p+"2", "u1").block();
+        var r22 = reservationsCrudRepo.findByProductIdAndUserId(p+"2", "u2").block();
+
+        assertNull(r12);
+        assertNull(r22);
+
+        assertNotNull(r11);
+        assertNotNull(r21);
     }
 }

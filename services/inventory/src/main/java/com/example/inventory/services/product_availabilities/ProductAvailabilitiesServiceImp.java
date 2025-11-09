@@ -29,7 +29,7 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
     public Mono<ProductAvailability> syncWithReservations(String productId) {
         var productResult = productsRepo.findById(productId);
         var reservedResult = reservationsRepo
-            .sumReservedAmountByProductIds(List.of(productId))
+            .sumReservedAmounts(List.of(productId))
             .collectMap(ProductReservedAmount::getProductId, ProductReservedAmount::getReservedAmount)
         ;
         var availabilityResult = productAvailabilitiesRepo
@@ -56,7 +56,7 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
 
     public Mono<List<ProductAvailability>> syncAllWithReservations(List<String> productIds) {
         var reservedAmountsResult = reservationsRepo
-            .sumReservedAmountByProductIds(productIds)
+            .sumReservedAmounts(productIds)
             .collectMap(ProductReservedAmount::getProductId, ProductReservedAmount::getReservedAmount)
         ;
         var stocksResult = productsRepo

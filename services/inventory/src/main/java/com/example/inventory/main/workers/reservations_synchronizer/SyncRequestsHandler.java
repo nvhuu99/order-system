@@ -55,6 +55,7 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
 
         return acquireLock(request, "order_system:product_reservations", productIds, lockVal, hook)
             .then(acquireLock(request, "order_system:product_availabilities", productIds, lockVal, hook))
+            .then(removeZeroAmountReservations(request, productIds, hook))
             .then(syncReservations(request, productIds, hook))
             .then(syncProductAvailability(request, productIds, hook))
             .then(releaseLock(request, "order_system:product_reservations", productIds, lockVal, hook))
@@ -100,6 +101,16 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
             .doOnError(ex -> log.error(logTemplate(request, "lock release failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock release success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_RELEASED, collection, hook))
+            .then()
+        ;
+    }
+
+    private Mono<Void> removeZeroAmountReservations(SyncRequest request, List<String> productIds, BiConsumer<String, String> hook) {
+        return reservationRepo
+            .removeZeroAmountReservations(productIds)
+            .doOnError(ex -> log.error(logTemplate(request, "remove product_reservations with desired_amount equals zero failed: {}"), exceptionCause(ex).getMessage()))
+            .doOnSuccess(ok -> log.debug(logTemplate(request, "remove product_reservations with desired_amount equals zero successfully")))
+            .doOnSuccess(ok -> callHook(ZERO_AMOUNT_RESERVATIONS_REMOVED, hook))
             .then()
         ;
     }

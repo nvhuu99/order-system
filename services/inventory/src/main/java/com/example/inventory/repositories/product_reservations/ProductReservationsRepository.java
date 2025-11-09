@@ -8,7 +8,9 @@ import java.util.List;
 
 public interface ProductReservationsRepository {
 
-    Flux<ProductReservedAmount> sumReservedAmountByProductIds(List<String> productIds);
+    Flux<ProductReservedAmount> sumReservedAmounts(List<String> productIds);
 
     Mono<Void> syncReservations(List<String> productIds);
+    
+    Mono<Void> removeZeroAmountReservations(List<String> productIds);
 }
