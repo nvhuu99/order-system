@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package inventory;
+
+option java_package = "com.example.grpc.inventory.stubs";
+option java_multiple_files = true;
+import "google/protobuf/timestamp.proto";
+
+message ListProductReservationsRequest {
+  string user_id = 1;
+}
+
+message ProductReservation {
+  string id = 1;
+  string user_id = 2;
+  string product_id = 3;
+  int32 reserved = 4;
+  int32 desired_amount = 5;
+  string status = 6;
+  google.protobuf.Timestamp expired_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+service InventoryService {
+  rpc ListProductReservations(ListProductReservationsRequest) returns (stream ProductReservation);
+}
