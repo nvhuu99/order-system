@@ -1,8 +1,9 @@
 logging:
   level:
-    org.hibernate: INFO
-    org.springframework.r2dbc: INFO
     com.example.inventory: DEBUG
+    org.springframework.r2dbc: INFO
+    org.springframework.kafka: INFO
+    org.apache.kafka: INFO
 
 spring:
   data:

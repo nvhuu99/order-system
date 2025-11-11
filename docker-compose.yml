@@ -76,78 +76,58 @@ services:
       - "3306:3306"
     volumes:
       - order_system_mysql_data:/var/lib/mysql
+    networks:
+      - order-system
 
-#  inventory-service:
-#    container_name: inventory-service
-#    hostname: inventory-service
-#    restart: unless-stopped
-#    env_file:
-#      - .env.docker
-#    build:
-#      context: ./services/inventory
-#      dockerfile: Dockerfile
-#    cpus: "1"
-#    mem_limit: "512mb"
-#    ports:
-#      - "9090:9090"
-#    networks:
-#      - order-system
-#
-#  cart-service:
-#    container_name: cart-service
-#    hostname: cart-service
-#    restart: unless-stopped
-#    env_file:
-#      - .env.docker
-#    build:
-#      context: ./services/cart
-#      dockerfile: Dockerfile
-#    cpus: "1"
-#    mem_limit: "512mb"
-#    ports:
-#      - "9094:9091"
-#      - "8081:8081"
-#    depends_on:
-#      - inventory-service
-#      - redis
-#      - kafka-broker
-#    networks:
-#      - order-system
-#
-#  shop-service:
-#    container_name: shop-service
-#    hostname: shop-service
-#    restart: unless-stopped
-#    env_file:
-#      - .env.docker
-#    build:
-#      context: ./services/shop
-#      dockerfile: Dockerfile
-#    cpus: "0.25"
-#    mem_limit: "368mb"
-#    ports:
-#      - "8080:8080"
-#    networks:
-#      - order-system
-#    depends_on:
-#      - cart-service
+  inventory-service:
+    container_name: inventory-service
+    hostname: inventory-service
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/inventory
+      dockerfile: Dockerfile
+    cpus: "1"
+    mem_limit: "512mb"
+    ports:
+      - "9090:9090"
+      - "8082:8082"
+    networks:
+      - order-system
 
-#  cart-update-load-test:
-#    image: grafana/k6:latest
-#    container_name: cart-request
-#    command: ["run", "/scripts/cart-update-load-test.js"]
-#    env_file:
-#      - .env.docker
-#    volumes:
-#      - ./k6/scripts/cart-service/cart-update-load-test.js:/scripts/cart-update-load-test.js
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: '0.2'
-#          memory: 128M
-#        reservations:
-#          cpus: '0.2'
-#          memory: 128M
-#    restart: "no"
-#    networks:
-#      - order-system
+  shop-service:
+    container_name: shop-service
+    hostname: shop-service
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/shop
+      dockerfile: Dockerfile
+    cpus: "0.25"
+    mem_limit: "368mb"
+    ports:
+      - "8080:8080"
+    networks:
+      - order-system
+
+  # load-test:
+  #   image: grafana/k6:latest
+  #   container_name: load-test
+  #   command: ["run", "/scripts/load-test.js"]
+  #   env_file:
+  #     - .env.docker
+  #   volumes:
+  #     - ./load-test.js:/scripts/load-test.js
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.2'
+  #         memory: 128M
+  #       reservations:
+  #         cpus: '0.2'
+  #         memory: 128M
+  #   restart: "no"
+  #   networks:
+  #     - order-system

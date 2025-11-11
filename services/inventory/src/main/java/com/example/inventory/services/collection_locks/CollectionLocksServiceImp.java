@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class CollectionLocksServiceImp implements CollectionLocksService {
 
-    private final String keyPrefix = "order-processing-system:locks:";
+    private final String keyPrefix = "order-system:locks:";
 
     @Resource(name = "lockLuaScript")
     private DefaultRedisScript<Long> lockLuaScript;

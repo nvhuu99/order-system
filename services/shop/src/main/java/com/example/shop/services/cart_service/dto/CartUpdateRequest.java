@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -24,6 +25,5 @@ public class CartUpdateRequest {
     }
 
     String userId;
-    Integer versionNumber;
     List<CartUpdateRequestEntry> entries;
 }

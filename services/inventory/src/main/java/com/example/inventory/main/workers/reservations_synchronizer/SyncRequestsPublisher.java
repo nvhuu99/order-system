@@ -1,6 +1,6 @@
 package com.example.inventory.main.workers.reservations_synchronizer;
 
-import com.example.inventory.repositories.products.ProductsRepository;
+import com.example.inventory.repositories.products.ProductsCrudRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -9,20 +9,20 @@ import java.time.Instant;
 
 public class SyncRequestsPublisher {
 
-    @Value("${order-processing-system.messaging.product-reservation-sync-requests.topic-name}")
+    @Value("${order-system.messaging.product-reservation-sync-requests.topic-name}")
     private String topic;
 
-    @Value("${order-processing-system.messaging.product-reservation-sync-requests.batch-size}")
+    @Value("${order-system.messaging.product-reservation-sync-requests.batch-size}")
     private Integer batchSize;
 
-    @Value("${order-processing-system.messaging.product-reservation-sync-requests.request-expires-after-seconds}")
+    @Value("${order-system.messaging.product-reservation-sync-requests.request-expires-after-seconds}")
     private Integer requestExpiresAfterSeconds;
 
     @Autowired
     private KafkaTemplate<String, SyncRequest> kafka;
 
     @Autowired
-    private ProductsRepository productsRepo;
+    private ProductsCrudRepository productsRepo;
 
 
     public void execute() {

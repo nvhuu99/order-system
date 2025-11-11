@@ -15,10 +15,10 @@ import java.time.Instant;
 @Component
 public class CartUpdateRequestsPublisher {
 
-    @Value("${order-processing-system.messaging.product-reservation-requests.topic-name}")
+    @Value("${order-system.messaging.product-reservation-requests.topic-name}")
     private String TOPIC_NAME;
 
-    @Value("${order-processing-system.messaging.product-reservation-requests.timeout-seconds}")
+    @Value("${order-system.messaging.product-reservation-requests.timeout-seconds}")
     private Integer TIMEOUT_SECONDS;
 
     @Autowired

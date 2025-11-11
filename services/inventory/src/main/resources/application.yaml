@@ -1,3 +1,6 @@
+server:
+  port: ${INVENTORY_SVC_API_PORT:8082}
+
 logging:
   level:
     io.grpc: ERROR
@@ -33,7 +36,7 @@ spring:
         secure: false
 
   r2dbc:
-    url: "jdbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/inventory?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverTimeZone=UTC&allowPublicKeyRetrieval=true&useSSL=false"
+    url: "r2dbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/inventory?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverZoneId=UTC&allowPublicKeyRetrieval=true&useSSL=false"
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PASSWORD:admin}
 

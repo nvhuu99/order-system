@@ -6,7 +6,7 @@ import com.example.inventory.repositories.product_reservations.entities.Reservat
 import com.example.inventory.repositories.product_availabilities.ProductAvailabilitiesRepository;
 import com.example.inventory.repositories.product_reservations.ProductReservationsCrudRepository;
 import com.example.inventory.repositories.product_reservations.entities.ProductReservation;
-import com.example.inventory.repositories.products.ProductsRepository;
+import com.example.inventory.repositories.products.ProductsCrudRepository;
 import com.example.inventory.repositories.products.entities.Product;
 import com.example.inventory.main.messaging.reservation_requests.exceptions.InvalidRequestTimestamp;
 import com.example.inventory.services.collection_locks.CollectionLocksService;
@@ -37,7 +37,7 @@ public class ReservationsHandlerTests extends TestBase {
     private ProductReservationsCrudRepository reservationsRepo;
 
     @Autowired
-    private ProductsRepository productsRepo;
+    private ProductsCrudRepository productsRepo;
 
     @Autowired
     private ProductAvailabilitiesRepository availabilitiesRepo;

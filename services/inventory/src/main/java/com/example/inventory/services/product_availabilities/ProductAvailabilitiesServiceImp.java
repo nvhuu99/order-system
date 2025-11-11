@@ -4,7 +4,7 @@ import com.example.inventory.repositories.product_availabilities.ProductAvailabi
 import com.example.inventory.repositories.product_availabilities.entities.ProductAvailability;
 import com.example.inventory.repositories.product_reservations.ProductReservationsRepository;
 import com.example.inventory.repositories.product_reservations.dto.ProductReservedAmount;
-import com.example.inventory.repositories.products.ProductsRepository;
+import com.example.inventory.repositories.products.ProductsCrudRepository;
 import com.example.inventory.repositories.products.entities.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
     private ProductReservationsRepository reservationsRepo;
 
     @Autowired
-    private ProductsRepository productsRepo;
+    private ProductsCrudRepository productsRepo;
 
     @Autowired
     private ProductAvailabilitiesRepository productAvailabilitiesRepo;

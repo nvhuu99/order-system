@@ -1,7 +1,7 @@
 package com.example.inventory.main.workers.reservations_synchronizer;
 
 import com.example.inventory.repositories.product_reservations.ProductReservationsRepository;
-import com.example.inventory.repositories.products.ProductsRepository;
+import com.example.inventory.repositories.products.ProductsCrudRepository;
 import com.example.inventory.services.collection_locks.CollectionLocksService;
 import com.example.inventory.services.collection_locks.exceptions.LockValueMismatch;
 import com.example.inventory.services.product_availabilities.ProductAvailabilitiesService;
@@ -24,7 +24,7 @@ import static com.example.inventory.utils.ErrorUtils.exceptionCause;
 public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
 
     @Autowired
-    private ProductsRepository productsRepo;
+    private ProductsCrudRepository productsRepo;
 
     @Autowired
     private ProductReservationsRepository reservationRepo;
