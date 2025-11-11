@@ -1,9 +1,0 @@
-logging:
-  level:
-    com.example.cart.services.cart_service: DEBUG
-
-spring:
-  data:
-    redis:
-      host: ${REDIS_HOST:redis-master}
-      port: ${REDIS_PORT:6379}
