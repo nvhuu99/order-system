@@ -14,9 +14,9 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1/admin/products")
-public class ProductController {
+public class ProductsController {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductController.class);
+    private static final Logger log = LoggerFactory.getLogger(ProductsController.class);
 
     @Autowired
     private ProductsService productsSvc;

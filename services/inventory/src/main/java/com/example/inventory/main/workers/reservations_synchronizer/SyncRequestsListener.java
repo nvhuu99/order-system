@@ -31,8 +31,8 @@ public class SyncRequestsListener {
     @KafkaListener(
         groupId = "sync-requests",
         topicPartitions = { @TopicPartition(
-            topic = "${order-system.messaging.product-reservation-requests.topic-name}",
-            partitions = "${order-system.messaging.product-reservation-requests.topic-partitions}"),
+            topic = "${order-system.messaging.product-reservation-sync-requests.topic-name}",
+            partitions = "${order-system.messaging.product-reservation-sync-requests.topic-partitions}"),
     })
     public void handle(SyncRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
 

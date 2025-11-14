@@ -48,12 +48,14 @@ spring:
       ack-mode: manual
     consumer:
       group-id: ${HOSTNAME:inventory-service}
-      auto-offset-reset: earliest
+      auto-offset-reset: latest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       enable-auto-commit: false
       properties:
         spring.json.trusted.packages: "*"
+        spring.json.type.mapping: >-
+          com.example.shop.services.cart_service.dto.ReservationRequest:com.example.inventory.main.messaging.reservation_requests.ReservationRequest
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

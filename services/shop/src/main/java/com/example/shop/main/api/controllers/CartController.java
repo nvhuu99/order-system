@@ -33,7 +33,7 @@ public class CartController {
     public Mono<?> updateCart(@RequestBody CartUpdateRequest request) {
         return cartSvc
             .cartUpdateRequest(request)
-            .map(ok -> ApiResponse.ok(null))
+            .then(Mono.just(ApiResponse.ok(null)))
             .doOnError(ex -> log.error(ex.getMessage()))
             .onErrorResume(ex -> Mono.just(ApiResponse.internalServerError("fail to publish cart update request")))
         ;

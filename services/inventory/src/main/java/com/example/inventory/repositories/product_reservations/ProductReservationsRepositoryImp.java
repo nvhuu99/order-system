@@ -1,7 +1,13 @@
 package com.example.inventory.repositories.product_reservations;
 
+import com.example.inventory.repositories.product_reservations.dto.ListRequest;
 import com.example.inventory.repositories.product_reservations.dto.ProductReservedAmount;
+import com.example.inventory.repositories.product_reservations.entities.ProductReservation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.relational.core.query.Query;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -14,8 +20,13 @@ import java.util.List;
 @Repository
 public class ProductReservationsRepositoryImp implements ProductReservationsRepository {
 
+    public final static Integer LIST_NO_LIMIT = ListRequest.NO_LIMIT;
+
     @Autowired
     private DatabaseClient db;
+
+    @Autowired
+    private R2dbcEntityTemplate template;
 
 
     @Override
@@ -150,5 +161,24 @@ public class ProductReservationsRepositoryImp implements ProductReservationsRepo
         }
 
         return spec.fetch().rowsUpdated().then();
+    }
+
+    @Override
+    public Flux<ProductReservation> list(ListRequest r) {
+        var criteria = Criteria.empty();
+        if (r.getProductId() != null && !r.getProductId().isBlank()) {
+            criteria = criteria.and("product_id").is(r.getProductId());
+        }
+        if (r.getUserId() != null && !r.getUserId().isBlank()) {
+            criteria = criteria.and("user_id").is(r.getUserId());
+        }
+
+        var query = Query.query(criteria);
+        if (r.getLimit() != LIST_NO_LIMIT) {
+            query.limit(r.getLimit()).offset((r.getPage() - 1) * r.getLimit());
+        }
+        query.sort(Sort.by(Sort.Order.asc("id")));
+
+        return template.select(query, ProductReservation.class);
     }
 }

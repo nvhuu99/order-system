@@ -2,7 +2,7 @@ package com.example.inventory.main.api.admin.controllers;
 
 import com.example.inventory.main.api.admin.responses.ApiResponse;
 import com.example.inventory.services.product_reservations.ProductReservationsService;
-import com.example.inventory.services.product_reservations.dto.ListProductReservationsRequest;
+import com.example.inventory.services.product_reservations.dto.ListRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,15 +13,15 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1/admin/product-reservations")
-public class ProductReservationController {
+public class ProductReservationsController {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductReservationController.class);
+    private static final Logger log = LoggerFactory.getLogger(ProductReservationsController.class);
 
     @Autowired
     private ProductReservationsService reservationsSvc;
 
-    @PostMapping
-    public Mono<ResponseEntity<ApiResponse>> list(@Valid @RequestBody ListProductReservationsRequest body) {
+    @PostMapping("list")
+    public Mono<ResponseEntity<ApiResponse>> list(@Valid @RequestBody ListRequest body) {
         return reservationsSvc
             .list(body)
             .collectList()
