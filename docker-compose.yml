@@ -83,6 +83,8 @@ services:
     container_name: inventory-service
     hostname: inventory-service
     restart: unless-stopped
+    environment:
+      HOSTNAME: inventory-service
     env_file:
       - .env.docker
     build:
@@ -100,6 +102,8 @@ services:
     container_name: shop-service
     hostname: shop-service
     restart: unless-stopped
+    environment:
+      HOSTNAME: shop-service
     env_file:
       - .env.docker
     build:
@@ -112,22 +116,23 @@ services:
     networks:
       - order-system
 
-  # load-test:
-  #   image: grafana/k6:latest
-  #   container_name: load-test
-  #   command: ["run", "/scripts/load-test.js"]
-  #   env_file:
-  #     - .env.docker
-  #   volumes:
-  #     - ./load-test.js:/scripts/load-test.js
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: '0.2'
-  #         memory: 128M
-  #       reservations:
-  #         cpus: '0.2'
-  #         memory: 128M
-  #   restart: "no"
-  #   networks:
-  #     - order-system
+  load-test:
+    image: grafana/k6:latest
+    container_name: load-test
+    command: ["run", "/scripts/load-test.js"]
+    env_file:
+      - .env.docker
+    volumes:
+      - ./utils/:/scripts/utils/
+      - ./load-test.js:/scripts/load-test.js
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.2'
+          memory: 128M
+    restart: "no"
+    networks:
+      - order-system
