@@ -1,6 +1,6 @@
 package com.example.inventory.repositories.products;
 
-import com.example.inventory.repositories.products.dto.ListProductsRequest;
+import com.example.inventory.repositories.products.dto.ListRequest;
 import com.example.inventory.repositories.products.entities.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -18,7 +18,7 @@ public class ProductsRepositoryImp implements ProductsRepository {
     private R2dbcEntityTemplate template;
 
     @Override
-    public Flux<Product> list(ListProductsRequest request) {
+    public Flux<Product> list(ListRequest request) {
         var criteria = Criteria.empty();
         var nameSearch = request.getNameSearch();
         if (nameSearch != null && !nameSearch.isBlank()) {

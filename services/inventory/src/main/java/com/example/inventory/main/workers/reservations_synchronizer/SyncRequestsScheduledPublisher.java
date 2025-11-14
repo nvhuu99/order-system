@@ -4,10 +4,13 @@ import com.example.inventory.repositories.products.ProductsCrudRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 
-public class SyncRequestsPublisher {
+@Component
+public class SyncRequestsScheduledPublisher {
 
     @Value("${order-system.messaging.product-reservation-sync-requests.topic-name}")
     private String topic;
@@ -15,8 +18,8 @@ public class SyncRequestsPublisher {
     @Value("${order-system.messaging.product-reservation-sync-requests.batch-size}")
     private Integer batchSize;
 
-    @Value("${order-system.messaging.product-reservation-sync-requests.request-expires-after-seconds}")
-    private Integer requestExpiresAfterSeconds;
+    @Value("${order-system.workers.product-reservation-sync-requests.schedule-rate-ms}")
+    private Integer scheduleRateMs;
 
     @Autowired
     private KafkaTemplate<String, SyncRequest> kafka;
@@ -24,16 +27,16 @@ public class SyncRequestsPublisher {
     @Autowired
     private ProductsCrudRepository productsRepo;
 
-
+    @Scheduled(fixedDelayString = "${order-system.workers.product-reservation-sync-requests.schedule-rate-ms}")
     public void execute() {
         var countProducts = productsRepo.count().block();
-        var countBatches =  Math.toIntExact((countProducts + batchSize - 1L) / batchSize);
         if (countProducts == 0) {
             return;
         }
 
         var batch = 1;
-        var expiresAt = Instant.now().plusSeconds(requestExpiresAfterSeconds);
+        var countBatches =  Math.toIntExact((countProducts + batchSize - 1L) / batchSize);
+        var expiresAt = Instant.now().plusSeconds(scheduleRateMs);
         while (batch <= countBatches) {
             publishRequest(new SyncRequest(batchSize, batch, expiresAt));
             batch++;

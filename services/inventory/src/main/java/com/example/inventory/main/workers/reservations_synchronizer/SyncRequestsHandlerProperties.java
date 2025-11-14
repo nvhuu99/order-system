@@ -50,8 +50,9 @@ public class SyncRequestsHandlerProperties {
     protected RetryBackoffSpec fixedDelayRetrySpec() {
         var delayMs = 50;
         var maxAttempt = (TIMEOUT_SECONDS * 1000)/delayMs;
-        return Retry.fixedDelay(maxAttempt, Duration.ofMillis(delayMs)).doBeforeRetry(retrySignal ->
-            log.debug("retry attempt ({}): {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString())
-        );
+        return Retry
+            .fixedDelay(maxAttempt, Duration.ofMillis(delayMs))
+//            .doBeforeRetry(retrySignal -> log.debug("retry attempt ({}): {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString()))
+        ;
     }
 }

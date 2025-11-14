@@ -25,8 +25,6 @@ public class ReservationsHandlerProperties {
     @Value("${order-system.messaging.product-reservation-requests.timeout-seconds}")
     protected Long TIMEOUT_SECONDS;
 
-    @Value("${order-system.messaging.product-reservation-requests.reservation-expires-after-seconds}")
-    protected Integer EXPIRES_AFTER_SECONDS;
 
     protected void callHook(String name, String value, BiConsumer<String, String> hook) {
         if (hook != null) {

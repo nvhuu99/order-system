@@ -21,7 +21,7 @@ public class DatabaseSeeder {
 
     public Product seedProduct(String id, Integer stock) {
         return template
-            .insert(new Product(id, id, BigDecimal.valueOf(1 + 10 * Math.random()), stock, Instant.now()))
+            .insert(new Product(id, id, BigDecimal.valueOf(1 + 10 * Math.random()), stock, 300, Instant.now()))
             .block();
     }
 

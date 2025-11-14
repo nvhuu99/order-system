@@ -9,7 +9,6 @@ import { randomInt } from "./utils/test-common.js"
 
 const {
   TOTAL_USERS,
-  TOTAL_REQUESTS_PER_USER,
   SEED_PRODUCTS_TOTAL,
   MAX_PRODUCT_STOCK,
   CART_ITEM_MAX_QTY,
@@ -17,7 +16,7 @@ const {
   SUMMARY_WAIT_FOR_SYNC_SECONDS,
   INVENTORY_API_ADDR,
   SHOP_API_ADDR,  
-  MAX_DURATION,
+  DURATION,
   PRUNE,
   VERBOSE,
 } = __ENV
@@ -44,14 +43,11 @@ export function setup() {
 
 
 export const options = {
-  scenarios: {
-    main: {
-      executor: "per-vu-iterations",
-      vus: TOTAL_USERS,
-      iterations: TOTAL_REQUESTS_PER_USER,
-      maxDuration: MAX_DURATION,
-    },
-  },
+  stages: [
+    { duration: '5m', target: TOTAL_USERS },
+    { duration: DURATION, target: TOTAL_USERS },
+    { duration: '5m', target: 0 },
+  ],
 };
 
 export default function(setupData) {
@@ -59,7 +55,7 @@ export default function(setupData) {
   inventoryUtil.init(configs)
   userCartsUtil.init(Object.assign(configs, { inventoryUtil }))
   userCartsUtil.simulateUsersUpdateShoppingCarts()
-  sleep(randomInt(0, 2));
+  sleep(randomInt(1, 5));
 }
 
 

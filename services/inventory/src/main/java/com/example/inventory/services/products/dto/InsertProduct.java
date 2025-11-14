@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.data.relational.core.mapping.Column;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -30,4 +31,8 @@ public class InsertProduct {
     @NotNull
     @Min(0)
     Integer stock;
+
+    @NotNull
+    @Min(5)
+    Integer reservationsExpireAfterSeconds;
 }

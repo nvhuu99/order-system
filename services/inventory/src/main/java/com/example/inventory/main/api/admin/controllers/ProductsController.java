@@ -3,7 +3,7 @@ package com.example.inventory.main.api.admin.controllers;
 import com.example.inventory.main.api.admin.responses.ApiResponse;
 import com.example.inventory.services.products.ProductsService;
 import com.example.inventory.services.products.dto.InsertProduct;
-import com.example.inventory.services.products.dto.ListProductsRequest;
+import com.example.inventory.services.products.dto.ListRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class ProductsController {
     }
 
     @PostMapping("list")
-    public Mono<ResponseEntity<ApiResponse>> listProduct(@RequestBody ListProductsRequest request) {
+    public Mono<ResponseEntity<ApiResponse>> listProduct(@RequestBody ListRequest request) {
         return productsSvc
             .list(request)
             .collectList()

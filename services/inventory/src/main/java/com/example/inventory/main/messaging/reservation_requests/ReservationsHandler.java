@@ -1,5 +1,6 @@
 package com.example.inventory.main.messaging.reservation_requests;
 
+import com.example.inventory.main.messaging.reservation_requests.exceptions.ProductNotFound;
 import com.example.inventory.repositories.product_reservations.entities.ReservationStatus;
 import com.example.inventory.main.messaging.reservation_requests.exceptions.InvalidRequestTimestamp;
 import com.example.inventory.main.messaging.reservation_requests.exceptions.RequestHandlerLockUnavailable;
@@ -11,6 +12,8 @@ import com.example.inventory.services.collection_locks.CollectionLocksService;
 import com.example.inventory.services.collection_locks.exceptions.LockValueMismatch;
 import com.example.inventory.services.collection_locks.exceptions.LocksUnavailable;
 import com.example.inventory.services.product_availabilities.ProductAvailabilitiesService;
+import com.example.inventory.services.products.ProductsService;
+import com.example.inventory.services.products.dto.ProductDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -37,6 +40,9 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
     private ProductAvailabilitiesService productAvailabilitiesService;
 
     @Autowired
+    private ProductsService productsSvc;
+
+    @Autowired
     private ReservationValidator validator;
 
     @Autowired
@@ -56,6 +62,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
 
         var reservationRef = new AtomicReference<ProductReservation>();
         var productAvailabilityRef = new AtomicReference<ProductAvailability>();
+        var productRef = new AtomicReference<ProductDetail>();
         var now = Instant.now();
 
         var commit = Mono.fromRunnable(() -> callHook(REQUEST_COMMITTED, hook));
@@ -68,6 +75,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .then(tryAcquireHandlerLock)
             .then(acquireReservationLock)
             .then(acquireProductAvailabilityLock)
+            .then(getProduct(request, productRef))
             .then(getReservation(request, reservationRef))
             .then(getProductAvailability(request, productAvailabilityRef))
             .map(ignored -> {
@@ -77,6 +85,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .map(ignored -> {
                 var availability = productAvailabilityRef.get();
                 var reservation = reservationRef.get();
+                var product = productRef.get();
 
                 var reservedTotalAfterExcludeReservation = availability.getReservedAmount() - reservation.getReservedAmount();
                 var desiredReserveTotal = reservedTotalAfterExcludeReservation + request.getQuantity();
@@ -96,7 +105,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
                 } else {
                     reservation.setStatus(ReservationStatus.OK.getValue());
                 }
-                reservation.setExpiresAt(now.plusSeconds(EXPIRES_AFTER_SECONDS));
+                reservation.setExpiresAt(now.plusSeconds(product.getReservationsExpireAfterSeconds()));
                 reservation.setUpdatedAt(now);
 
                 return Mono.empty();
@@ -109,6 +118,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .then(releaseReservationLock)
             .then(releaseHandlerLock)
             .then(commit)
+            .onErrorResume(ProductNotFound.class, ex -> commit.then(Mono.error(ex)))
             .onErrorResume(InvalidRequestTimestamp.class, ex -> commit.then(Mono.error(ex)))
             .onErrorResume(RequestHandlerLockUnavailable.class, ex -> commit.then(Mono.error(ex)))
             .onErrorResume(ex ->
@@ -154,6 +164,16 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock release success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_RELEASED, collection, hook))
             .then()
+        ;
+    }
+
+    private Mono<ProductDetail> getProduct(ReservationRequest request, AtomicReference<ProductDetail> productRef) {
+        return productsSvc
+            .findById(request.getProductId())
+            .switchIfEmpty(Mono.error(new ProductNotFound()))
+            .doOnError(ex -> log.error(logTemplate(request, "get product failed: {}"), exceptionCause(ex).getMessage()))
+            .doOnSuccess(ok -> log.debug(logTemplate(request, "get product successfully")))
+            .doOnSuccess(productRef::set)
         ;
     }
 

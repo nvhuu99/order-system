@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ListProductsRequest {
+public class ListRequest {
     String nameSearch;
     Integer page = 1;
     Integer limit = 10;

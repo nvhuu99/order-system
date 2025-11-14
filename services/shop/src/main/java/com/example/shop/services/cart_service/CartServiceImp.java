@@ -5,6 +5,7 @@ import com.example.shop.services.cart_service.entities.Cart;
 import com.example.shop.services.cart_service.entities.CartItem;
 import com.example.shop.services.cart_service.dto.CartUpdateRequest;
 import com.example.shop.services.inventory_client.InventoryClient;
+import com.example.shop.services.inventory_client.entities.ProductReservation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -25,8 +26,18 @@ public class CartServiceImp implements CartService {
     public Mono<Cart> getCartByUserId(String userId) {
         return inventoryClient
             .listProductReservations(userId)
-            .flatMap(r -> productsRepo.findById(r.getProductId()).map(p -> new CartItem(r, p)))
             .collectList()
+            .flatMap(reservations -> {
+                var productIds = reservations.stream().map(ProductReservation::getProductId).toList();
+                return productsRepo
+                    .findAllById(productIds)
+                    .map(product -> {
+                        var reservation = reservations.stream().filter(r -> r.getProductId() == product.getId()).toList().getFirst();
+                        return new CartItem(reservation, product);
+                    })
+                    .collectList()
+                ;
+            })
             .flatMap(cartItemLists -> Mono.just(new Cart(userId, cartItemLists)))
         ;
     }

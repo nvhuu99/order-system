@@ -1,13 +1,13 @@
 package com.example.inventory.main.workers.reservations_synchronizer;
 
 import com.example.inventory.repositories.product_reservations.ProductReservationsRepository;
-import com.example.inventory.repositories.products.ProductsCrudRepository;
+import com.example.inventory.repositories.products.ProductsRepository;
+import com.example.inventory.repositories.products.dto.ListRequest;
+import com.example.inventory.repositories.products.entities.Product;
 import com.example.inventory.services.collection_locks.CollectionLocksService;
 import com.example.inventory.services.collection_locks.exceptions.LockValueMismatch;
 import com.example.inventory.services.product_availabilities.ProductAvailabilitiesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +24,7 @@ import static com.example.inventory.utils.ErrorUtils.exceptionCause;
 public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
 
     @Autowired
-    private ProductsCrudRepository productsRepo;
+    private ProductsRepository productsRepo;
 
     @Autowired
     private ProductReservationsRepository reservationRepo;
@@ -74,8 +74,12 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
 
 
     private Mono<List<String>> getProductIds(SyncRequest request) {
+        var args = new ListRequest();
+        args.setPage(request.getBatchNumber());
+        args.setLimit(request.getBatchSize());
         return productsRepo
-            .getProductListIds(PageRequest.of(request.getBatchNumber(), request.getBatchSize(), Sort.by("id").ascending()))
+            .list(args)
+            .map(Product::getId)
             .collectList()
             .defaultIfEmpty(new ArrayList<>())
             .doOnError(ex -> log.error(logTemplate(request, "get product_ids failed: {}"), exceptionCause(ex).getMessage()))

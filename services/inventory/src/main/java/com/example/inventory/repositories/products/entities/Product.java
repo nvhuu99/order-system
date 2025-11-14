@@ -31,6 +31,9 @@ public class Product {
     @Column("stock")
     Integer stock;
 
+    @Column("reservations_expire_after_seconds")
+    Integer reservationsExpireAfterSeconds;
+
     @Column("updated_at")
     Instant updatedAt;
 }

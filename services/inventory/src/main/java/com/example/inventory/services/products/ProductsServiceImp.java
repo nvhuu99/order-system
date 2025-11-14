@@ -4,7 +4,7 @@ import com.example.inventory.repositories.products.ProductsCrudRepository;
 import com.example.inventory.repositories.products.ProductsRepository;
 import com.example.inventory.repositories.products.entities.Product;
 import com.example.inventory.services.products.dto.InsertProduct;
-import com.example.inventory.services.products.dto.ListProductsRequest;
+import com.example.inventory.services.products.dto.ListRequest;
 import com.example.inventory.services.products.dto.ProductDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class ProductsServiceImp implements ProductsService {
     }
 
     @Override
-    public Flux<ProductDetail> list(ListProductsRequest request) {
+    public Flux<ProductDetail> list(ListRequest request) {
         return productsRepo.list(request).map(ProductDetail::mapFromEntity);
     }
 
@@ -44,6 +44,7 @@ public class ProductsServiceImp implements ProductsService {
         product.setPrice(data.getPrice());
         product.setStock(data.getStock());
         product.setUpdatedAt(Instant.now());
+        product.setReservationsExpireAfterSeconds(data.getReservationsExpireAfterSeconds());
         return productsCrudRepo.save(product).map(ProductDetail::mapFromEntity);
     }
 }

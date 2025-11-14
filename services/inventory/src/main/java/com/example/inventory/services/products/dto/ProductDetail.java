@@ -25,6 +25,8 @@ public class ProductDetail {
 
     Integer stock;
 
+    Integer reservationsExpireAfterSeconds;
+
     Instant updatedAt;
 
 
@@ -34,6 +36,7 @@ public class ProductDetail {
         detail.setName(product.getName());
         detail.setPrice(product.getPrice());
         detail.setStock(product.getStock());
+        detail.setReservationsExpireAfterSeconds(product.getReservationsExpireAfterSeconds());
         detail.setUpdatedAt(product.getUpdatedAt());
         return detail;
     }

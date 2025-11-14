@@ -1,4 +1,4 @@
-import { fail } from 'k6'
+import { fail, sleep } from 'k6'
 import http from "k6/http"
 
 import { randomInt, parseJsonReponse } from './test-common.js'
@@ -9,13 +9,16 @@ const CONTENT_TYPE_HEADER = { headers: { "Content-Type": "application/json" } }
 export const userCartsUtil = {
 
   /* Required properties */
+  testId: null,
   inventoryUtil: null,
   inventoryAddr: "",
   shopAddr: "",
 
   /* Optional properties */
-  cartMaxItems: 1,
-  cartItemMaxQty: 1,
+  totalUsers: 10,
+  cartMaxItems: 10,
+  cartItemMaxQty: 10,
+  summaryWaitForSyncSeconds: 10,
   verbose: true,
 
   init(properties) {
@@ -27,13 +30,14 @@ export const userCartsUtil = {
   },
 
   verboseLog(message) {
-    if (this.verbose) {
+    if (this.verbose == 'true') {
       console.log(this.logTemplate(message))
     } 
   },
 
 
-  simulateUserUpdateShoppingCart(userId) {
+  simulateUsersUpdateShoppingCarts() {
+    var userId = `VU_${__VU}_${this.testId}`
     var cart = this.loadUserCart(userId)
     var products = this.inventoryUtil.listRandomProducts(randomInt(1, this.cartMaxItems))
     var productIds = products.map(p => p['id'])
@@ -81,6 +85,26 @@ export const userCartsUtil = {
     var cart = responseBody['data']
     this.verboseLog(`load user cart successfully - ${JSON.stringify(cart)}`)
     return cart
+  },
+
+  tryValidateAllUserCarts() {
+    var ids = [];
+    for (var i = 1; i <= this.totalUsers; ++i) {
+      ids.push(`VU_${i}_${this.testId}`)
+    }
+    var validations = {}
+    var wait = this.summaryWaitForSyncSeconds
+    for (var i = 0; i < ids.length; ++i) {
+      while (true) {
+        validations[ids[i]] = userCartsUtil.validateUserCart(ids[i])
+        if (wait-- && validations[ids[i]] != null) {
+          sleep(1)
+          continue
+        }
+        break
+      }
+    }
+    return validations
   },
 
   /**

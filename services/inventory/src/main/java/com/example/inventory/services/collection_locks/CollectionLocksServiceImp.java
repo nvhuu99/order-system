@@ -34,7 +34,7 @@ public class CollectionLocksServiceImp implements CollectionLocksService {
             .execute(lockLuaScript, recordIds, redisKey(collection), lockValue, String.valueOf(ttl.toMillis()))
             .next()
             .flatMap(r -> r == 0
-                ? Mono.error(new LocksUnavailable())
+                ? Mono.error(new LocksUnavailable(redisKey(collection)))
                 : Mono.empty()
             )
         ;

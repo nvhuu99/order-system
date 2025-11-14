@@ -15,7 +15,9 @@ export const inventoryUtil = {
 
   /* Optional properties */
   productsTotal: 100,
+  maxProductStock: 100,
   verbose: true,
+  summaryWaitForSyncSeconds: 10,
 
 
   logTemplate(message) {
@@ -23,7 +25,7 @@ export const inventoryUtil = {
   },
 
   verboseLog(message) {
-    if (this.verbose) {
+    if (this.verbose == 'true') {
       console.log(this.logTemplate(message))
     } 
   },
@@ -33,13 +35,14 @@ export const inventoryUtil = {
     Object.assign(this, properties)
   },
 
-  seedProducts(maxStock) {
+  seedProducts() {
     var count = this.productsTotal
     while (count--) {
       var body = {
         name: `test_${this.testId}_product_${count}`,
         price: randomInt(1, 10),
-        stock: randomInt(1, maxStock),
+        stock: randomInt(1, this.maxProductStock),
+        reservationsExpireAfterSeconds: 3600,
       }
       var response = http.post(`${this.inventoryAddr}/api/v1/admin/products`, JSON.stringify(body), CONTENT_TYPE_HEADER)
       var responseBody = parseJsonReponse(response)
@@ -132,6 +135,31 @@ export const inventoryUtil = {
     var data = responseBody['data']
     this.verboseLog(`vu - ${__VU} - get product_availability successfully: ${JSON.stringify(data)}}`)
     return data
+  },
+
+
+  tryValidateAllProductAvailabilities() {
+    var limit = 100
+    var totalPages = Math.ceil(this.productsTotal / limit)
+    var page = 1
+    var validations = {}
+    while (page++ <= totalPages) {
+      var products = inventoryUtil.listProducts(page, limit)
+      var ids = products.map(p => p['id'])
+      var wait = this.summaryWaitForSyncSeconds
+      for (var i = 0; i < ids.length; ++i) {
+        while (true) {
+          validations[ids[i]] = inventoryUtil.validateProductAvailability(ids[i])
+          if (wait-- && validations[ids[i]] != null) {
+            sleep(1)
+            continue
+          }
+          break
+        }
+      }
+    }
+    
+    return validations
   },
 
   /**

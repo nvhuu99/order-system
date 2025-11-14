@@ -50,7 +50,7 @@ public class ReservationsHandlerTests extends TestBase {
         var now = Instant.now();
         var prodName = UUID.randomUUID().toString();
         var userId = UUID.randomUUID().toString();
-        var product = new Product(null, prodName, BigDecimal.valueOf(1 + 10 * Math.random()), stock, now);
+        var product = new Product(null, prodName, BigDecimal.valueOf(1 + 10 * Math.random()), stock, 300, now);
         var expiresAt = status == ReservationStatus.EXPIRED ? now.minus(1, ChronoUnit.HOURS) : now.plus(1, ChronoUnit.HOURS);
         var reservation = new ProductReservation(null, userId, null, reserved, desired, status.getValue(), expiresAt, now);
         return initializer

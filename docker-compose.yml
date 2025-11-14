@@ -122,9 +122,55 @@ services:
     command: ["run", "/scripts/load-test.js"]
     env_file:
       - .env.docker
+    environment:
+      SEED_PRODUCTS_TOTAL: 10
+      MAX_PRODUCT_STOCK: 10
+      TOTAL_USERS: 20
+      TOTAL_REQUESTS_PER_USER: 10
+      CART_ITEM_MAX_QTY: 3
+      CART_MAX_ITEMS: 5
+      SUMMARY_WAIT_FOR_SYNC_SECONDS: 10
+      INVENTORY_API_ADDR: "http://inventory-service:8082"
+      SHOP_API_ADDR: "http://shop-service:8080"
+      MAX_DURATION: "300s"
+      PRUNE: false
+      VERBOSE: false
     volumes:
       - ./utils/:/scripts/utils/
       - ./load-test.js:/scripts/load-test.js
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.2'
+          memory: 128M
+    restart: "no"
+    networks:
+      - order-system
+
+  soak-test:
+    image: grafana/k6:latest
+    container_name: soak-test
+    command: ["run", "/scripts/soak-test.js"]
+    env_file:
+      - .env.docker
+    environment:
+      SEED_PRODUCTS_TOTAL: 10
+      MAX_PRODUCT_STOCK: 100
+      TOTAL_USERS: 20
+      CART_ITEM_MAX_QTY: 10
+      CART_MAX_ITEMS: 5
+      SUMMARY_WAIT_FOR_SYNC_SECONDS: 10
+      INVENTORY_API_ADDR: "http://inventory-service:8082"
+      SHOP_API_ADDR: "http://shop-service:8080"
+      DURATION: "8h"
+      PRUNE: "false"
+      VERBOSE: "false"
+    volumes:
+      - ./utils/:/scripts/utils/
+      - ./soak-test.js:/scripts/soak-test.js
     deploy:
       resources:
         limits:
