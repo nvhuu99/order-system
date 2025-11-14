@@ -114,13 +114,15 @@ export const userCartsUtil = {
       } else if (reservationStatus != resv['status']) {
         message = `cart.items[*].reservationStatus (${reservationStatus}) and reservations[*].reservationStatus (${resv['status']}) value mismatch`
       } else if (expiresAt > now && reservationStatus == 'EXPIRED') {
-        message = "Wrong status. Reservation has not yet expired but it's status is \"EXPIRED\""
+        message = "wrong status. Reservation has not yet expired but it's status is \"EXPIRED\""
+      } else if (desiredAmount == 0) {
+        message = "zero amount reservation is not removed"
       } else if (reservedAmount == desiredAmount && reservationStatus != 'OK') {
-        message = "Wrong status. Expected \"OK\""
+        message = "wrong status. Expected \"OK\""
       } else if (reservedAmount < desiredAmount && reservationStatus != 'INSUFFICIENT_STOCK') {
-        message = "Wrong status. Expected \"INSUFFICIENT_STOCK\""
+        message = "wrong status. Expected \"INSUFFICIENT_STOCK\""
       } else if (reservedAmount > desiredAmount) {
-        message = `Invalid amount. reserved_amount (${reservedAmount}) is currently greater than desired_amount (${desiredAmount})`
+        message = `invalid amount. reserved_amount (${reservedAmount}) is currently greater than desired_amount (${desiredAmount})`
       }
 
       if (message != "") {
