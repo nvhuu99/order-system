@@ -73,11 +73,16 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
                 return reservation;
             })
             .then(tryAcquireHandlerLock)
+
+            // can Mono.when
             .then(acquireReservationLock)
             .then(acquireProductAvailabilityLock)
+
+            // can Mono.when
             .then(getProduct(request, productRef))
             .then(getReservation(request, reservationRef))
             .then(getProductAvailability(request, productAvailabilityRef))
+
             .map(ignored -> {
                 validator.checkRequestTimestamp(reservationRef.get(), request);
                 return Mono.empty();
@@ -114,9 +119,12 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
                 putReservation(request, reservationRef.get(), hook)
                     .then(putProductAvailability(request, productAvailabilityRef.get(), hook))
             )
+
+            // can Mono.when
             .then(releaseProductAvailabilityLock)
             .then(releaseReservationLock)
             .then(releaseHandlerLock)
+
             .then(commit)
             .onErrorResume(ProductNotFound.class, ex -> commit.then(Mono.error(ex)))
             .onErrorResume(InvalidRequestTimestamp.class, ex -> commit.then(Mono.error(ex)))

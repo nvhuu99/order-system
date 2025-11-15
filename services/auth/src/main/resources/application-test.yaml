@@ -1,6 +1,6 @@
 logging:
   level:
-    com.example.shop: DEBUG
+    com.example.auth: DEBUG
 
 spring:
   lifecycle:

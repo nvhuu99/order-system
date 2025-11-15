@@ -1,0 +1,4 @@
+logging:
+  level:
+    com.example.auth: DEBUG
+    org.springframework.r2dbc: INFO

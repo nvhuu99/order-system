@@ -1,0 +1,35 @@
+server:
+  port: ${AUTH_SVC_API_PORT:8081}
+
+
+logging:
+  level:
+    io.opentelemetry.exporter: ERROR
+    io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
+    org.springframework.r2dbc: ERROR
+
+
+token-service:
+  access-token-expires-after-seconds: 86400
+  refresh-token-expires-after-seconds: 2592000
+  jwt:
+    secret: ${AUTH_SVC_JWT_SECRET}
+
+spring:
+  application:
+    name: auth_service
+
+  r2dbc:
+    url: "r2dbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/inventory?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverZoneId=UTC&allowPublicKeyRetrieval=true&useSSL=false"
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:admin}
+
+
+management:
+  tracing: { enabled: false }
+  otlp:
+    tracing:
+      endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo:4318/v1/traces}
+    metrics:
+      export:
+        enabled: false

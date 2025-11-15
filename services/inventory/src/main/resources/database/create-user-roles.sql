@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS user_roles (
+    username VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    PRIMARY KEY (username, role),
+    FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
