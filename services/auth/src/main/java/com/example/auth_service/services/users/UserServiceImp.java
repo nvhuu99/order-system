@@ -1,14 +1,14 @@
 package com.example.auth_service.services.users;
 
-import com.example.auth_service.repositories.UserRolesCrudRepository;
-import com.example.auth_service.repositories.entities.User;
-import com.example.auth_service.repositories.entities.UserRole;
+import com.example.auth_service.repositories.users.UserRolesCrudRepository;
+import com.example.auth_service.repositories.users.entities.User;
+import com.example.auth_service.repositories.users.entities.UserRole;
 import com.example.auth_service.services.users.dto.SaveUser;
 import com.example.auth_service.services.users.dto.UserDetails;
-import com.example.auth_service.repositories.UsersCrudRepository;
+import com.example.auth_service.repositories.users.UsersCrudRepository;
 import com.example.auth_service.services.users.exceptions.EmailDuplicationException;
 import com.example.auth_service.services.users.exceptions.UsernameDuplicationException;
-import com.example.auth_service.utils.exceptions.TokenRejectedException;
+import com.example.auth_service.utils.auth_jwt.exceptions.TokenRejectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service

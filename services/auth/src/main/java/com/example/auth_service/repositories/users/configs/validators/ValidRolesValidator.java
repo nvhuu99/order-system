@@ -1,6 +1,6 @@
-package com.example.auth_service.repositories.configs.validators;
+package com.example.auth_service.repositories.users.configs.validators;
 
-import com.example.auth_service.repositories.entities.Role;
+import com.example.auth_service.repositories.users.entities.Role;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.*;

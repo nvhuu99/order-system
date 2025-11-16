@@ -1,4 +1,4 @@
-package com.example.auth_service.utils.exceptions;
+package com.example.auth_service.utils.auth_jwt.exceptions;
 
 public class TokenExpiredException extends RuntimeException {
     public TokenExpiredException() {

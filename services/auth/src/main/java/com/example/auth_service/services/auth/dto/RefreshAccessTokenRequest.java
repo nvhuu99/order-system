@@ -1,4 +1,4 @@
-package com.example.auth_service.main.api.requests;
+package com.example.auth_service.services.auth.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
@@ -11,8 +11,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class VerifyAccessToken {
+public class RefreshAccessTokenRequest {
 
     @NotEmpty
     String accessToken;
+
+    @NotEmpty
+    String refreshToken;
 }

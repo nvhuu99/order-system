@@ -1,4 +1,4 @@
-package com.example.auth_service.repositories.configs.validators;
+package com.example.auth_service.repositories.users.configs.validators;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

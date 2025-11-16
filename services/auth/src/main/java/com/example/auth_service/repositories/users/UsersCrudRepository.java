@@ -1,6 +1,6 @@
-package com.example.auth_service.repositories;
+package com.example.auth_service.repositories.users;
 
-import com.example.auth_service.repositories.entities.User;
+import com.example.auth_service.repositories.users.entities.User;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 

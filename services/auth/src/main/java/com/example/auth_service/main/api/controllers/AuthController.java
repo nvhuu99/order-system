@@ -2,15 +2,15 @@ package com.example.auth_service.main.api.controllers;
 
 import com.example.auth_service.main.api.responses.ApiResponse;
 import com.example.auth_service.main.api.responses.records.RegisterResult;
-import com.example.auth_service.main.api.requests.RefreshAccessToken;
-import com.example.auth_service.main.api.requests.VerifyAccessToken;
+import com.example.auth_service.services.auth.dto.RefreshAccessTokenRequest;
+import com.example.auth_service.services.auth.dto.VerifyAccessTokenRequest;
 import com.example.auth_service.services.auth.AuthenticationService;
 import com.example.auth_service.services.auth.dto.BasicAuthRequest;
 import com.example.auth_service.services.auth.exceptions.UnauthorizedException;
 import com.example.auth_service.services.users.UserService;
 import com.example.auth_service.services.users.dto.SaveUser;
-import com.example.auth_service.utils.exceptions.TokenExpiredException;
-import com.example.auth_service.utils.exceptions.TokenRejectedException;
+import com.example.auth_service.utils.auth_jwt.exceptions.TokenExpiredException;
+import com.example.auth_service.utils.auth_jwt.exceptions.TokenRejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,10 +64,10 @@ public class AuthController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<ApiResponse> verify(@Validated @RequestBody VerifyAccessToken body) {
+    public ResponseEntity<ApiResponse> verify(@Validated @RequestBody VerifyAccessTokenRequest body) {
         try {
             return authSvc
-                .verifyAccessToken(body.getAccessToken())
+                .verifyAccessToken(body)
                 .map(ok -> ApiResponse.ok(null))
                 .doOnSuccess(ok -> log.info("verified access token successfully"))
                 .doOnError(ex -> log.error("verify access token failed - {}", ex.getMessage()))
@@ -83,9 +83,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public Mono<ResponseEntity<ApiResponse>> refresh(@Validated @RequestBody RefreshAccessToken body) {
+    public Mono<ResponseEntity<ApiResponse>> refresh(@Validated @RequestBody RefreshAccessTokenRequest body) {
         return authSvc
-            .refreshAccessToken(body.getAccessToken(), body.getRefreshToken())
+            .refreshAccessToken(body)
             .map(ApiResponse::ok)
             .doOnSuccess(ok -> log.info("refresh tokens successfully"))
             .doOnError(ex -> log.error("refresh tokens failed - {}", ex.getMessage()))

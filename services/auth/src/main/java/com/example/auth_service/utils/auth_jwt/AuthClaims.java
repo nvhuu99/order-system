@@ -1,21 +1,20 @@
-package com.example.auth_service.main.api.requests;
+package com.example.auth_service.utils.auth_jwt;
 
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RefreshAccessToken {
+public class AuthClaims {
 
-    @NotEmpty
-    String accessToken;
+    String username;
 
-    @NotEmpty
-    String refreshToken;
+    List<String> roles;
 }

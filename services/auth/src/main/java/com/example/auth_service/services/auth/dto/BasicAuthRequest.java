@@ -1,6 +1,6 @@
 package com.example.auth_service.services.auth.dto;
 
-import com.example.auth_service.repositories.configs.validators.ValidRoles;
+import com.example.auth_service.repositories.users.configs.validators.ValidRoles;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,7 +1,7 @@
 package com.example.auth_service.services.users.dto;
 
-import com.example.auth_service.repositories.entities.User;
-import com.example.auth_service.repositories.entities.UserRole;
+import com.example.auth_service.repositories.users.entities.User;
+import com.example.auth_service.repositories.users.entities.UserRole;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.example.auth_service.repositories.entities;
+package com.example.auth_service.repositories.users.entities;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

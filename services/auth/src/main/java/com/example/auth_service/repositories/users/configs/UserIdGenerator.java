@@ -1,6 +1,6 @@
-package com.example.auth_service.repositories.configs;
+package com.example.auth_service.repositories.users.configs;
 
-import com.example.auth_service.repositories.entities.User;
+import com.example.auth_service.repositories.users.entities.User;
 import org.reactivestreams.Publisher;
 import org.springframework.data.r2dbc.mapping.event.BeforeConvertCallback;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
