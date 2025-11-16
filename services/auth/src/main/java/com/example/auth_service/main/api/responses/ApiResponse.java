@@ -32,6 +32,10 @@ public class ApiResponse {
         return new ResponseEntity<>(new ApiResponse(401, false, message, null, null), HttpStatus.valueOf(401));
     }
 
+    public static ResponseEntity<ApiResponse> permissionDenied(String message) {
+        return new ResponseEntity<>(new ApiResponse(403, false, message, null, null), HttpStatus.valueOf(403));
+    }
+
     public static ResponseEntity<ApiResponse> expired() {
         return new ResponseEntity<>(new ApiResponse(419, false, null, null, null), HttpStatus.valueOf(419));
     }

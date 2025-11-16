@@ -6,6 +6,7 @@ import com.example.auth_service.services.auth.dto.RefreshAccessTokenRequest;
 import com.example.auth_service.services.auth.dto.VerifyAccessTokenRequest;
 import com.example.auth_service.services.auth.AuthenticationService;
 import com.example.auth_service.services.auth.dto.BasicAuthRequest;
+import com.example.auth_service.services.auth.exceptions.AuthorityDeniedException;
 import com.example.auth_service.services.auth.exceptions.UnauthorizedException;
 import com.example.auth_service.services.users.UserService;
 import com.example.auth_service.services.users.dto.SaveUser;
@@ -71,8 +72,9 @@ public class AuthController {
                 .map(ok -> ApiResponse.ok(null))
                 .doOnSuccess(ok -> log.info("verified access token successfully"))
                 .doOnError(ex -> log.error("verify access token failed - {}", ex.getMessage()))
-                .onErrorResume(TokenRejectedException.class, ex -> Mono.just(ApiResponse.unAuthorized("")))
-                .onErrorResume(TokenExpiredException.class, ex -> Mono.just(ApiResponse.expired()))
+                .onErrorResume(TokenRejectedException.class, ex -> Mono.just(ApiResponse.badRequest(ex.getMessage(), null)))
+                .onErrorResume(UnauthorizedException.class, ex -> Mono.just(ApiResponse.unAuthorized(ex.getMessage())))
+                .onErrorResume(AuthorityDeniedException.class, ex -> Mono.just(ApiResponse.permissionDenied(ex.getMessage())))
                 .onErrorResume(ex -> Mono.just(ApiResponse.internalServerError(null)))
                 .block()
             ;
@@ -89,9 +91,9 @@ public class AuthController {
             .map(ApiResponse::ok)
             .doOnSuccess(ok -> log.info("refresh tokens successfully"))
             .doOnError(ex -> log.error("refresh tokens failed - {}", ex.getMessage()))
-            .onErrorResume(TokenRejectedException.class, ex -> Mono.just(ApiResponse.unAuthorized("")))
+            .onErrorResume(TokenRejectedException.class, ex -> Mono.just(ApiResponse.badRequest(ex.getMessage(), null)))
             .onErrorResume(TokenExpiredException.class, ex -> Mono.just(ApiResponse.expired()))
-            .onErrorResume(ex -> Mono.just(ApiResponse.badRequest("Invalid token", null)))
+            .onErrorResume(ex -> Mono.just(ApiResponse.badRequest("invalid token", null)))
         ;
     }
 }

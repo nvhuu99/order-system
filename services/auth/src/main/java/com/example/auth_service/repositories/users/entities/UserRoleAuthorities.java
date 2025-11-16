@@ -12,7 +12,8 @@ public class UserRoleAuthorities {
             "/"
         ));
         authoritiesMap.put(Role.CUSTOMER.getName(), List.of(
-            "/api/v1/carts"
+            "/api/v1/carts",
+            "/api/v1/auth"
         ));
     }
 

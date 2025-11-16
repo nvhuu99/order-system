@@ -1,0 +1,46 @@
+spring:
+  config:
+    import: optional:classpath:.env.docker[.properties]
+
+  application:
+    name: ${SPRING_APP_NAME}
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?createDatabaseIfNotExist=TRUE&characterEncoding=UTF-8&serverTimeZone=UTC&allowPublicKeyRetrieval=TRUE&useSSL=FALSE
+    username: ${DB_USER}
+    password: ${DB_PASS}
+
+  jpa:
+    hibernate:
+      ddl-auto: none      # Only Schema Service should be able to update the database schemas
+    generate-ddl: false
+
+  cloud:
+    config:
+      enabled: false
+    gateway:
+      server:
+        webflux:
+          forwarded: enabled
+
+    loadbalancer:
+      config:
+        default:
+          caseInsensitiveServiceId: true
+
+server:
+  host: ${SERVER_HOST}
+  port: ${SERVER_PORT}
+  scheme: ${SERVER_SCHEME}
+  forward-headers-strategy: framework
+  cookie:
+    max-age-seconds: 86400
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_SERVER_HOST}:${EUREKA_SERVER_PORT}/eureka/
+
+auth-service:
+  url: http://${AUTH_SERVICE_HOST}:${AUTH_SERVICE_PORT}
+
