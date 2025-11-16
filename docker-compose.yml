@@ -26,16 +26,16 @@ services:
     hostname: kafka-controller
     restart: unless-stopped
     ports:
-      - 9093:9093
+      - 9094:9094
     networks:
       - order-system
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: controller
-      KAFKA_LISTENERS: CONTROLLER://:9093
+      KAFKA_LISTENERS: CONTROLLER://:9094
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller:9094
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
 
   kafka-broker:
@@ -57,7 +57,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller:9094
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -93,8 +93,8 @@ services:
     cpus: "1"
     mem_limit: "512mb"
     ports:
-      - "9090:9090"
-      - "8082:8082"
+      - "9093:9093"
+      - "8083:8083"
     networks:
       - order-system
 
@@ -112,73 +112,73 @@ services:
     cpus: "0.25"
     mem_limit: "368mb"
     ports:
-      - "8080:8080"
+      - "8081:8081"
     networks:
       - order-system
 
-  load-test:
-    image: grafana/k6:latest
-    container_name: load-test
-    command: ["run", "/scripts/load-test.js"]
-    env_file:
-      - .env.docker
-    environment:
-      SEED_PRODUCTS_TOTAL: 10
-      MAX_PRODUCT_STOCK: 10
-      TOTAL_USERS: 20
-      TOTAL_REQUESTS_PER_USER: 10
-      CART_ITEM_MAX_QTY: 3
-      CART_MAX_ITEMS: 5
-      SUMMARY_WAIT_FOR_SYNC_SECONDS: 10
-      INVENTORY_API_ADDR: "http://inventory-service:8082"
-      SHOP_API_ADDR: "http://shop-service:8080"
-      MAX_DURATION: "300s"
-      PRUNE: false
-      VERBOSE: false
-    volumes:
-      - ./utils/:/scripts/utils/
-      - ./load-test.js:/scripts/load-test.js
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 128M
-        reservations:
-          cpus: '0.2'
-          memory: 128M
-    restart: "no"
-    networks:
-      - order-system
-
-  soak-test:
-    image: grafana/k6:latest
-    container_name: soak-test
-    command: ["run", "/scripts/soak-test.js"]
-    env_file:
-      - .env.docker
-    environment:
-      SEED_PRODUCTS_TOTAL: 10
-      MAX_PRODUCT_STOCK: 100
-      TOTAL_USERS: 20
-      CART_ITEM_MAX_QTY: 10
-      CART_MAX_ITEMS: 5
-      SUMMARY_WAIT_FOR_SYNC_SECONDS: 10
-      INVENTORY_API_ADDR: "http://inventory-service:8082"
-      SHOP_API_ADDR: "http://shop-service:8080"
-      DURATION: "8h"
-      PRUNE: "false"
-      VERBOSE: "false"
-    volumes:
-      - ./utils/:/scripts/utils/
-      - ./soak-test.js:/scripts/soak-test.js
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 128M
-        reservations:
-          cpus: '0.2'
-          memory: 128M
-    restart: "no"
-    networks:
-      - order-system
+#  load-test:
+#    image: grafana/k6:latest
+#    container_name: load-test
+#    command: ["run", "/scripts/load-test.js"]
+#    env_file:
+#      - .env.docker
+#    environment:
+#      SEED_PRODUCTS_TOTAL: 10
+#      MAX_PRODUCT_STOCK: 10
+#      TOTAL_USERS: 20
+#      TOTAL_REQUESTS_PER_USER: 10
+#      CART_ITEM_MAX_QTY: 3
+#      CART_MAX_ITEMS: 5
+#      SUMMARY_WAIT_FOR_SYNC_SECONDS: 10
+#      INVENTORY_API_ADDR: "http://inventory-service:8082"
+#      SHOP_API_ADDR: "http://shop-service:8080"
+#      MAX_DURATION: "300s"
+#      PRUNE: false
+#      VERBOSE: false
+#    volumes:
+#      - ./utils/:/scripts/utils/
+#      - ./load-test.js:/scripts/load-test.js
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.2'
+#          memory: 128M
+#        reservations:
+#          cpus: '0.2'
+#          memory: 128M
+#    restart: "no"
+#    networks:
+#      - order-system
+#
+#  soak-test:
+#    image: grafana/k6:latest
+#    container_name: soak-test
+#    command: ["run", "/scripts/soak-test.js"]
+#    env_file:
+#      - .env.docker
+#    environment:
+#      SEED_PRODUCTS_TOTAL: 10
+#      MAX_PRODUCT_STOCK: 100
+#      TOTAL_USERS: 20
+#      CART_ITEM_MAX_QTY: 10
+#      CART_MAX_ITEMS: 5
+#      SUMMARY_WAIT_FOR_SYNC_SECONDS: 10
+#      INVENTORY_API_ADDR: "http://inventory-service:8082"
+#      SHOP_API_ADDR: "http://shop-service:8080"
+#      DURATION: "8h"
+#      PRUNE: "false"
+#      VERBOSE: "false"
+#    volumes:
+#      - ./utils/:/scripts/utils/
+#      - ./soak-test.js:/scripts/soak-test.js
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.2'
+#          memory: 128M
+#        reservations:
+#          cpus: '0.2'
+#          memory: 128M
+#    restart: "no"
+#    networks:
+#      - order-system

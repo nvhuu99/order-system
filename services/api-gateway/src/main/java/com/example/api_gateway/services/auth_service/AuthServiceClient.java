@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
     name = "authClient",
-    url = "${auth-service.url}",
+    url = "${auth-service.address}",
     configuration = AuthServiceClientConfig.class
 )
 public interface AuthServiceClient {

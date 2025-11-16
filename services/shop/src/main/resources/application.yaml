@@ -1,5 +1,5 @@
 server:
-  port: ${SHOP_SVC_API_PORT:8080}
+  port: ${SHOP_SVC_API_PORT:8081}
 
 logging:
   level:
@@ -30,7 +30,7 @@ spring:
     client:
       channels:
         inventory-service:
-          address: ${INVENTORY_SVC_HOST:inventory-service}:${INVENTORY_SVC_GRPC_PORT:9090}
+          address: ${INVENTORY_SVC_HOST:inventory-service}:${INVENTORY_SVC_GRPC_PORT:9093}
           plaintext: true
 
   kafka:

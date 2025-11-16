@@ -11,13 +11,13 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 @Configuration
 public class RouteConfig {
 
-    @Value("${AUTH_SVC_HOST}:${AUTH_SVC_API_PORT}")
+    @Value("${auth-service.address}")
     private String authServiceAddr;
 
-    @Value("${INVENTORY_SVC_HOST}:${INVENTORY_SVC_API_PORT}")
+    @Value("${inventory-service.address}")
     private String inventoryServiceAddr;
 
-    @Value("${SHOP_SVC_HOST}:${SHOP_SVC_API_PORT}")
+    @Value("${shop-service.address}")
     private String shopServiceAddr;
     
     @Autowired

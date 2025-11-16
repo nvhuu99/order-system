@@ -1,5 +1,5 @@
 server:
-  port: ${INVENTORY_SVC_API_PORT:8082}
+  port: ${INVENTORY_SVC_API_PORT:8083}
 
 
 logging:
@@ -16,7 +16,7 @@ logging:
 order-system:
   workers:
     product-reservation-sync-requests:
-      schedule-rate-ms: 5000
+      schedule-rate-ms: 15000
   messaging:
     product-reservation-requests:
       topic-name: "product-reservation-requests"
@@ -26,17 +26,17 @@ order-system:
       topic-name: "product-reservation-sync-requests"
       topic-partitions: "0"
       timeout-seconds: 15
-      batch-size: 2
-      request-expires-after-ms: 5000
+      batch-size: 150
+      request-expires-after-ms: 15000
 
 
 spring:
   application:
-    name: inventory_service
+    name: inventory-service
 
   grpc:
     server:
-      port: ${INVENTORY_SVC_GRPC_PORT:9090}
+      port: ${INVENTORY_SVC_GRPC_PORT:9093}
       ssl:
         secure: false
 

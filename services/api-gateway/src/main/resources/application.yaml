@@ -1,19 +1,22 @@
+server:
+  port: ${API_GATEWAY_PORT:8080}
+
+logging:
+  level:
+    io.opentelemetry.exporter: ERROR
+    io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
+
+shop-service:
+  address: http://${SHOP_SVC_HOST:shop-service}:${SHOP_SVC_API_PORT:8081}
+auth-service:
+  address: http://${AUTH_SERVICE_HOST:auth-service}:${AUTH_SVC_API_PORT:8082}
+inventory-service:
+  address: http://${INVENTORY_SVC_HOST:inventory-service}:${INVENTORY_SVC_API_PORT:8083}
+
+
 spring:
-  config:
-    import: optional:classpath:.env.docker[.properties]
-
   application:
-    name: ${SPRING_APP_NAME}
-
-  datasource:
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?createDatabaseIfNotExist=TRUE&characterEncoding=UTF-8&serverTimeZone=UTC&allowPublicKeyRetrieval=TRUE&useSSL=FALSE
-    username: ${DB_USER}
-    password: ${DB_PASS}
-
-  jpa:
-    hibernate:
-      ddl-auto: none      # Only Schema Service should be able to update the database schemas
-    generate-ddl: false
+    name: api-gateway
 
   cloud:
     config:
@@ -28,19 +31,11 @@ spring:
         default:
           caseInsensitiveServiceId: true
 
-server:
-  host: ${SERVER_HOST}
-  port: ${SERVER_PORT}
-  scheme: ${SERVER_SCHEME}
-  forward-headers-strategy: framework
-  cookie:
-    max-age-seconds: 86400
 
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://${EUREKA_SERVER_HOST}:${EUREKA_SERVER_PORT}/eureka/
-
-auth-service:
-  url: http://${AUTH_SERVICE_HOST}:${AUTH_SERVICE_PORT}
-
+management:
+  tracing: { enabled: false }
+  otlp:
+    tracing:
+      endpoint: ${TEMPO_PUSH_API_ENDPOINT:http://tempo-distributor:4318/v1/traces}
+    metrics:
+      export: { enabled: false }
