@@ -29,7 +29,7 @@ public class SyncRequestsListener {
     private SyncRequestsHandler handler;
 
     @KafkaListener(
-        groupId = "sync-requests",
+        groupId = "sync-requests-handler",
         topicPartitions = { @TopicPartition(
             topic = "${order-system.messaging.product-reservation-sync-requests.topic-name}",
             partitions = "${order-system.messaging.product-reservation-sync-requests.topic-partitions}"),
@@ -40,7 +40,7 @@ public class SyncRequestsListener {
 
         var isCommited = new AtomicBoolean(false);
         var execute = handler.handle(request, (hookName, data) -> {
-            if (Objects.equals(hookName, ReservationsHandler.REQUEST_COMMITTED)) {
+            if (Objects.equals(hookName, SyncRequestsHandler.REQUEST_COMMITTED)) {
                 ack.acknowledge();
                 isCommited.set(true);
             }

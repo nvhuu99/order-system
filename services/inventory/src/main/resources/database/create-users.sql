@@ -1,8 +1,0 @@
-CREATE TABLE IF NOT EXISTS users (
-    id VARCHAR(36) PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    access_token VARCHAR(1024),
-    refresh_token VARCHAR(1024)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

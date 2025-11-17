@@ -20,7 +20,7 @@ spring:
     name: auth_service
 
   r2dbc:
-    url: "r2dbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/inventory?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverZoneId=UTC&allowPublicKeyRetrieval=true&useSSL=false"
+    url: "r2dbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/order_system?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverZoneId=UTC&allowPublicKeyRetrieval=true&useSSL=false"
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PASSWORD:admin}
 

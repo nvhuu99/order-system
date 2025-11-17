@@ -1,6 +1,7 @@
 server:
   port: ${SHOP_SVC_API_PORT:8081}
 
+
 logging:
   level:
     io.grpc: ERROR
@@ -11,18 +12,20 @@ logging:
     io.lettuce.core: ERROR
     org.springframework.r2dbc: ERROR
 
+
 order-system:
   messaging:
     product-reservation-requests:
       topic-name: "product-reservation-requests"
-      timeout-seconds: 15
+      timeout-seconds: 10
+
 
 spring:
   application:
     name: shop-service
 
   r2dbc:
-    url: "r2dbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/inventory?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverZoneId=UTC&allowPublicKeyRetrieval=true&useSSL=false"
+    url: "r2dbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/order_system?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverZoneId=UTC&allowPublicKeyRetrieval=true&useSSL=false"
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PASSWORD:admin}
 
@@ -37,19 +40,10 @@ spring:
     bootstrap-servers: ${KAFKA_HOST:kafka-broker}:${KAFKA_PORT:9092}
     admin:
       auto-create: false
-    listener:
-      ack-mode: manual
-    consumer:
-      group-id: ${HOSTNAME:shop-service}
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      enable-auto-commit: false
-      properties:
-        spring.json.trusted.packages: "*"
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 
 management:
   tracing: { enabled: false }

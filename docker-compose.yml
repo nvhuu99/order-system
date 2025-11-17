@@ -116,6 +116,42 @@ services:
     networks:
       - order-system
 
+  auth-service:
+    container_name: auth-service
+    hostname: auth-service
+    restart: unless-stopped
+    environment:
+      HOSTNAME: auth-service
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    cpus: "0.25"
+    mem_limit: "368mb"
+    ports:
+      - "8082:8082"
+    networks:
+      - order-system
+
+  api-gateway:
+    container_name: api-gateway
+    hostname: api-gateway
+    restart: unless-stopped
+    environment:
+      HOSTNAME: api-gateway
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    cpus: "0.25"
+    mem_limit: "368mb"
+    ports:
+      - "8080:8080"
+    networks:
+      - order-system
+
 #  load-test:
 #    image: grafana/k6:latest
 #    container_name: load-test

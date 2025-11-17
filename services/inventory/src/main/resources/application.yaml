@@ -41,7 +41,7 @@ spring:
         secure: false
 
   r2dbc:
-    url: "r2dbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/inventory?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverZoneId=UTC&allowPublicKeyRetrieval=true&useSSL=false"
+    url: "r2dbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/order_system?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverZoneId=UTC&allowPublicKeyRetrieval=true&useSSL=false"
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PASSWORD:admin}
 
@@ -54,9 +54,9 @@ spring:
     consumer:
       group-id: ${HOSTNAME:inventory-service}
       auto-offset-reset: latest
+      enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      enable-auto-commit: false
       properties:
         spring.json.trusted.packages: "*"
         spring.json.type.mapping: >-

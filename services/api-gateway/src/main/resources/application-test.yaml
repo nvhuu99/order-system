@@ -1,0 +1,7 @@
+logging:
+  level:
+    com.example.api_gateway: DEBUG
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 0s  # allow faster shutdown for tests

@@ -1,7 +1,18 @@
+logging:
+  level:
+    com.example.inventory: DEBUG
+
 order-system:
+  workers:
+    product-reservation-sync-requests:
+      schedule-rate-ms: 15000
   messaging:
     product-reservation-requests:
       topic-partitions: "0-2"
+      timeout-seconds: 15
     product-reservation-sync-requests:
       topic-partitions: "0-2"
+      timeout-seconds: 15
       batch-size: 150
+      request-expires-after-ms: 15000
+
