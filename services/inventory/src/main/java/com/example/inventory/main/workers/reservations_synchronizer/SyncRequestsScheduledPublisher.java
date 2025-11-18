@@ -50,6 +50,6 @@ public class SyncRequestsScheduledPublisher {
     public void publishRequest(SyncRequest request) {
         String key = request.getBatchSize() + "-" + request.getBatchNumber();
         kafka.send(topic, key, request);
-        log.info("published reservations sync requests - batch_size: {} - batchNumber: {}", request.getBatchSize(), request.getBatchNumber());
+        log.info("published reservations sync requests - batch_size: {} - batch_number: {}", request.getBatchSize(), request.getBatchNumber());
     }
 }

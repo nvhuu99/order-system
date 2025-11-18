@@ -34,7 +34,7 @@ public class SyncRequestsListener {
             topic = "${order-system.messaging.product-reservation-sync-requests.topic-name}",
             partitions = "${order-system.messaging.product-reservation-sync-requests.topic-partitions}"),
     })
-    public void handle(SyncRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
+    public Mono<Void> handle(SyncRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
 
         log.info(logTemplate(headers, "Message received"));
 
@@ -46,7 +46,7 @@ public class SyncRequestsListener {
             }
         });
 
-        execute
+        return execute
             .onErrorResume(ex -> Mono.empty())
             .doOnTerminate(() -> {
                 if (isCommited.get()) {
@@ -55,7 +55,6 @@ public class SyncRequestsListener {
                     log.info(logTemplate(headers, "Did not commit message"));
                 }
             })
-            .subscribe()
         ;
     }
 

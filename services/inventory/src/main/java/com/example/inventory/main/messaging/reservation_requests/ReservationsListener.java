@@ -31,7 +31,7 @@ public class ReservationsListener {
         topic = "${order-system.messaging.product-reservation-requests.topic-name}",
         partitions = "${order-system.messaging.product-reservation-requests.topic-partitions}")
     })
-    public void handle(ReservationRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
+    public Mono<Void> handle(ReservationRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
 
         log.info(logTemplate(headers, "Message received"));
 
@@ -43,7 +43,7 @@ public class ReservationsListener {
             }
         });
 
-        execute
+        return execute
             .onErrorResume(ex -> Mono.empty())
             .doOnTerminate(() -> {
                 if (isCommited.get()) {
@@ -52,7 +52,6 @@ public class ReservationsListener {
                     log.info(logTemplate(headers, "Did not commit message"));
                 }
             })
-            .block()
         ;
     }
 

@@ -16,3 +16,16 @@ order-system:
       batch-size: 150
       request-expires-after-ms: 15000
 
+spring:
+  data:
+    redis:
+      sentinel:
+        master: mymaster
+        nodes:
+          - "${REDIS_HOST}:${REDIS_SENTINEL_PORT}"
+
+#management:
+#  tracing:
+#    enabled: true
+#    sampling:
+#      probability: 1.0

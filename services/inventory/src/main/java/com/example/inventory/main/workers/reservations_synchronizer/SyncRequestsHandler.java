@@ -13,9 +13,9 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
 import static com.example.inventory.utils.ErrorUtils.exceptionCause;
@@ -40,19 +40,29 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
 
         log.info(logTemplate(request, "handling sync request"));
 
-        var lockVal = UUID.randomUUID().toString();
         var commit = Mono.fromRunnable(() -> callHook(REQUEST_COMMITTED, hook));
-
+        var productIds = new AtomicReference<List<String>>();
+        
         if (request.getExpiresAt() != null && request.getExpiresAt().isBefore(Instant.now())) {
             log.info(logTemplate(request, "sync request expired"));
             return commit.then();
         }
-
-        var productIds = getProductIds(request).block();
-        if (productIds != null && productIds.isEmpty()) {
-            return commit.then();
-        }
-
+        return getProductIds(request)
+            .flatMap(ids -> {
+                if (ids.isEmpty()) {
+                    log.info(logTemplate(request, "product ids is empty, this request will be skipped"));
+                    return commit.then();
+                }
+                productIds.set(ids);
+                return execute(request, productIds.get(), hook);
+            })
+        ;
+    }
+    
+    
+    private Mono<Void> execute(SyncRequest request, List<String> productIds, BiConsumer<String, String> hook) {
+        var lockVal = UUID.randomUUID().toString();
+        var commit = Mono.fromRunnable(() -> callHook(REQUEST_COMMITTED, hook));
         return acquireLock(request, "order_system:product_reservations", productIds, lockVal, hook)
             .then(acquireLock(request, "order_system:product_availabilities", productIds, lockVal, hook))
             .then(removeZeroAmountReservations(request, productIds, hook))
@@ -72,7 +82,6 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
         ;
     }
 
-
     private Mono<List<String>> getProductIds(SyncRequest request) {
         var args = new ListRequest();
         args.setPage(request.getBatchNumber());
@@ -81,9 +90,8 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
             .list(args)
             .map(Product::getId)
             .collectList()
-            .defaultIfEmpty(new ArrayList<>())
             .doOnError(ex -> log.error(logTemplate(request, "get product_ids failed: {}"), exceptionCause(ex).getMessage()))
-            .doOnSuccess(ok -> log.debug(logTemplate(request, "get product_ids successfully")))
+            .doOnSuccess(ids -> log.debug(logTemplate(request, "get product_ids successfully - totals: {}"), ids.size()))
         ;
     }
 

@@ -51,6 +51,7 @@ spring:
       auto-create: false
     listener:
       ack-mode: manual
+      concurrency: 1
     consumer:
       group-id: ${HOSTNAME:inventory-service}
       auto-offset-reset: latest
