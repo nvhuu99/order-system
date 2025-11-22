@@ -27,8 +27,6 @@ public class ProductDetail {
 
     Integer reservationsExpireAfterSeconds;
 
-    Instant updatedAt;
-
 
     public static ProductDetail mapFromEntity(Product product) {
         var detail = new ProductDetail();
@@ -37,7 +35,6 @@ public class ProductDetail {
         detail.setPrice(product.getPrice());
         detail.setStock(product.getStock());
         detail.setReservationsExpireAfterSeconds(product.getReservationsExpireAfterSeconds());
-        detail.setUpdatedAt(product.getUpdatedAt());
         return detail;
     }
 }

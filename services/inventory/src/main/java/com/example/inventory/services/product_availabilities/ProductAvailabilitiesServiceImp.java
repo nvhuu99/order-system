@@ -34,7 +34,7 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
         ;
         var availabilityResult = productAvailabilitiesRepo
             .findByProductId(productId)
-            .defaultIfEmpty(new ProductAvailability(productId, 0, 0, null))
+            .defaultIfEmpty(new ProductAvailability(productId, 0, 0))
         ;
 
         return Mono
@@ -47,7 +47,6 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
                 var prodId = availability.getProductId();
                 availability.setReservedAmount(reservedAmounts.getOrDefault(prodId, 0));
                 availability.setStock(product.getStock());
-                availability.setUpdatedAt(Instant.now());
 
                 return productAvailabilitiesRepo.save(availability);
             })
@@ -76,7 +75,7 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
                 for (var prodId: productIds) {
                     var found = t3.getT3().stream().filter(a -> a != null && Objects.equals(a.getProductId(), prodId)).toList();
                     if (found.isEmpty()) {
-                        availabilitiesMap.put(prodId, new ProductAvailability(prodId, 0, 0, null));
+                        availabilitiesMap.put(prodId, new ProductAvailability(prodId, 0, 0));
                     } else {
                         availabilitiesMap.put(prodId, found.getFirst());
                     }
@@ -86,7 +85,6 @@ public class ProductAvailabilitiesServiceImp implements ProductAvailabilitiesSer
                     var availability = availabilitiesMap.get(productId);
                     availability.setReservedAmount(reservedAmounts.getOrDefault(productId, 0));
                     availability.setStock(stocks.getOrDefault(productId, 0));
-                    availability.setUpdatedAt(Instant.now());
                     availabilities.add(availability);
                 }
                 return productAvailabilitiesRepo.saveMany(availabilities);

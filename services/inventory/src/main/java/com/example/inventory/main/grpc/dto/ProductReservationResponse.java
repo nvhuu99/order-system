@@ -8,9 +8,9 @@ public class ProductReservationResponse {
             .setSeconds(entity.getExpiresAt().getEpochSecond())
             .setNanos(entity.getExpiresAt().getNano())
             .build();
-        var updatedAt = com.google.protobuf.Timestamp.newBuilder()
-            .setSeconds(entity.getUpdatedAt().getEpochSecond())
-            .setNanos(entity.getUpdatedAt().getNano())
+        var requestedAt = com.google.protobuf.Timestamp.newBuilder()
+            .setSeconds(entity.getRequestedAt().getEpochSecond())
+            .setNanos(entity.getRequestedAt().getNano())
             .build();
         return com.example.grpc.inventory.stubs.ProductReservation.newBuilder()
             .setId(entity.getId())
@@ -19,7 +19,7 @@ public class ProductReservationResponse {
             .setDesiredAmount(entity.getDesiredAmount())
             .setStatus(entity.getStatus())
             .setExpiresAt(expiresAt)
-            .setUpdatedAt(updatedAt)
+            .setRequestedAt(requestedAt)
             .build()
         ;
     }

@@ -43,7 +43,6 @@ public class ProductsServiceImp implements ProductsService {
         product.setName(data.getName());
         product.setPrice(data.getPrice());
         product.setStock(data.getStock());
-        product.setUpdatedAt(Instant.now());
         product.setReservationsExpireAfterSeconds(data.getReservationsExpireAfterSeconds());
         return productsCrudRepo.save(product).map(ProductDetail::mapFromEntity);
     }

@@ -26,5 +26,5 @@ public class ProductReservation {
 
     Instant expiresAt;
 
-    Instant updatedAt;
+    Instant requestedAt;
 }

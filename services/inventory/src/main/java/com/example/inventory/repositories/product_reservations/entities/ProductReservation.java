@@ -39,6 +39,6 @@ public class ProductReservation {
     @Column("expires_at")
     Instant expiresAt;
 
-    @Column("updated_at")
-    Instant updatedAt;
+    @Column("requested_at")
+    Instant requestedAt;
 }

@@ -19,7 +19,7 @@ public class ReservationRequestValidatorTests extends TestBase {
         var validator = new ReservationValidator();
 
         var now = Instant.now();
-        reservation.setUpdatedAt(now);
+        reservation.setRequestedAt(now);
         request.setRequestedAt(now.minusSeconds(10));
 
         assertThrows(InvalidRequestTimestamp.class, () ->
@@ -34,7 +34,7 @@ public class ReservationRequestValidatorTests extends TestBase {
         var validator = new ReservationValidator();
 
         var now = Instant.now();
-        reservation.setUpdatedAt(now);
+        reservation.setRequestedAt(now);
         request.setRequestedAt(now.plusSeconds(10));
 
         assertDoesNotThrow(() -> validator.checkRequestTimestamp(reservation, request));

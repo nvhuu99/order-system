@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 import java.math.BigDecimal;
-import java.time.Instant;
 
 import org.springframework.data.relational.core.mapping.Column;
 
@@ -33,7 +32,4 @@ public class Product {
 
     @Column("reservations_expire_after_seconds")
     Integer reservationsExpireAfterSeconds;
-
-    @Column("updated_at")
-    Instant updatedAt;
 }

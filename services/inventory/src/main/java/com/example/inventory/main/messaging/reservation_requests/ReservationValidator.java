@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class ReservationValidator {
 
     public void checkRequestTimestamp(ProductReservation reservation, ReservationRequest request) throws InvalidRequestTimestamp {
-        if (reservation.getUpdatedAt() != null && reservation.getUpdatedAt().isAfter(request.getRequestedAt())) {
+        if (reservation.getRequestedAt() != null && reservation.getRequestedAt().isAfter(request.getRequestedAt())) {
             throw new InvalidRequestTimestamp();
         }
     }

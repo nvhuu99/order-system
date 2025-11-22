@@ -29,7 +29,7 @@ public class ProductReservationDetail {
 
     Instant expiresAt;
 
-    Instant updatedAt;
+    Instant requestedAt;
 
     public static ProductReservationDetail mapFromEntity(ProductReservation entity) {
         var detail = new ProductReservationDetail();
@@ -40,7 +40,7 @@ public class ProductReservationDetail {
         detail.setDesiredAmount(entity.getDesiredAmount());
         detail.setStatus(entity.getStatus());
         detail.setExpiresAt(entity.getExpiresAt());
-        detail.setUpdatedAt(entity.getUpdatedAt());
+        detail.setRequestedAt(entity.getRequestedAt());
         return detail;
     }
 }

@@ -30,7 +30,4 @@ public class Product {
 
     @Column("stock")
     Integer stock;
-
-    @Column("updated_at")
-    Instant updatedAt;
 }

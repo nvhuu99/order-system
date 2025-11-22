@@ -21,11 +21,11 @@ public class DatabaseSeeder {
 
     public Product seedProduct(String id, Integer stock) {
         return template
-            .insert(new Product(id, id, BigDecimal.valueOf(1 + 10 * Math.random()), stock, 300, Instant.now()))
+            .insert(new Product(id, id, BigDecimal.valueOf(1 + 10 * Math.random()), stock, 300))
             .block();
     }
 
-    public ProductReservation seedReservation(String productId, String usrId, Integer reserved, Integer desired, ReservationStatus status, Integer updatedAtAdditionalHours) {
+    public ProductReservation seedReservation(String productId, String usrId, Integer reserved, Integer desired, ReservationStatus status, Integer requestedAtAdditionalHours) {
         var now = Instant.now();
         var r = new ProductReservation(
             UUID.randomUUID().toString(),
@@ -35,7 +35,7 @@ public class DatabaseSeeder {
             desired,
             status.getValue(),
             status == ReservationStatus.EXPIRED ? now.minus(2, ChronoUnit.HOURS) : now.plus(2, ChronoUnit.HOURS),
-            now.plusSeconds(updatedAtAdditionalHours * 60 * 60)
+            now.plusSeconds(requestedAtAdditionalHours * 60 * 60)
         );
         return template.insert(r).block();
     }

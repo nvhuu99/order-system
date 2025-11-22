@@ -87,7 +87,7 @@ public class ProductReservationsRepositoryImp implements ProductReservationsRepo
                 pr_inner.product_id,
                 pr_inner.desired_amount,
                 pr_inner.expires_at,
-                pr_inner.updated_at,
+                pr_inner.requested_at,
                 p.stock,
                 COALESCE(
                   SUM(
@@ -98,7 +98,7 @@ public class ProductReservationsRepositoryImp implements ProductReservationsRepo
                     END
                   ) OVER (
                     PARTITION BY pr_inner.product_id
-                    ORDER BY pr_inner.updated_at
+                    ORDER BY pr_inner.requested_at
                     ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
                   ), 0
                 ) AS reservation_accumulation
@@ -119,8 +119,7 @@ public class ProductReservationsRepositoryImp implements ProductReservationsRepo
                 WHEN a.stock <= a.reservation_accumulation THEN 'INSUFFICIENT_STOCK'
                 WHEN a.stock < a.reservation_accumulation + a.desired_amount THEN 'INSUFFICIENT_STOCK'
                 ELSE 'OK'
-              END,
-              pr.updated_at = CURRENT_TIMESTAMP()
+              END
             WHERE pr.product_id IN (%s)
         """;
         sql = String.format(sql,

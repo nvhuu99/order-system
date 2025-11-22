@@ -97,7 +97,6 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
                 ;
 
                 availability.setReservedAmount(reservedTotalAfterExcludeReservation + maxAdditional);
-                availability.setUpdatedAt(now);
 
                 reservation.setProductId(request.getProductId());
                 reservation.setReservedAmount(maxAdditional);
@@ -108,7 +107,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
                     reservation.setStatus(ReservationStatus.OK.getValue());
                 }
                 reservation.setExpiresAt(now.plusSeconds(product.getReservationsExpireAfterSeconds()));
-                reservation.setUpdatedAt(now);
+                reservation.setRequestedAt(request.getRequestedAt());
 
                 return Mono.empty();
             })

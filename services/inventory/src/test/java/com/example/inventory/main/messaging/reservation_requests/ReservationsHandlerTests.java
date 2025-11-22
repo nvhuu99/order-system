@@ -50,7 +50,7 @@ public class ReservationsHandlerTests extends TestBase {
         var now = Instant.now();
         var prodName = UUID.randomUUID().toString();
         var userId = UUID.randomUUID().toString();
-        var product = new Product(null, prodName, BigDecimal.valueOf(1 + 10 * Math.random()), stock, 300, now);
+        var product = new Product(null, prodName, BigDecimal.valueOf(1 + 10 * Math.random()), stock, 300);
         var expiresAt = status == ReservationStatus.EXPIRED ? now.minus(1, ChronoUnit.HOURS) : now.plus(1, ChronoUnit.HOURS);
         var reservation = new ProductReservation(null, userId, null, reserved, desired, status.getValue(), expiresAt, now);
         return initializer
@@ -171,7 +171,7 @@ public class ReservationsHandlerTests extends TestBase {
         assertNotNull(reservationResult);
         assertEquals(reservationResult.getReservedAmount(), request.getQuantity());
         assertEquals(reservationResult.getDesiredAmount(), request.getQuantity());
-        assertNotNull(reservationResult.getUpdatedAt());
+        assertNotNull(reservationResult.getRequestedAt());
         assertEquals(reservationResult.getStatus(), ReservationStatus.OK.getValue());
     }
 
@@ -196,7 +196,7 @@ public class ReservationsHandlerTests extends TestBase {
         assertNotNull(reservationResult);
         assertEquals(reservationResult.getReservedAmount(), request.getQuantity());
         assertEquals(reservationResult.getDesiredAmount(), request.getQuantity());
-        assertNotNull(reservationResult.getUpdatedAt());
+        assertNotNull(reservationResult.getRequestedAt());
         assertEquals(reservationResult.getStatus(), ReservationStatus.OK.getValue());
     }
 
@@ -215,7 +215,7 @@ public class ReservationsHandlerTests extends TestBase {
         assertNotNull(secondReservation);
         assertEquals(secondReservation.getReservedAmount(), 3);
         assertEquals(secondReservation.getDesiredAmount(), 5);
-        assertNotNull(secondReservation.getUpdatedAt());
+        assertNotNull(secondReservation.getRequestedAt());
         assertEquals(secondReservation.getStatus(), ReservationStatus.INSUFFICIENT_STOCK.getValue());
     }
 
@@ -234,7 +234,7 @@ public class ReservationsHandlerTests extends TestBase {
         assertNotNull(secondReservation);
         assertEquals(secondReservation.getReservedAmount(), request.getQuantity());
         assertEquals(secondReservation.getDesiredAmount(), request.getQuantity());
-        assertNotNull(secondReservation.getUpdatedAt());
+        assertNotNull(secondReservation.getRequestedAt());
         assertEquals(secondReservation.getStatus(), ReservationStatus.OK.getValue());
     }
 
@@ -251,7 +251,6 @@ public class ReservationsHandlerTests extends TestBase {
         assertNotNull(availability);
         assertEquals(availability.getStock(), 4);
         assertEquals(availability.getReservedAmount(), reservation.getReservedAmount() + request.getQuantity());
-        assertNotNull(availability.getUpdatedAt());
     }
 
     @Test
@@ -267,7 +266,6 @@ public class ReservationsHandlerTests extends TestBase {
         assertNotNull(availability);
         assertEquals(availability.getStock(), 4);
         assertEquals(availability.getReservedAmount(), request.getQuantity());
-        assertNotNull(availability.getUpdatedAt());
     }
 
     @Test
@@ -283,6 +281,5 @@ public class ReservationsHandlerTests extends TestBase {
         assertNotNull(availability);
         assertEquals(availability.getStock(), 4);
         assertEquals(availability.getReservedAmount(), 4);
-        assertNotNull(availability.getUpdatedAt());
     }
 }

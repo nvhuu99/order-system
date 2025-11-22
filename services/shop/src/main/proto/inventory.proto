@@ -18,7 +18,7 @@ message ProductReservation {
   int32 desired_amount = 5;
   string status = 6;
   google.protobuf.Timestamp expires_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp requested_at = 8;
 }
 
 service InventoryService {
