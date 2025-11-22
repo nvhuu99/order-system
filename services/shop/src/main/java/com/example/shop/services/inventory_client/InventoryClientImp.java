@@ -19,7 +19,7 @@ public class InventoryClientImp implements InventoryClient {
     @Override
     public Flux<ProductReservation> listProductReservations(String userId) {
 
-        Sinks.Many<ProductReservation> sink = Sinks.many().multicast().directBestEffort();
+        Sinks.Many<ProductReservation> sink = Sinks.many().multicast().onBackpressureBuffer();
 
         var request = ListProductReservationsRequest.newBuilder().setUserId(userId).build();
 
@@ -30,9 +30,14 @@ public class InventoryClientImp implements InventoryClient {
                     sink.emitNext(ProductReservationResponse.mapToEntity(data), Sinks.EmitFailureHandler.FAIL_FAST);
                 }
             }
-            @Override public void onError(Throwable t) { sink.emitError(t, Sinks.EmitFailureHandler.FAIL_FAST); }
-            @Override public void onCompleted() { sink.emitComplete(Sinks.EmitFailureHandler.FAIL_FAST); }
-        });
+
+            @Override public void onError(Throwable t) {
+                sink.emitError(t, Sinks.EmitFailureHandler.FAIL_FAST);
+            }
+
+            @Override public void onCompleted() {
+                sink.emitComplete(Sinks.EmitFailureHandler.FAIL_FAST); }
+            });
 
         return sink.asFlux();
     }

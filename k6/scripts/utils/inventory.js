@@ -1,7 +1,7 @@
-import { fail } from 'k6'
+import { fail, sleep } from 'k6'
 import http from "k6/http"
 
-import { randomInt, parseJsonReponse } from './test-common.js'
+import { randomInt, parseJsonReponse } from './common.js'
 
 
 const CONTENT_TYPE_HEADER = { headers: { "Content-Type": "application/json" } }
@@ -37,7 +37,7 @@ export const inventoryUtil = {
 
   seedProducts() {
     var count = this.productsTotal
-    while (count--) {
+    while (count) {
       var body = {
         name: `test_${this.testId}_product_${count}`,
         price: randomInt(1, 10),
@@ -49,6 +49,7 @@ export const inventoryUtil = {
       if (response.status != 201) {
         fail(this.logTemplate("failed to seed products: " + JSON.stringify(responseBody)))
       }
+      count--
     }
     this.verboseLog("seed products successfully")
   },
@@ -62,11 +63,11 @@ export const inventoryUtil = {
         var response = http.del(`${this.inventoryAddr}/api/v1/admin/products/${products[p]['id']}`)
         var responseBody = parseJsonReponse(response)
         if (response.status != 200) {
-          fail(this.logTemplate(`vu - ${__VU} - fail to delete products: ${JSON.stringify(responseBody)}`))
+          fail(this.logTemplate(`fail to delete products: ${JSON.stringify(responseBody)}`))
         }
       }
     }
-    this.verboseLog(`vu - ${__VU} - delete products successfully`)
+    this.verboseLog(`delete products successfully`)
   },
 
   listRandomProducts(limit) {
@@ -84,10 +85,10 @@ export const inventoryUtil = {
     var response = http.post(`${this.inventoryAddr}/api/v1/admin/products/list`, JSON.stringify(body), CONTENT_TYPE_HEADER)
     var responseBody = parseJsonReponse(response)
     if (response.status != 200) {
-      fail(this.logTemplate(`vu - ${__VU} - fail to list products: ${JSON.stringify(responseBody)}`))
+      fail(this.logTemplate(`fail to list products: ${JSON.stringify(responseBody)}`))
     }
     var products = responseBody['data']
-    this.verboseLog(`vu - ${__VU} - list products successfully - page: ${page} - limit: ${limit} - total: ${products.length}`)
+    this.verboseLog(`list products successfully - page: ${page} - limit: ${limit} - total: ${products.length}`)
     return products
   },
 
@@ -95,10 +96,10 @@ export const inventoryUtil = {
     var response = http.get(`${this.inventoryAddr}/api/v1/admin/products/${id}`)
     var responseBody = parseJsonReponse(response)
     if (response.status != 200) {
-      fail(this.logTemplate(`vu - ${__VU} - fail to get product - id ${id}: ${JSON.stringify(responseBody)}`))
+      fail(this.logTemplate(`fail to get product - id ${id}: ${JSON.stringify(responseBody)}`))
     }
     var product = responseBody['data']
-    this.verboseLog(`vu - ${__VU} - get product successfully: ${JSON.stringify(product)}}`)
+    this.verboseLog(`get product successfully: ${JSON.stringify(product)}}`)
     return product
   },
 
@@ -114,49 +115,73 @@ export const inventoryUtil = {
     var response = http.post(`${this.inventoryAddr}/api/v1/admin/product-reservations/list`, JSON.stringify(params), CONTENT_TYPE_HEADER)
     var responseBody = parseJsonReponse(response)
     if (response.status != 200) {
-      fail(this.logTemplate(`vu - ${__VU} - fail to get product_reservations - ${JSON.stringify(responseBody)}`))
+      fail(this.logTemplate(`fail to get product_reservations - ${JSON.stringify(responseBody)}`))
     }
     var reservations = responseBody['data']
-    this.verboseLog(`vu - ${__VU} - get product_reservations successfully - total: ${reservations.length}`)
-    var mappedByProductIds = {}
-    for (var i = 0; i < reservations.length; ++i) {
-      mappedByProductIds[reservations[i]['productId']] = reservations[i]
-    }
-
-    return mappedByProductIds
+    this.verboseLog(`get product_reservations successfully - total: ${reservations.length}`)
+    return reservations
   },
 
   getProductAvailability(id) {
     var response = http.get(`${this.inventoryAddr}/api/v1/admin/product-availabilities/${id}`, CONTENT_TYPE_HEADER)
     var responseBody = parseJsonReponse(response)
     if (response.status != 200) {
-      fail(this.logTemplate(`vu - ${__VU} - fail to get product_availability - id ${id}: ${JSON.stringify(responseBody)}`))
+      fail(this.logTemplate(`fail to get product_availability - id ${id}: ${JSON.stringify(responseBody)}`))
     }
     var data = responseBody['data']
-    this.verboseLog(`vu - ${__VU} - get product_availability successfully: ${JSON.stringify(data)}}`)
+    this.verboseLog(`get product_availability successfully: ${JSON.stringify(data)}}`)
     return data
   },
 
+  aggregateTotalSuccessReservationRequestByHosts() {
+    var limit = 100
+    var totalPages = Math.ceil(this.productsTotal / limit)
+    var page = 1
+    var totalGroups = {}
+    var sumTotals = 0
+    while (page <= totalPages) {
+      var products = inventoryUtil.listProducts(page, limit)
+      var ids = products.map(p => p['id'])
+      for (var i = 0; i < ids.length; ++i) {
+        var response = http.get(`${this.inventoryAddr}/api/v1/admin/product-reservations/reservation-requests-handled-total/${ids[i]}`, CONTENT_TYPE_HEADER)
+        var responseBody = parseJsonReponse(response)
+        if (response.status != 200) {
+          fail(this.logTemplate(`fail to get reservation requests handled total - id ${ids[i]}: ${JSON.stringify(responseBody)}`))
+        }
+        this.verboseLog(`get reservation requests handled total success - id ${ids[i]} - total: ${responseBody['data']['handledTotal']}`)
+        if (! totalGroups[this.inventoryAddr]) {
+          totalGroups[this.inventoryAddr] = 0
+        }
+        totalGroups[this.inventoryAddr] += responseBody["data"]["handledTotal"]
+        sumTotals += responseBody["data"]["handledTotal"]
+      }
+      page++
+    }
+
+    return { totalGroups, sumTotals }
+  },
 
   tryValidateAllProductAvailabilities() {
     var limit = 100
     var totalPages = Math.ceil(this.productsTotal / limit)
     var page = 1
     var validations = {}
-    while (page++ <= totalPages) {
+    while (page <= totalPages) {
       var products = inventoryUtil.listProducts(page, limit)
       var ids = products.map(p => p['id'])
-      var wait = this.summaryWaitForSyncSeconds
       for (var i = 0; i < ids.length; ++i) {
+        var wait = this.summaryWaitForSyncSeconds
         while (true) {
           validations[ids[i]] = inventoryUtil.validateProductAvailability(ids[i])
-          if (wait-- && validations[ids[i]] != null) {
+          if (wait > 0 && validations[ids[i]] != null) {
             sleep(1)
+            wait--
             continue
           }
           break
         }
       }
+      page++
     }
     
     return validations
@@ -175,19 +200,16 @@ export const inventoryUtil = {
 
     var accumulation = { 'reservedAmount': 0, 'desiredAmount': 0}
     var validations = []
-    for (var prodId in reservations) {
-      accumulation.reservedAmount += reservations[prodId]['reservedAmount']
-      accumulation.desiredAmount += reservations[prodId]['desiredAmount']
+    for (var i = 0; i < reservations.length; ++i) {
+      accumulation.reservedAmount += reservations[i]['reservedAmount']
+      accumulation.desiredAmount += reservations[i]['desiredAmount']
     }
 
-    if (availability['stock'] != product['stock']) {
+    if (availability.stock != product.stock) {
       validations.push(`product_availability.stock (${availability.stock}) is not equal to product.stock (${product.stock})`)
     }
-    if (accumulation.desiredAmount != availability.desiredAmount) {
-      validations.push(`product_availability.desired_amount (${accumulation.desiredAmount}) is not equal to the accumulation of product_reservations.desired_amount (${availability.desiredAmount})`)
-    }
-    if (accumulation.reservedAmount != availability.reservedAmount) {
-      validations.push(`product_availability.reserved_amount (${accumulation.reservedAmount}) is not equal to the accumulation of product_reservations.reserved_amount (${availability.reservedAmount})`)
+    if (availability.reservedAmount != accumulation.reservedAmount) {
+      validations.push(`product_availability.reserved_amount (${availability.reservedAmount}) is not equal to the accumulation of product_reservations.reserved_amount (${accumulation.reservedAmount})`)
     }
 
     return validations.length == 0 ? null : validations

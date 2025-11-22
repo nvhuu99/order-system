@@ -1,6 +1,7 @@
 package com.example.inventory.main.api.admin.controllers;
 
 import com.example.inventory.main.api.admin.responses.ApiResponse;
+import com.example.inventory.main.messaging.reservation_requests.ReservationRequestsCounter;
 import com.example.inventory.services.product_reservations.ProductReservationsService;
 import com.example.inventory.services.product_reservations.dto.ListRequest;
 import jakarta.validation.Valid;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("api/v1/admin/product-reservations")
 public class ProductReservationsController {
@@ -20,13 +23,26 @@ public class ProductReservationsController {
     @Autowired
     private ProductReservationsService reservationsSvc;
 
+    @Autowired
+    private ReservationRequestsCounter counter;
+
     @PostMapping("list")
     public Mono<ResponseEntity<ApiResponse>> list(@Valid @RequestBody ListRequest body) {
         return reservationsSvc
             .list(body)
             .collectList()
             .map(ApiResponse::ok)
-            .doOnError(ex -> log.error(ex.getMessage()))
+            .doOnError(ex -> log.error("failed to list product reservations - {}", ex.getMessage()))
+            .onErrorResume(ex ->  Mono.just(ApiResponse.internalServerError(null)))
+        ;
+    }
+
+    @GetMapping("/reservation-requests-handled-total/{productId}")
+    public Mono<ResponseEntity<ApiResponse>> reservationRequestsCounter(@PathVariable String productId) {
+        return counter
+            .getHandled(productId)
+            .map(value -> ApiResponse.ok(Map.of("handledTotal", value)))
+            .doOnError(ex -> log.error("failed to get reservation-requests-handled-total - {}", ex.getMessage()))
             .onErrorResume(ex ->  Mono.just(ApiResponse.internalServerError(null)))
         ;
     }

@@ -24,8 +24,10 @@ public class CartController {
         return cartSvc
             .getCartByUserId(userId)
             .map(ApiResponse::ok)
-            .doOnError(ex -> log.error(ex.getMessage()))
-            .onErrorResume(ex ->  Mono.just(ApiResponse.internalServerError("fail to get user cart")))
+            .onErrorResume(ex ->  {
+                log.error("fail to get user cart - {} - {}", userId, ex.getMessage());
+                return Mono.just(ApiResponse.internalServerError("fail to get user cart - " + userId));
+            })
         ;
     }
 
@@ -34,7 +36,7 @@ public class CartController {
         return cartSvc
             .cartUpdateRequest(request)
             .then(Mono.just(ApiResponse.ok(null)))
-            .doOnError(ex -> log.error(ex.getMessage()))
+            .doOnError(ex -> log.error("fail to publish cart update request {}", ex.getMessage()))
             .onErrorResume(ex -> Mono.just(ApiResponse.internalServerError("fail to publish cart update request")))
         ;
     }

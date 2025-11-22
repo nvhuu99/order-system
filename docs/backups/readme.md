@@ -117,11 +117,14 @@
     docker build -t nvhuu991/order-system-inventory-service services/inventory
     docker build -t nvhuu991/order-system-auth-service services/auth
     docker build -t nvhuu991/order-system-api-gateway services/api-gateway
+    docker build -t nvhuu991/order-system-user-cart-k6 k6/
+
 
     docker push nvhuu991/order-system-shop-service
     docker push nvhuu991/order-system-inventory-service
     docker push nvhuu991/order-system-auth-service
     docker push nvhuu991/order-system-api-gateway
+    docker push nvhuu991/order-system-user-cart-k6
     
     kind load docker-image \
       order-system/cart-service \

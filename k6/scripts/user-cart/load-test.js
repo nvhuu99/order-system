@@ -1,14 +1,18 @@
 import http from "k6/http"
 import { check, sleep, fail } from "k6"
+import { Counter } from 'k6/metrics';
 import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js"
 
-import { inventoryUtil } from "./utils/inventory.js"
-import { userCartsUtil } from "./utils/user-carts.js"
-import { randomInt } from "./utils/test-common.js"
+import { inventoryUtil } from "../utils/inventory.js"
+import { userCartsUtil } from "../utils/user-carts.js"
+import { randomInt } from "../utils/common.js"
 
+
+const requestsCounter = new Counter('requests_counter');
 
 const {
   TOTAL_USERS,
+  TOTAL_REQUESTS_PER_USER,
   SEED_PRODUCTS_TOTAL,
   MAX_PRODUCT_STOCK,
   CART_ITEM_MAX_QTY,
@@ -16,7 +20,7 @@ const {
   SUMMARY_WAIT_FOR_SYNC_SECONDS,
   INVENTORY_API_ADDR,
   SHOP_API_ADDR,  
-  DURATION,
+  MAX_DURATION,
   PRUNE,
   VERBOSE,
 } = __ENV
@@ -43,33 +47,42 @@ export function setup() {
 
 
 export const options = {
-  stages: [
-    { duration: '5m', target: TOTAL_USERS },
-    { duration: DURATION, target: TOTAL_USERS },
-    { duration: '5m', target: 0 },
-  ],
+  scenarios: {
+    main: {
+      executor: "per-vu-iterations",
+      vus: TOTAL_USERS,
+      iterations: TOTAL_REQUESTS_PER_USER,
+      maxDuration: MAX_DURATION,
+    },
+  },
 };
 
 export default function(setupData) {
   var configs = setupData.configs
   inventoryUtil.init(configs)
   userCartsUtil.init(Object.assign(configs, { inventoryUtil }))
-  userCartsUtil.simulateUsersUpdateShoppingCarts()
-  sleep(randomInt(1, 5));
+  
+  var reservations = userCartsUtil.simulateUsersUpdateShoppingCarts()
+  requestsCounter.add(reservations.length)
+
+  sleep(randomInt(0, 2));
 }
 
 
 export function handleSummary(data) {
 
   var configs = data['setup_data']['configs']
+  var requestCount = data['metrics']['requests_counter']['values']['count']
   inventoryUtil.init(configs)
   userCartsUtil.init(Object.assign(configs, { inventoryUtil }))
 
   var cartValidations = userCartsUtil.tryValidateAllUserCarts()
   var availabilitiesValidations = inventoryUtil.tryValidateAllProductAvailabilities()
+  var successReservationsByHosts = inventoryUtil.aggregateTotalSuccessReservationRequestByHosts()
 
-  console.log(JSON.stringify(cartValidations))
-  console.log(JSON.stringify(availabilitiesValidations))
+  console.log("cartValidations: " + JSON.stringify(cartValidations))
+  console.log("availabilitiesValidations: " + JSON.stringify(availabilitiesValidations))
+  console.log(requestCount + " - successReservationsByHosts: " + JSON.stringify(successReservationsByHosts))
 
   if (PRUNE == "true") {
     inventoryUtil.init(setupData["configs"])

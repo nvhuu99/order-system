@@ -1,7 +1,7 @@
-import { fail, sleep } from 'k6'
+import { fail, sleep, check } from 'k6'
 import http from "k6/http"
 
-import { randomInt, parseJsonReponse } from './test-common.js'
+import { randomInt, parseJsonReponse } from './common.js'
 
 
 const CONTENT_TYPE_HEADER = { headers: { "Content-Type": "application/json" } }
@@ -20,6 +20,8 @@ export const userCartsUtil = {
   cartItemMaxQty: 10,
   summaryWaitForSyncSeconds: 10,
   verbose: true,
+
+  cartItemsQtyFromLastRequest: {},
 
   init(properties) {
     Object.assign(this, properties)
@@ -49,6 +51,10 @@ export const userCartsUtil = {
           'productId': cartProductId,
           'quantity': 0,
         })
+        if (! this.cartItemsQtyFromLastRequest[userId]) {
+          this.cartItemsQtyFromLastRequest[userId] = {}
+        }
+        this.cartItemsQtyFromLastRequest[userId][cartProductId] = 0
       }
     }
 
@@ -57,23 +63,28 @@ export const userCartsUtil = {
     }
 
     for (var i = 0; i < productIds.length; ++i) {
+      var newQty = randomInt(1, this.cartItemMaxQty)
       reservations.push({
         'productId': productIds[i],
-        'quantity': randomInt(1, this.cartItemMaxQty),
+        'quantity': newQty,
       })
+      if (! this.cartItemsQtyFromLastRequest[userId]) {
+        this.cartItemsQtyFromLastRequest[userId] = {}
+      }
+      this.cartItemsQtyFromLastRequest[userId][productIds[i]] = newQty
     }
 
     this.verboseLog(`put cart products - total: ` + productIds.length)
 
-    for (var i = 0; i < reservations.length; ++i) {
-      var body = { 'userId': userId, 'entries': reservations }
-      var response = http.put(`${this.shopAddr}/api/v1/carts/${userId}`, JSON.stringify(body), CONTENT_TYPE_HEADER)
-      var responseBody = parseJsonReponse(response)
-      if (response.status != 200) {
-        fail(this.logTemplate('fail to put cart products: ' + JSON.stringify(responseBody)))
-      }
-      this.verboseLog('put cart products successfully')
+    var body = { 'userId': userId, 'entries': reservations }
+    var response = http.put(`${this.shopAddr}/api/v1/carts/${userId}`, JSON.stringify(body), CONTENT_TYPE_HEADER)
+    var responseBody = parseJsonReponse(response)
+    if (response.status != 200) {
+      fail(this.logTemplate('fail to put cart products: ' + JSON.stringify(responseBody)))
     }
+    this.verboseLog('put cart products successfully')
+
+    return reservations
   },
 
   loadUserCart(userId) {
@@ -97,8 +108,9 @@ export const userCartsUtil = {
     for (var i = 0; i < ids.length; ++i) {
       while (true) {
         validations[ids[i]] = userCartsUtil.validateUserCart(ids[i])
-        if (wait-- && validations[ids[i]] != null) {
+        if (wait && validations[ids[i]] != null) {
           sleep(1)
+          wait--
           continue
         }
         break
@@ -120,7 +132,13 @@ export const userCartsUtil = {
 
     for (var prodId in cart['items']) {
 
-      var resv = reservations[prodId]
+      var resv = null
+      for (var i = 0; i < reservations.length; ++i) {
+        if (reservations[i]['productId'] == prodId) {
+          resv = reservations[i]
+          break
+        }
+      }
       if (! resv) {
         validations.push(`cart.items does not contain reservation of product_id ${prodId}`)
         continue
@@ -131,23 +149,50 @@ export const userCartsUtil = {
       var expiresAt = new Date(resv['expiresAt'])
       var { desiredAmount, reservedAmount, reservationStatus } = cart['items'][prodId]
 
+      /* Verify cart.items amounts with product_reservations amounts */
+      
       if (reservedAmount != resv['reservedAmount']) {
         message = `cart.items[*].reservedAmount (${reservedAmount}) and reservations[*].reservedAmount (${resv['reservedAmount']}) value mismatch`
-      } else if (desiredAmount != resv['desiredAmount']) {
+      }
+      else if (desiredAmount != resv['desiredAmount']) {
         message = `cart.items[*].desiredAmount (${desiredAmount}) and reservations[*].desiredAmount (${resv['desiredAmount']}) value mismatch`
-      } else if (reservationStatus != resv['status']) {
-        message = `cart.items[*].reservationStatus (${reservationStatus}) and reservations[*].reservationStatus (${resv['status']}) value mismatch`
-      } else if (expiresAt > now && reservationStatus == 'EXPIRED') {
-        message = "wrong status. Reservation has not yet expired but it's status is \"EXPIRED\""
-      } else if (desiredAmount == 0) {
+      }
+
+      /* Verify if removed all items with quantity is equal to zero */
+      
+      else if (desiredAmount == 0) {
         message = "zero amount reservation is not removed"
-      } else if (reservedAmount == desiredAmount && reservationStatus != 'OK') {
+      }
+
+      /* Verify cart.items statuses with product_reservations statuses */
+
+      else if (reservationStatus != resv['status']) {
+        message = `cart.items[*].reservationStatus (${reservationStatus}) and reservations[*].reservationStatus (${resv['status']}) value mismatch`
+      }
+      else if (expiresAt > now && reservationStatus == 'EXPIRED') {
+        message = "wrong status. Reservation has not yet expired but it's status is \"EXPIRED\""
+      }
+      else if (reservedAmount == desiredAmount && reservationStatus != 'OK') {
         message = "wrong status. Expected \"OK\""
-      } else if (reservedAmount < desiredAmount && reservationStatus != 'INSUFFICIENT_STOCK') {
+      }
+      else if (reservedAmount < desiredAmount && reservationStatus != 'INSUFFICIENT_STOCK') {
         message = "wrong status. Expected \"INSUFFICIENT_STOCK\""
-      } else if (reservedAmount > desiredAmount) {
+      }
+
+      /* Check if cart.items amounts are valid */
+
+      else if (reservedAmount > desiredAmount) {
         message = `invalid amount. reserved_amount (${reservedAmount}) is currently greater than desired_amount (${desiredAmount})`
       }
+      else if (reservedAmount != resv['reservedAmount']) {
+        message = `cart.items[*].reservedAmount (${reservedAmount}) and reservations[*].reservedAmount (${resv['reservedAmount']}) value mismatch`
+      }
+
+      /* Check if cart.items amounts match the user activities history */
+
+      // else if (reservedAmount != this.cartItemsQtyFromLastRequest[id][prodId]) {
+      //   message = `cart.items[*].reservedAmount does not match the amount of the last update request`
+      // }
 
       if (message != "") {
         validations.push(Object.assign(resv, { message }))

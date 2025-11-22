@@ -99,7 +99,7 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
         return locksService
             .tryLock(collection, recordIds, lockValue, Duration.ofSeconds(TIMEOUT_SECONDS))
             .retryWhen(fixedDelayRetrySpec())
-            .doOnError(ex -> log.error(logTemplate(request, "lock acquire failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
+            .doOnError(ex -> log.error(logTemplate(request, "lock acquire failed - {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock acquire success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, collection, hook))
             .then()
@@ -110,7 +110,7 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
         return locksService
             .unlock(collection, recordIds, lockValue)
             .retryWhen(fixedDelayRetrySpec().filter(ex -> !(ex instanceof LockValueMismatch)))
-            .doOnError(ex -> log.error(logTemplate(request, "lock release failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
+            .doOnError(ex -> log.error(logTemplate(request, "lock release failed - {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock release success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_RELEASED, collection, hook))
             .then()

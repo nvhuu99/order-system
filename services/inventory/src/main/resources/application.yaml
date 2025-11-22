@@ -16,7 +16,7 @@ logging:
 order-system:
   workers:
     product-reservation-sync-requests:
-      schedule-rate-ms: 15000
+      schedule-rate-ms: 10000
   messaging:
     product-reservation-requests:
       topic-name: "product-reservation-requests"
@@ -27,7 +27,7 @@ order-system:
       topic-partitions: "0"
       timeout-seconds: 15
       batch-size: 150
-      request-expires-after-ms: 15000
+      request-expires-after-ms: 10000
 
 
 spring:
@@ -50,12 +50,12 @@ spring:
     admin:
       auto-create: false
     listener:
-      ack-mode: manual
-      concurrency: 1
+      ack-mode: MANUAL_IMMEDIATE
     consumer:
       group-id: ${HOSTNAME:inventory-service}
       auto-offset-reset: latest
       enable-auto-commit: false
+      max-poll-records: 1
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:

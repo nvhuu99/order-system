@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 @Service
 public class CartServiceImp implements CartService {
 
@@ -32,7 +34,7 @@ public class CartServiceImp implements CartService {
                 return productsRepo
                     .findAllById(productIds)
                     .map(product -> {
-                        var reservation = reservations.stream().filter(r -> r.getProductId() == product.getId()).toList().getFirst();
+                        var reservation = reservations.stream().filter(r -> Objects.equals(r.getProductId(), product.getId())).toList().getFirst();
                         return new CartItem(reservation, product);
                     })
                     .collectList()

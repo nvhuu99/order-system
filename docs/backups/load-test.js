@@ -4,7 +4,7 @@ import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js"
 
 import { inventoryUtil } from "./utils/inventory.js"
 import { userCartsUtil } from "./utils/user-carts.js"
-import { randomInt } from "./utils/test-common.js"
+import { randomInt } from "./utils/common.js"
 
 
 const {

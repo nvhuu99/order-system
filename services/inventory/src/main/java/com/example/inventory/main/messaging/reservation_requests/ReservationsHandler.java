@@ -53,8 +53,8 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         log.info(logTemplate(request, "handling reservation request"));
 
         var lockValue = UUID.randomUUID().toString();
-        var tryAcquireHandlerLock = tryAcquireHandlerLock(request, "order_system:reservation_request_handlers", List.of(request.getIdentifier()), lockValue, hook);
-        var releaseHandlerLock = releaseLock(request, "order_system:reservation_request_handlers", List.of(request.getIdentifier()), lockValue, hook);
+        var tryAcquireHandlerLock = tryAcquireHandlerLock(request, "order_system:reservation_request_handlers", List.of(request.getUserId()), lockValue, hook);
+        var releaseHandlerLock = releaseLock(request, "order_system:reservation_request_handlers", List.of(request.getUserId()), lockValue, hook);
         var acquireReservationLock = acquireLock(request, "order_system:product_reservations", List.of(request.getProductId()), lockValue, hook);
         var releaseReservationLock = releaseLock(request, "order_system:product_reservations", List.of(request.getProductId()), lockValue, hook);
         var acquireProductAvailabilityLock = acquireLock(request, "order_system:product_availabilities", List.of(request.getProductId()), lockValue, hook);
@@ -68,10 +68,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         var commit = Mono.fromRunnable(() -> callHook(REQUEST_COMMITTED, hook));
 
         return getReservation(request, reservationRef)
-            .map(reservation -> {
-                validator.checkRequestTimestamp(reservation, request);
-                return reservation;
-            })
+            .then(validateRequest(request, reservationRef))
             .then(tryAcquireHandlerLock)
 
             // can Mono.when
@@ -127,8 +124,8 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
 
             .then(commit)
             .onErrorResume(ProductNotFound.class, ex -> commit.then(Mono.error(ex)))
+            .onErrorResume(LocksUnavailable.class, ex -> commit.then(Mono.error(ex)))
             .onErrorResume(InvalidRequestTimestamp.class, ex -> commit.then(Mono.error(ex)))
-            .onErrorResume(RequestHandlerLockUnavailable.class, ex -> commit.then(Mono.error(ex)))
             .onErrorResume(ex ->
                 releaseProductAvailabilityLock
                     .then(releaseReservationLock)
@@ -141,11 +138,21 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         ;
     }
 
+
+    private Mono<Void> validateRequest(ReservationRequest request, AtomicReference<ProductReservation> reservationRef) {
+        return Mono
+            .fromRunnable(() -> validator.checkRequestTimestamp(reservationRef.get(), request))
+            .doOnSuccess(ok -> log.debug(logTemplate(request, "request validation success")))
+            .doOnError(ex -> log.error(logTemplate(request, "request validation failed - {}"), ex.getMessage()))
+            .then()
+        ;
+    }
+
     private Mono<Void> tryAcquireHandlerLock(ReservationRequest request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
         return locksService
             .tryLock(collection, recordIds, lockValue, Duration.ofSeconds(TIMEOUT_SECONDS))
-            .doOnError(ex -> log.error(logTemplate(request, "try acquire lock failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
-            .doOnSuccess(ok -> log.debug(logTemplate(request, "try acquire lock success - {}"), collection))
+            .doOnError(ex -> log.error(logTemplate(request, "try acquire handler lock failed - {}"), exceptionCause(ex).getMessage()))
+            .doOnSuccess(ok -> log.debug(logTemplate(request, "try acquire handler lock success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, collection, hook))
             .onErrorMap(LocksUnavailable.class, ex -> new RequestHandlerLockUnavailable())
             .then()
@@ -157,7 +164,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         return locksService
             .tryLock(collection, recordIds, lockValue, Duration.ofSeconds(TIMEOUT_SECONDS))
             .retryWhen(fixedDelayRetrySpec())
-            .doOnError(ex -> log.error(logTemplate(request, "lock acquire failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
+            .doOnError(ex -> log.error(logTemplate(request, "lock acquire failed - {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock acquire success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, collection, hook))
             .then()
@@ -168,7 +175,8 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         return locksService
             .unlock(collection, recordIds, lockValue)
             .retryWhen(fixedDelayRetrySpec().filter(ex -> !(ex instanceof LockValueMismatch)))
-            .doOnError(ex -> log.error(logTemplate(request, "lock release failed - {} - {}"), collection, exceptionCause(ex).getMessage()))
+            .onErrorResume(LockValueMismatch.class, ex -> Mono.empty())
+            .doOnError(ex -> log.error(logTemplate(request, "lock release failed - {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock release success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_RELEASED, collection, hook))
             .then()

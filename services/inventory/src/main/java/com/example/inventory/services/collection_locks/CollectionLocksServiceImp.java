@@ -46,7 +46,7 @@ public class CollectionLocksServiceImp implements CollectionLocksService {
             .execute(unlockLuaScript, recordIds, redisKey(collection), lockValue)
             .next()
             .flatMap(r -> r == 0
-                ? Mono.error(new LockValueMismatch())
+                ? Mono.error(new LockValueMismatch(collection))
                 : Mono.empty()
             )
         ;
