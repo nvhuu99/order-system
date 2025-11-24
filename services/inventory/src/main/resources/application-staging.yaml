@@ -4,12 +4,13 @@ logging:
 
 order-system:
   workers:
-    product-reservation-sync-requests:
+    product-reservation-sync-requests-handler:
       schedule-rate-ms: 15000
   messaging:
     product-reservation-requests:
       topic-partitions: "0-2"
       timeout-seconds: 15
+      track-max-requests: 1000
     product-reservation-sync-requests:
       topic-partitions: "0-2"
       timeout-seconds: 15

@@ -40,10 +40,12 @@ public class ReservationsHandlerProperties {
 
     protected String logTemplate(ReservationRequest request, String append) {
         return String.format(
-            "product_id=%s - user_id=%s - handler=%s - " + append,
+            "product_id=%s - user_id=%s - handler=%s - request_id=%s - requested_at=%s - " + append,
             request.getProductId(),
             request.getUserId(),
-            HOSTNAME
+            HOSTNAME,
+            request.getRequestId(),
+            request.getRequestedAt()
         );
     }
 

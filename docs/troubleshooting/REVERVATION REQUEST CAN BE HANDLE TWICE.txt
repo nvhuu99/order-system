@@ -1,0 +1,85 @@
+### REVERVATION REQUEST CAN BE HANDLED TWICE
+
+Cả hai instance đều acquire được locks gần như cùng lúc, sau đó hoàn tất xử lý request gần như cùng lúc.
+
+
+Liệu có khả năng request_id khác nhau, nhưng cùng một requestedAt
+	=> request_id nhu nhau
+
+Nếu là race (nghĩa là phía redis), thì giá trị Lock dùng để acquire là khác nhau, nhưng trả về là giống nhau
+	=> không phải, đã test, lock acquire = lock returned
+
+Vậy trong redis, nó đang lưu hai giá trị à
+	=> nó chỉ lưu một giá trị
+	=> có thể LUA script không hề đảm bảo 100% atomicity
+	=> nhưng kết quả search google:
+		Atomic Execution: While executing the script, all server activities are blocked during its entire runtime.
+		https://redis.io/docs/latest/develop/programmability/eval-intro/
+
+Có thật là bị overwrite
+	=> đúng là có hai lần lưu lock riêng biệt
+	
+Nghi vấn: Có phải ngay khi lock1 được release, trong khi reservation.requestedAt chưa kịp cập nhật, thì lock2 đã acquire thành công + get reservation thành công
+	
+	inventory service 0
+		02:02:48.273 - put product_reservation successfully
+		02:02:48.275 - lock release success - order_system:product_availabilities
+		02:02:48.276 - lock release success - order_system:product_reservations
+		02:02:48.277 - lock release success - order_system:reservation_requests
+		
+		
+	inventory service 1
+		02:02:48.282 - get reservation successfully
+		02:02:48.283 - try lock success - order_system:reservation_requests
+		02:02:48.284 - wait lock success - order_system:product_reservations
+		02:02:48.285 - wait lock success - order_system:product_availabilities
+
+
+	* Dù là dựa trên logs, có vẻ Nghi vấn trên là không đúng. Nhưng walllock của mỗi server có thể chênh lệch một chút, nên timestamp của log không 100% đáng tin cậy.
+	  Thử xét một trường hợp khác.
+
+	inventory service 1
+
+		02:02:43.821 - get reservation successfully
+		02:02:43.824 - try lock success - order_system:reservation_requests
+		02:02:43.957 - put product_reservation successfully
+		02:02:43.963 - lock release success - order_system:reservation_requests
+
+	inventory service 0
+
+		02:02:44.101 - get reservation successfully
+		02:02:44.105 - try lock success - order_system:reservation_requests
+		02:02:44.199 - put product_reservation successfully
+		02:02:44.203 - lock release success - order_system:reservation_requests
+
+	=> Có thể thấy, khoảng cách về timestamp đủ lớn chứ không phải là "chỉ chênh lệch một chút" -> redis OK. 
+	   Vậy rõ ràng vấn đề nằm ở reservation.requestedAt:
+		1. Chưa lưu thành công nhưng MySQL vẫn trả về là success
+		2. Hoặc, quá trình convert giá trị requestedAt giữa DB và Spring có vấn đề
+
+	inventory service 1
+
+		02:34:04.334 - get reservation successfully - requestedAt: 2025-11-24T02:34:04Z
+		02:34:04.347 - get reservation successfully - requestedAt: 2025-11-24T02:34:04Z
+		02:34:04.383 - put product_reservation successfully - requestedAt: 2025-11-24T02:34:04.082137114Z	** Put Successfully
+
+	inven service 0
+
+		02:34:04.391 - get reservation successfully - requestedAt: 2025-11-24T02:34:04Z				** Still return old value
+		02:34:04.402 - get reservation successfully - requestedAt: 2025-11-24T02:34:04Z
+		02:34:04.407 - put product_reservation successfully - requestedAt: 2025-11-24T02:34:04.082137114Z
+
+	=> Đã tìm ra vấn đề: **MySQL vẫn trả về là success mặc dù requestedAt chưa được cập nhật thành công** - Khả năng cao là câu "SELECT" đã đọc từ một snapshot cũ mà "UPDATE" đã tạo
+		giải pháp: 
+			1: check requestedAt với cả productAvai.updatedAt, vì productAvai lưu ở Redis, nó sẽ trả về kq đúng hơn
+                           -> ⛔ productAvai là product-level, ko phải giành riêng cho từng request
+
+			2: cache requestId đã được handle, max size của nó sẽ không cần quá lớn
+			   -> ReservationRequestCounter -> ReservationRequestTracker
+				-> Implemented, result: OK ✅
+		
+
+
+
+	
+

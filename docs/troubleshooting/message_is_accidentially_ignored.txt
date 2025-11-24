@@ -1,0 +1,29 @@
+message_is_accidentially_ignored
+
+✅ 2 message without succes log & error log -> export data and reproduce:					
+	=> after "get product availability successfully" => release log, no error
+		=> vì revalidate mà bị nuốt lỗi
+			            .map(ignored -> {
+                			validator.checkRequestTimestamp(reservationRef.get(), request);
+                			return Mono.empty();
+            				})
+		   lí do chỗ này bị invalid timestamp là do lỗi số "4" bên dưới gây ra
+
+	Giả thuyết 1: hai request khác nhau, nhưng do cùng một user_id, nên vô tình bị bỏ qua		✅
+
+		inven1: m1 - acquire lock success
+		inven2: m1 - acquire lock fail
+		inven2: m2 - acquire lock success
+			inven1: m1 - handled completed
+			inven1: m3 - acquire lock fail (since m2.user_id = m3.user_id)
+				inven1 - m4 - acquire lock success	
+				inven2 - m2 - handled completed
+				inven2 - m3 - acquire lock fail (since m3.user_id = m4.user_id)		** m3 never got handled and skip by both inven1, inven2
+		=> Solution: lock by request_id, not user_id
+
+khoan đã, nếu như dựa vào requestedAt để bỏ qua requests thì?
+	=> ở lần validate invalid timestamp thứ hai, có khả năng request sẽ bị fail
+	inven1 - u1p1m1 - try lock success
+	inven2 - u1p1m2 - try lock success
+	inven1 - u1p1m1 - put reservation.requestedAt
+	inven2 - u1p1m2 - invalid timestamp

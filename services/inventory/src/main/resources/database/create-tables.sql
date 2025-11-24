@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `product_reservations` (
   `reserved_amount` INT NOT NULL DEFAULT 0,
   `status` VARCHAR(50) NOT NULL,
   `expires_at` TIMESTAMP NOT NULL,
-  `requested_at` TIMESTAMP NOT NULL,
+  `requested_at` TIMESTAMP(6) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_pr_user_product` (`user_id`, `product_id`),
   KEY `idx_pr_product_id_user_id` (`product_id`, `user_id`),

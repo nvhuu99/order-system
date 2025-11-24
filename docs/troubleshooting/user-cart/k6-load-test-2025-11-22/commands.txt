@@ -1,0 +1,11 @@
+Reservation.*Message\sreceived
+f2654ac9-d37d-4801-89f6-b32c36228896.*VU_1_1763785846339_15074.*requested_at=2025-11-22T04:30:59\.663832283Z
+
+docker rm -f load-test && docker compose up -d --build load-test
+
+cat inven-0.log | grep "handle reservation request successfully" | awk -F ' - ' '{print $4, $5, $7}' | sort > inven-0.pasred.log \
+&& cat inven-1.log | grep "handle reservation request successfully" | awk -F ' - ' '{print $4, $5, $7}' | sort > inven-1.pasred.log \
+&& comm -12 inven-0.pasred.log inven-1.pasred.log > common.log
+
+docker exec -it redis-master sh -c "redis-cli DEL order-system:locks:order_system:reservation_requests:backup"
+docker exec -it redis-master sh -c "redis-cli HGETALL order-system:locks:order_system:reservation_requests:backup" > redis.log

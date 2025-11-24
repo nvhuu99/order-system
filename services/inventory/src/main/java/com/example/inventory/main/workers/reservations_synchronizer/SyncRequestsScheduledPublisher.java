@@ -22,7 +22,7 @@ public class SyncRequestsScheduledPublisher {
     @Value("${order-system.messaging.product-reservation-sync-requests.batch-size}")
     private Integer batchSize;
 
-    @Value("${order-system.workers.product-reservation-sync-requests.schedule-rate-ms}")
+    @Value("${order-system.workers.product-reservation-sync-requests-handler.schedule-rate-ms}")
     private Integer scheduleRateMs;
 
     @Autowired
@@ -31,7 +31,7 @@ public class SyncRequestsScheduledPublisher {
     @Autowired
     private ProductsCrudRepository productsRepo;
 
-    @Scheduled(fixedDelayString = "${order-system.workers.product-reservation-sync-requests.schedule-rate-ms}")
+    @Scheduled(fixedDelayString = "${order-system.workers.product-reservation-sync-requests-handler.schedule-rate-ms}")
     public void execute() {
         var countProducts = productsRepo.count().block();
         if (countProducts == 0) {

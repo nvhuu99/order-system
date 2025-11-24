@@ -1,0 +1,7 @@
+total handled success < total request
+	Kết quả đối chiếu logs giữa hai instnace:
+
+	+ số lượng logs "already handle": là khớp nhau, nếu một instance log "has already been handled" thì bên log "handle reservation successfully".
+	+ số lượng logs "try-lock fail": ...
+	+ số lượng logs "invalid timestamp": không khớp, một requestId mà cả hai instance đều bị invalid timestamp
+		=> lí do: bị mất "timestamp nanosecond fraction" khi lưu vào DB. ví dụ: giá trị lưu là "2025-11-24T04:44:27.775374252Z" nhưng giá trị lưu thực sự là "2025-11-24T04:44:28Z"

@@ -17,9 +17,13 @@ const {
   MAX_PRODUCT_STOCK,
   CART_ITEM_MAX_QTY,
   CART_MAX_ITEMS,
-  SUMMARY_WAIT_FOR_SYNC_SECONDS,
-  INVENTORY_API_ADDR,
-  SHOP_API_ADDR,  
+
+  INVENTORY_SVC_DNS,
+  INVENTORY_SVC_INSTANCES,
+  INVENTORY_SVC_API_PORT,
+  SHOP_SVC_DNS,
+  SHOP_SVC_API_PORT,  
+  
   MAX_DURATION,
   PRUNE,
   VERBOSE,
@@ -33,9 +37,13 @@ export function setup() {
     maxProductStock: MAX_PRODUCT_STOCK,
     cartItemMaxQty: CART_ITEM_MAX_QTY,
     cartMaxItems: CART_MAX_ITEMS,
-    summaryWaitForSyncSeconds: SUMMARY_WAIT_FOR_SYNC_SECONDS,
-    inventoryAddr: INVENTORY_API_ADDR,
-    shopAddr: SHOP_API_ADDR,
+
+    inventoryServiceDNS: INVENTORY_SVC_DNS,
+    inventoryServiceInstances: INVENTORY_SVC_INSTANCES,
+    inventoryServiceApiPort: INVENTORY_SVC_API_PORT,
+    shopServiceDNS: SHOP_SVC_DNS,
+    shopServiceAPIPort: SHOP_SVC_API_PORT,
+    
     verbose: VERBOSE,
   }
 
@@ -78,7 +86,7 @@ export function handleSummary(data) {
 
   var cartValidations = userCartsUtil.tryValidateAllUserCarts()
   var availabilitiesValidations = inventoryUtil.tryValidateAllProductAvailabilities()
-  var successReservationsByHosts = inventoryUtil.aggregateTotalSuccessReservationRequestByHosts()
+  var successReservationsByHosts = inventoryUtil.aggregateTotalSuccessReservationRequestByHosts(requestCount)
 
   console.log("cartValidations: " + JSON.stringify(cartValidations))
   console.log("availabilitiesValidations: " + JSON.stringify(availabilitiesValidations))

@@ -12,8 +12,6 @@ import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,8 +27,6 @@ public class ReservationsListener {
     @Autowired
     private ReservationsHandler reservationRequestHandler;
 
-    @Autowired
-    private ReservationRequestsCounter counter;
 
     @KafkaListener(topicPartitions = { @TopicPartition(
         topic = "${order-system.messaging.product-reservation-requests.topic-name}",
@@ -41,9 +37,7 @@ public class ReservationsListener {
         log.info(logTemplate(headers, "Message received"));
 
         var isCommited = new AtomicBoolean(false);
-        var hooks = new HashSet<String>();
         var execute = reservationRequestHandler.handle(request, (hookName, data) -> {
-            hooks.add(hookName);
             if (Objects.equals(hookName, ReservationsHandler.REQUEST_COMMITTED)) {
                 ack.acknowledge();
                 isCommited.set(true);
@@ -57,13 +51,6 @@ public class ReservationsListener {
                     log.info(logTemplate(headers, "Message committed"));
                 } else {
                     log.info(logTemplate(headers, "Did not commit message"));
-                }
-                if (hooks.containsAll(List.of(
-                    ReservationsHandler.RESERVATION_SAVED,
-                    ReservationsHandler.PRODUCT_AVAILABILITY_SAVED,
-                    ReservationsHandler.REQUEST_COMMITTED
-                ))) {
-                    counter.increaseHandled(request.getProductId()).subscribe();
                 }
             })
         ;

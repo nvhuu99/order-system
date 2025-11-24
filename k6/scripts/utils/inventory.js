@@ -10,15 +10,14 @@ export const inventoryUtil = {
 
   /* Required properties */
   testId: "",
-  inventoryAddr: "",
-  shopAddr: "",
+  inventoryServiceDNS: "",
+  inventoryServiceInstances: [],
+  inventoryServiceApiPort: 8083,
 
   /* Optional properties */
   productsTotal: 100,
   maxProductStock: 100,
   verbose: true,
-  summaryWaitForSyncSeconds: 10,
-
 
   logTemplate(message) {
     return `vu: ${__VU} - ${message}`
@@ -44,7 +43,7 @@ export const inventoryUtil = {
         stock: randomInt(1, this.maxProductStock),
         reservationsExpireAfterSeconds: 3600,
       }
-      var response = http.post(`${this.inventoryAddr}/api/v1/admin/products`, JSON.stringify(body), CONTENT_TYPE_HEADER)
+      var response = http.post(`http://${this.inventoryServiceDNS}:${this.inventoryServiceApiPort}/api/v1/admin/products`, JSON.stringify(body), CONTENT_TYPE_HEADER)
       var responseBody = parseJsonReponse(response)
       if (response.status != 201) {
         fail(this.logTemplate("failed to seed products: " + JSON.stringify(responseBody)))
@@ -60,7 +59,7 @@ export const inventoryUtil = {
     for (var page = 1; page <= totalPages; ++page) {
       var products = this.listProducts(page, limit)
       for (var p = 0; p < products.length; ++p) {
-        var response = http.del(`${this.inventoryAddr}/api/v1/admin/products/${products[p]['id']}`)
+        var response = http.del(`http://${this.inventoryServiceDNS}:${this.inventoryServiceApiPort}/api/v1/admin/products/${products[p]['id']}`)
         var responseBody = parseJsonReponse(response)
         if (response.status != 200) {
           fail(this.logTemplate(`fail to delete products: ${JSON.stringify(responseBody)}`))
@@ -82,7 +81,7 @@ export const inventoryUtil = {
       page,
       limit
     }
-    var response = http.post(`${this.inventoryAddr}/api/v1/admin/products/list`, JSON.stringify(body), CONTENT_TYPE_HEADER)
+    var response = http.post(`http://${this.inventoryServiceDNS}:${this.inventoryServiceApiPort}/api/v1/admin/products/list`, JSON.stringify(body), CONTENT_TYPE_HEADER)
     var responseBody = parseJsonReponse(response)
     if (response.status != 200) {
       fail(this.logTemplate(`fail to list products: ${JSON.stringify(responseBody)}`))
@@ -93,7 +92,7 @@ export const inventoryUtil = {
   },
 
   getProduct(id) {
-    var response = http.get(`${this.inventoryAddr}/api/v1/admin/products/${id}`)
+    var response = http.get(`http://${this.inventoryServiceDNS}:${this.inventoryServiceApiPort}/api/v1/admin/products/${id}`)
     var responseBody = parseJsonReponse(response)
     if (response.status != 200) {
       fail(this.logTemplate(`fail to get product - id ${id}: ${JSON.stringify(responseBody)}`))
@@ -112,7 +111,7 @@ export const inventoryUtil = {
   },
 
   listReservations(params) {
-    var response = http.post(`${this.inventoryAddr}/api/v1/admin/product-reservations/list`, JSON.stringify(params), CONTENT_TYPE_HEADER)
+    var response = http.post(`http://${this.inventoryServiceDNS}:${this.inventoryServiceApiPort}/api/v1/admin/product-reservations/list`, JSON.stringify(params), CONTENT_TYPE_HEADER)
     var responseBody = parseJsonReponse(response)
     if (response.status != 200) {
       fail(this.logTemplate(`fail to get product_reservations - ${JSON.stringify(responseBody)}`))
@@ -123,7 +122,7 @@ export const inventoryUtil = {
   },
 
   getProductAvailability(id) {
-    var response = http.get(`${this.inventoryAddr}/api/v1/admin/product-availabilities/${id}`, CONTENT_TYPE_HEADER)
+    var response = http.get(`http://${this.inventoryServiceDNS}:${this.inventoryServiceApiPort}/api/v1/admin/product-availabilities/${id}`, CONTENT_TYPE_HEADER)
     var responseBody = parseJsonReponse(response)
     if (response.status != 200) {
       fail(this.logTemplate(`fail to get product_availability - id ${id}: ${JSON.stringify(responseBody)}`))
@@ -133,32 +132,43 @@ export const inventoryUtil = {
     return data
   },
 
-  aggregateTotalSuccessReservationRequestByHosts() {
-    var limit = 100
-    var totalPages = Math.ceil(this.productsTotal / limit)
-    var page = 1
-    var totalGroups = {}
-    var sumTotals = 0
-    while (page <= totalPages) {
-      var products = inventoryUtil.listProducts(page, limit)
-      var ids = products.map(p => p['id'])
-      for (var i = 0; i < ids.length; ++i) {
-        var response = http.get(`${this.inventoryAddr}/api/v1/admin/product-reservations/reservation-requests-handled-total/${ids[i]}`, CONTENT_TYPE_HEADER)
-        var responseBody = parseJsonReponse(response)
-        if (response.status != 200) {
-          fail(this.logTemplate(`fail to get reservation requests handled total - id ${ids[i]}: ${JSON.stringify(responseBody)}`))
-        }
-        this.verboseLog(`get reservation requests handled total success - id ${ids[i]} - total: ${responseBody['data']['handledTotal']}`)
-        if (! totalGroups[this.inventoryAddr]) {
-          totalGroups[this.inventoryAddr] = 0
-        }
-        totalGroups[this.inventoryAddr] += responseBody["data"]["handledTotal"]
-        sumTotals += responseBody["data"]["handledTotal"]
-      }
-      page++
-    }
+  aggregateTotalSuccessReservationRequestByHosts(expectTotal) {
+    var hosts = this.inventoryServiceInstances.split(",").map(h => h.trim())
+    while (true) {
 
-    return { totalGroups, sumTotals }
+      var limit = 100
+      var totalPages = Math.ceil(this.productsTotal / limit)
+      var page = 1
+      var totalGroups = {}
+      var sumTotals = 0
+
+      while (page <= totalPages) {
+        var products = inventoryUtil.listProducts(page, limit)
+        var ids = products.map(p => p['id'])
+        for (var h = 0; h < hosts.length; ++h) {
+          for (var i = 0; i < ids.length; ++i) {
+            var response = http.get(`http://${hosts[h]}:${this.inventoryServiceApiPort}/api/v1/admin/product-reservations/reservation-requests-handled-total/${ids[i]}`, CONTENT_TYPE_HEADER)
+            var responseBody = parseJsonReponse(response)
+            if (response.status != 200) {
+              fail(this.logTemplate(`fail to get reservation requests handled total - id ${ids[i]}: ${JSON.stringify(responseBody)}`))
+            }
+            this.verboseLog(`get reservation requests handled total success - id ${ids[i]} - total: ${responseBody['data']['handledTotal']}`)
+            if (! totalGroups[hosts[h]]) {
+              totalGroups[hosts[h]] = 0
+            }
+            totalGroups[hosts[h]] += responseBody["data"]["handledTotal"]
+            sumTotals += responseBody["data"]["handledTotal"]
+          }
+        }
+        page++
+      }
+      if (sumTotals != expectTotal) {
+        console.log(this.logTemplate(`retry aggregating total success reservation request - expectTotal: ${expectTotal} - sumTotal: ${sumTotals} - by_hosts: ${JSON.stringify(totalGroups)}`))
+        sleep(1)
+        continue
+      }
+      return { totalGroups, sumTotals }
+    }
   },
 
   tryValidateAllProductAvailabilities() {
@@ -170,12 +180,11 @@ export const inventoryUtil = {
       var products = inventoryUtil.listProducts(page, limit)
       var ids = products.map(p => p['id'])
       for (var i = 0; i < ids.length; ++i) {
-        var wait = this.summaryWaitForSyncSeconds
         while (true) {
           validations[ids[i]] = inventoryUtil.validateProductAvailability(ids[i])
-          if (wait > 0 && validations[ids[i]] != null) {
+          if (validations[ids[i]] != null) {
+            console.log(this.logTemplate(`retry validating product availability...`))
             sleep(1)
-            wait--
             continue
           }
           break

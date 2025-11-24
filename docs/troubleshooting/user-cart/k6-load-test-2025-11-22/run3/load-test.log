@@ -1,0 +1,87 @@
+2025-11-24 11:44:25.993 | 
+2025-11-24 11:44:25.993 |          /\      Grafana   /‾‾/  
+2025-11-24 11:44:25.993 |     /\  /  \     |\  __   /  /   
+2025-11-24 11:44:25.993 |    /  \/    \    | |/ /  /   ‾‾\ 
+2025-11-24 11:44:25.993 |   /          \   |   (  |  (‾)  |
+2025-11-24 11:44:25.993 |  / __________ \  |_|\_\  \_____/ 
+2025-11-24 11:44:25.993 | 
+2025-11-24 11:44:26.055 |      execution: local
+2025-11-24 11:44:26.055 |         script: /scripts/user-cart/load-test.js
+2025-11-24 11:44:26.055 |         output: -
+2025-11-24 11:44:26.055 | 
+2025-11-24 11:44:26.055 |      scenarios: (100.00%) 1 scenario, 3 max VUs, 5m30s max duration (incl. graceful stop):
+2025-11-24 11:44:26.055 |               * main: 10 iterations for each of 3 VUs (maxDuration: 5m0s, gracefulStop: 30s)
+2025-11-24 11:44:26.055 | 
+2025-11-24 11:44:27.056 | 
+2025-11-24 11:44:27.056 | Run    [ 100% ] setup()
+2025-11-24 11:44:27.056 | main   [   0% ]
+2025-11-24 11:44:28.056 | 
+2025-11-24 11:44:28.056 | running (0m02.0s), 3/3 VUs, 2 complete and 0 interrupted iterations
+2025-11-24 11:44:28.056 | main   [   7% ] 3 VUs  0m01.0s/5m0s  02/30 iters, 10 per VU
+2025-11-24 11:44:29.056 | 
+2025-11-24 11:44:29.056 | running (0m03.0s), 3/3 VUs, 3 complete and 0 interrupted iterations
+2025-11-24 11:44:29.056 | main   [  10% ] 3 VUs  0m02.0s/5m0s  03/30 iters, 10 per VU
+2025-11-24 11:44:30.056 | 
+2025-11-24 11:44:30.056 | running (0m04.0s), 3/3 VUs, 5 complete and 0 interrupted iterations
+2025-11-24 11:44:30.056 | main   [  17% ] 3 VUs  0m03.0s/5m0s  05/30 iters, 10 per VU
+2025-11-24 11:44:31.056 | 
+2025-11-24 11:44:31.056 | running (0m05.0s), 3/3 VUs, 8 complete and 0 interrupted iterations
+2025-11-24 11:44:31.056 | main   [  27% ] 3 VUs  0m04.0s/5m0s  08/30 iters, 10 per VU
+2025-11-24 11:44:32.056 | 
+2025-11-24 11:44:32.056 | running (0m06.0s), 3/3 VUs, 13 complete and 0 interrupted iterations
+2025-11-24 11:44:32.056 | main   [  43% ] 3 VUs  0m05.0s/5m0s  13/30 iters, 10 per VU
+2025-11-24 11:44:33.056 | 
+2025-11-24 11:44:33.056 | running (0m07.0s), 3/3 VUs, 17 complete and 0 interrupted iterations
+2025-11-24 11:44:33.056 | main   [  57% ] 3 VUs  0m06.0s/5m0s  17/30 iters, 10 per VU
+2025-11-24 11:44:34.056 | 
+2025-11-24 11:44:34.056 | running (0m08.0s), 3/3 VUs, 20 complete and 0 interrupted iterations
+2025-11-24 11:44:34.056 | main   [  67% ] 3 VUs  0m07.0s/5m0s  20/30 iters, 10 per VU
+2025-11-24 11:44:35.056 | 
+2025-11-24 11:44:35.056 | running (0m09.0s), 3/3 VUs, 21 complete and 0 interrupted iterations
+2025-11-24 11:44:35.056 | main   [  70% ] 3 VUs  0m08.0s/5m0s  21/30 iters, 10 per VU
+2025-11-24 11:44:36.056 | 
+2025-11-24 11:44:36.056 | running (0m10.0s), 2/3 VUs, 24 complete and 0 interrupted iterations
+2025-11-24 11:44:36.056 | main   [  80% ] 3 VUs  0m09.0s/5m0s  24/30 iters, 10 per VU
+2025-11-24 11:44:37.056 | 
+2025-11-24 11:44:37.056 | running (0m11.0s), 2/3 VUs, 24 complete and 0 interrupted iterations
+2025-11-24 11:44:37.056 | main   [  80% ] 3 VUs  0m10.0s/5m0s  24/30 iters, 10 per VU
+2025-11-24 11:44:38.055 | 
+2025-11-24 11:44:38.055 | running (0m12.0s), 1/3 VUs, 28 complete and 0 interrupted iterations
+2025-11-24 11:44:38.055 | main   [  93% ] 3 VUs  0m11.0s/5m0s  28/30 iters, 10 per VU
+2025-11-24 11:44:39.055 | 
+2025-11-24 11:44:39.056 | running (0m12.5s), 0/3 VUs, 30 complete and 0 interrupted iterations
+2025-11-24 11:44:39.056 | main ✓ [ 100% ] 3 VUs  0m11.5s/5m0s  30/30 iters, 10 per VU
+2025-11-24 11:44:40.055 | 
+2025-11-24 11:44:40.055 | running (0m12.5s), 0/3 VUs, 30 complete and 0 interrupted iterations
+2025-11-24 11:44:40.055 | main ✓ [ 100% ] 3 VUs  0m11.5s/5m0s  30/30 iters, 10 per VU
+2025-11-24 11:44:40.424 | time="2025-11-24T04:44:40Z" level=info msg="cartValidations: {\"VU_1_1763959466057_32705\":null,\"VU_2_1763959466057_32705\":null,\"VU_3_1763959466057_32705\":null}" source=console
+2025-11-24 11:44:40.424 | time="2025-11-24T04:44:40Z" level=info msg="availabilitiesValidations: {\"066e918a-d9bf-4a90-8653-c1672c122532\":null,\"747cf58d-9fe1-4a36-a48f-ca9c2a59c2c6\":null,\"822dbd29-be11-406f-8e4b-98bb6b398703\":null,\"bcffe82d-445e-41f9-8d56-0e18b957219d\":null,\"fc8e90cd-b21a-4a55-9aad-2af7c3f64911\":null}" source=console
+2025-11-24 11:44:40.424 | time="2025-11-24T04:44:40Z" level=info msg="112 - successReservationsByHosts: {\"totalGroups\":{\"http://inventory-service:8083\":40,\"http://inventory-service-1:8083\":68},\"sumTotals\":108}" source=console
+2025-11-24 11:44:40.489 | 
+2025-11-24 11:44:40.489 | 
+2025-11-24 11:44:40.489 |   █ TOTAL RESULTS 
+2025-11-24 11:44:40.489 | 
+2025-11-24 11:44:40.489 |     CUSTOM
+2025-11-24 11:44:40.489 |     requests_counter...............: 112   8.950732/s
+2025-11-24 11:44:40.489 | 
+2025-11-24 11:44:40.489 |     HTTP
+2025-11-24 11:44:40.489 |     http_req_duration..............: avg=59.91ms min=5.63ms  med=23.81ms max=839.28ms p(90)=98.16ms p(95)=104.28ms
+2025-11-24 11:44:40.489 |       { expected_response:true }...: avg=59.91ms min=5.63ms  med=23.81ms max=839.28ms p(90)=98.16ms p(95)=104.28ms
+2025-11-24 11:44:40.489 |     http_req_failed................: 0.00% 0 out of 95
+2025-11-24 11:44:40.489 |     http_reqs......................: 95    7.592138/s
+2025-11-24 11:44:40.489 | 
+2025-11-24 11:44:40.489 |     EXECUTION
+2025-11-24 11:44:40.489 |     iteration_duration.............: avg=1.02s   min=31.85ms med=1.05s   max=2.74s    p(90)=2.09s   p(95)=2.1s    
+2025-11-24 11:44:40.489 |     iterations.....................: 30    2.397517/s
+2025-11-24 11:44:40.489 |     vus............................: 1     min=0       max=3
+2025-11-24 11:44:40.490 |     vus_max........................: 3     min=3       max=3
+2025-11-24 11:44:40.490 | 
+2025-11-24 11:44:40.490 |     NETWORK
+2025-11-24 11:44:40.490 |     data_received..................: 45 kB 3.6 kB/s
+2025-11-24 11:44:40.490 |     data_sent......................: 25 kB 2.0 kB/s
+2025-11-24 11:44:40.490 | 
+2025-11-24 11:44:40.490 | 
+2025-11-24 11:44:40.490 | 
+2025-11-24 11:44:40.490 | 
+2025-11-24 11:44:40.490 | running (0m12.5s), 0/3 VUs, 30 complete and 0 interrupted iterations
+2025-11-24 11:44:40.490 | main ✓ [ 100% ] 3 VUs  0m11.5s/5m0s  30/30 iters, 10 per VU

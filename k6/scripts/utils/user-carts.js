@@ -11,14 +11,13 @@ export const userCartsUtil = {
   /* Required properties */
   testId: null,
   inventoryUtil: null,
-  inventoryAddr: "",
-  shopAddr: "",
+  shopServiceDNS: "",
+  shopServiceAPIPort: 8081,
 
   /* Optional properties */
   totalUsers: 10,
   cartMaxItems: 10,
   cartItemMaxQty: 10,
-  summaryWaitForSyncSeconds: 10,
   verbose: true,
 
   cartItemsQtyFromLastRequest: {},
@@ -77,7 +76,7 @@ export const userCartsUtil = {
     this.verboseLog(`put cart products - total: ` + productIds.length)
 
     var body = { 'userId': userId, 'entries': reservations }
-    var response = http.put(`${this.shopAddr}/api/v1/carts/${userId}`, JSON.stringify(body), CONTENT_TYPE_HEADER)
+    var response = http.put(`http://${this.shopServiceDNS}:${this.shopServiceAPIPort}/api/v1/carts/${userId}`, JSON.stringify(body), CONTENT_TYPE_HEADER)
     var responseBody = parseJsonReponse(response)
     if (response.status != 200) {
       fail(this.logTemplate('fail to put cart products: ' + JSON.stringify(responseBody)))
@@ -88,7 +87,7 @@ export const userCartsUtil = {
   },
 
   loadUserCart(userId) {
-    var response = http.get(`${this.shopAddr}/api/v1/carts/${userId}`)
+    var response = http.get(`http://${this.shopServiceDNS}:${this.shopServiceAPIPort}/api/v1/carts/${userId}`)
     var responseBody = parseJsonReponse(response)
     if (response.status != 200) {
       fail(this.logTemplate('fail to load user cart: ' + JSON.stringify(responseBody)))
@@ -104,13 +103,12 @@ export const userCartsUtil = {
       ids.push(`VU_${i}_${this.testId}`)
     }
     var validations = {}
-    var wait = this.summaryWaitForSyncSeconds
     for (var i = 0; i < ids.length; ++i) {
       while (true) {
         validations[ids[i]] = userCartsUtil.validateUserCart(ids[i])
-        if (wait && validations[ids[i]] != null) {
+        if (validations[ids[i]] != null) {
+          console.log(this.logTemplate(`retry validating user cart...`))
           sleep(1)
-          wait--
           continue
         }
         break

@@ -98,6 +98,25 @@ services:
     networks:
       - order-system
 
+  inventory-service-1:
+    container_name: inventory-service-1
+    hostname: inventory-service-1
+    restart: unless-stopped
+    environment:
+      HOSTNAME: inventory-service-1
+    env_file:
+      - .env.docker
+    build:
+      context: ./services/inventory
+      dockerfile: Dockerfile
+    cpus: "1"
+    mem_limit: "512mb"
+    # ports:
+      # - "9094:9093"
+      # - "8084:8083"
+    networks:
+      - order-system
+
   shop-service:
     container_name: shop-service
     hostname: shop-service
@@ -167,7 +186,6 @@ services:
       TOTAL_REQUESTS_PER_USER: 10
       CART_ITEM_MAX_QTY: 3
       CART_MAX_ITEMS: 3
-      SUMMARY_WAIT_FOR_SYNC_SECONDS: 10
       INVENTORY_API_ADDR: "http://inventory-service:8083"
       SHOP_API_ADDR: "http://shop-service:8081"
       MAX_DURATION: "300s"

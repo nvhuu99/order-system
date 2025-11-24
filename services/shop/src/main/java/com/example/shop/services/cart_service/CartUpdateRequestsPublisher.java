@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 @Component
 public class CartUpdateRequestsPublisher {
@@ -34,6 +35,7 @@ public class CartUpdateRequestsPublisher {
             .fromIterable(request.getEntries())
             .flatMap(entry -> {
                 var reservationRequest = new ReservationRequest();
+                reservationRequest.setRequestId(UUID.randomUUID().toString());
                 reservationRequest.setUserId(request.getUserId());
                 reservationRequest.setProductId(entry.getProductId());
                 reservationRequest.setQuantity(entry.getQuantity());
