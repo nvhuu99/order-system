@@ -17,6 +17,7 @@ import com.example.inventory.services.products.dto.ProductDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -76,10 +77,8 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
         return getReservation(request, reservationRef)
             .then(validateRequest(request, reservationRef))
             .then(tryRequestHandlerLock)
-            .then(Mono.when(
-                waitReservationLock,
-                waitProductAvailabilityLock
-            ))
+            .then(waitReservationLock)
+            .then(waitProductAvailabilityLock)
             .then(skipIfRequestHandledAlready(request))
             .then(Mono.when(
                 getProduct(request, productRef),
@@ -155,6 +154,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             )
             .doOnSuccess(ok -> log.debug(logTemplate(request, "recent handled requests check success")))
             .doOnError(ex -> log.error(logTemplate(request, "recent handled requests check failed - {}"), ex.getMessage()))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
@@ -165,6 +165,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .doOnSuccess(ok -> log.debug(logTemplate(request, "tracked recent handled requests")))
             .doOnError(ex -> log.error(logTemplate(request, "track recent handled requests failed - {}"), ex.getMessage()))
             .then(Mono.just(true))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
@@ -184,6 +185,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .doOnSuccess(lockValueAcquired -> log.debug(logTemplate(request, "try lock success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, collection, hook))
             .then(Mono.just(true))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
@@ -195,6 +197,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .doOnSuccess(lockValueAcquired -> log.debug(logTemplate(request, "wait lock success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, collection, hook))
             .then(Mono.just(true))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
@@ -207,6 +210,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock release success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_RELEASED, collection, hook))
             .then(Mono.just(true))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
@@ -217,6 +221,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .doOnError(ex -> log.error(logTemplate(request, "get product failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "get product successfully")))
             .doOnSuccess(productRef::set)
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
@@ -229,6 +234,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .doOnError(ex -> log.error(logTemplate(request, "get reservation failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(resv -> log.debug(logTemplate(request, "get reservation successfully")))
             .doOnSuccess(reservationRef::set)
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
@@ -242,6 +248,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .doOnError(ex -> log.error(logTemplate(request, "get product availability failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "get product availability successfully")))
             .doOnSuccess(producAvailabilityRef::set)
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
@@ -251,6 +258,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .doOnError(ex -> log.error(logTemplate(request, "put product_availability failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "put product_availability successfully")))
             .doOnSuccess(ok -> callHook(PRODUCT_AVAILABILITY_SAVED, hook))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
@@ -260,6 +268,7 @@ public class ReservationsHandler extends ReservationsHandlerProperties {
             .doOnError(ex -> log.error(logTemplate(request, "put product_reservation failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(resv -> log.debug(logTemplate(request, "put product_reservation successfully")))
             .doOnSuccess(ok -> callHook(RESERVATION_SAVED, hook))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 }

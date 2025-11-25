@@ -1,0 +1,16 @@
+performance improve 1:
+	+ distributed lock - dead-lock situation:
+		- cả A và B đều đang chờ lock cho reservations và avaiabilities
+		- A lấy được reservation trước, và chờ availabilities
+		- B lấy được availabilities trước và chờ reservations
+		=> Cả hai chờ nhau cho đến khi bị timeout
+
+		Giải pháp 1 - tạm bợ: lấy lock cần đảm bảo thứ tự
+			A lấy được reservation trước
+			B ko lấy được reservation, sẽ ko lấy avaiabilities
+			A lấy được availabilities trước
+			A release cả hai lock
+			B lần lượt lấy được cả hai lock
+			=> ko bị dead lock nữa
+
+		Giải pháp 2: lấy reservation + availabilities locks trong cùng 1 operations

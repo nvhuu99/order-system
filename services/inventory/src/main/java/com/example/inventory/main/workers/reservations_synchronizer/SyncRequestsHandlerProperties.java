@@ -40,10 +40,11 @@ public class SyncRequestsHandlerProperties {
 
     protected String logTemplate(SyncRequest request, String append) {
         return String.format(
-            "batch_number=%s - batch_size=%s - handler=%s - " + append,
+            "batch_number=%s - batch_size=%s - handler=%s - request_id=%s - " + append,
             request.getBatchNumber(),
             request.getBatchSize(),
-            HOSTNAME
+            HOSTNAME,
+            request.getRequestId()
         );
     }
 
@@ -52,7 +53,7 @@ public class SyncRequestsHandlerProperties {
         var maxAttempt = (TIMEOUT_SECONDS * 1000)/delayMs;
         return Retry
             .fixedDelay(maxAttempt, Duration.ofMillis(delayMs))
-//            .doBeforeRetry(retrySignal -> log.debug("retry attempt ({}): {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString()))
+            .doBeforeRetry(retrySignal -> log.debug("retry attempt ({}): {}", retrySignal.totalRetries() + 1, retrySignal.failure().toString()))
         ;
     }
 }

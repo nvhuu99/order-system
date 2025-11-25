@@ -13,6 +13,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SyncRequest {
+    String requestId;
     Integer batchSize;
     Integer batchNumber;
     Instant expiresAt;

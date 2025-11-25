@@ -65,7 +65,7 @@ public class SyncRequestsHandlerTests extends TestBase {
         var p = UUID.randomUUID().toString().substring(1);
         setupData(p);
 
-        var request = new SyncRequest(5, 1, Instant.now().plusSeconds(300));
+        var request = new SyncRequest(UUID.randomUUID().toString(), 5, 1, Instant.now().plusSeconds(300));
         handler.handle(request, (hook, value) -> putHookToMap(hooks, hook, value)).block();
 
         assertTrue(hooks.containsKey("LOCK_ACQUIRED"));
@@ -86,7 +86,7 @@ public class SyncRequestsHandlerTests extends TestBase {
         var p = UUID.randomUUID().toString().substring(1);
         setupData(p);
 
-        var request = new SyncRequest(5, 1, Instant.now().plusSeconds(300));
+        var request = new SyncRequest(UUID.randomUUID().toString(),5, 1, Instant.now().plusSeconds(300));
         handler.handle(request, null).block();
 
         var r11 = reservationsCrudRepo.findByProductIdAndUserId(p+"1", "u1").block();
@@ -139,7 +139,7 @@ public class SyncRequestsHandlerTests extends TestBase {
         var p = UUID.randomUUID().toString().substring(1);
         setupData(p);
 
-        var request = new SyncRequest(5, 1, Instant.now().plusSeconds(300));
+        var request = new SyncRequest(UUID.randomUUID().toString(),5, 1, Instant.now().plusSeconds(300));
         handler.handle(request, null).block();
 
         var a1 = availabilitiesRepo.findByProductId(p+"1").block();
@@ -172,7 +172,7 @@ public class SyncRequestsHandlerTests extends TestBase {
         seeder.seedReservation(p+"2", "u1", 1, 1, ReservationStatus.OK, 0);
         seeder.seedReservation(p+"2", "u2", 0, 0, ReservationStatus.OK, 0);
 
-        var request = new SyncRequest(5, 1, Instant.now().plusSeconds(300));
+        var request = new SyncRequest(UUID.randomUUID().toString(),5, 1, Instant.now().plusSeconds(300));
         handler.handle(request, null).block();
 
         var r11 = reservationsCrudRepo.findByProductIdAndUserId(p+"1", "u1").block();

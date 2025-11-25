@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Component
 public class SyncRequestsScheduledPublisher {
@@ -42,7 +43,8 @@ public class SyncRequestsScheduledPublisher {
         var countBatches =  Math.toIntExact((countProducts + batchSize - 1L) / batchSize);
         var expiresAt = Instant.now().plusSeconds(scheduleRateMs);
         while (batch <= countBatches) {
-            publishRequest(new SyncRequest(batchSize, batch, expiresAt));
+            var requestId = UUID.randomUUID().toString();
+            publishRequest(new SyncRequest(requestId, batchSize, batch, expiresAt));
             batch++;
         }
     }

@@ -1,6 +1,5 @@
 package com.example.inventory.main.workers.reservations_synchronizer;
 
-import com.example.inventory.main.messaging.reservation_requests.ReservationsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,10 +23,14 @@ public class SyncRequestsListener {
     private final Logger log = LoggerFactory.getLogger(SyncRequestsListener.class);
 
     @Value("${HOSTNAME:inventory-service}")
-    private String hostname;
+    private String HOSTNAME;
+
+    @Value("${order-system.messaging.product-reservation-sync-requests.retry-after-seconds}")
+    private Integer RETRY_AFTER_SECONDS;
 
     @Autowired
     private SyncRequestsHandler handler;
+
 
     @KafkaListener(
         groupId = "sync-requests-handler",
@@ -34,28 +38,28 @@ public class SyncRequestsListener {
             topic = "${order-system.messaging.product-reservation-sync-requests.topic-name}",
             partitions = "${order-system.messaging.product-reservation-sync-requests.topic-partitions}"),
     })
-    public Mono<Void> handle(SyncRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
+    public void handle(SyncRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
 
         log.info(logTemplate(headers, "Message received"));
 
         var isCommited = new AtomicBoolean(false);
-        var execute = handler.handle(request, (hookName, data) -> {
-            if (Objects.equals(hookName, SyncRequestsHandler.REQUEST_COMMITTED)) {
-                ack.acknowledge();
-                isCommited.set(true);
-            }
-        });
 
-        return execute
-            .onErrorResume(ex -> Mono.empty())
-            .doOnTerminate(() -> {
-                if (isCommited.get()) {
-                    log.info(logTemplate(headers, "Message committed"));
-                } else {
-                    log.info(logTemplate(headers, "Did not commit message"));
+        handler
+            .handle(request, (hookName, data) -> {
+                if (Objects.equals(hookName, SyncRequestsHandler.REQUEST_COMMITTED)) {
+                    isCommited.set(true);
                 }
             })
+            .onErrorResume(ex -> Mono.empty())
+            .block()
         ;
+        if (isCommited.get()) {
+            ack.acknowledge();
+            log.info(logTemplate(headers, "Message committed"));
+        } else {
+            log.info(logTemplate(headers, "Did not commit message"));
+            ack.nack(Duration.ofSeconds(RETRY_AFTER_SECONDS));
+        }
     }
 
 
@@ -66,7 +70,7 @@ public class SyncRequestsListener {
             headers.get(KafkaHeaders.RECEIVED_PARTITION),
             headers.get(KafkaHeaders.GROUP_ID),
             headers.get(KafkaHeaders.OFFSET),
-            hostname
+            HOSTNAME
         );
     }
 }

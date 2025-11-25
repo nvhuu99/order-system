@@ -12,6 +12,7 @@ import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,7 +23,10 @@ public class ReservationsListener {
     private final Logger log = LoggerFactory.getLogger(ReservationsListener.class);
 
     @Value("${HOSTNAME:inventory-service}")
-    private String hostname;
+    private String HOSTNAME;
+
+    @Value("${order-system.messaging.product-reservation-requests.retry-after-seconds}")
+    private Integer RETRY_AFTER_SECONDS;
 
     @Autowired
     private ReservationsHandler reservationRequestHandler;
@@ -32,28 +36,28 @@ public class ReservationsListener {
         topic = "${order-system.messaging.product-reservation-requests.topic-name}",
         partitions = "${order-system.messaging.product-reservation-requests.topic-partitions}")
     })
-    public Mono<Void> handle(ReservationRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
+    public void handle(ReservationRequest request, Acknowledgment ack, @Headers Map<String, Object> headers) {
 
         log.info(logTemplate(headers, "Message received"));
 
         var isCommited = new AtomicBoolean(false);
-        var execute = reservationRequestHandler.handle(request, (hookName, data) -> {
-            if (Objects.equals(hookName, ReservationsHandler.REQUEST_COMMITTED)) {
-                ack.acknowledge();
-                isCommited.set(true);
-            }
-        });
 
-        return execute
-            .onErrorResume(ex -> Mono.empty())
-            .doOnTerminate(() -> {
-                if (isCommited.get()) {
-                    log.info(logTemplate(headers, "Message committed"));
-                } else {
-                    log.info(logTemplate(headers, "Did not commit message"));
+        reservationRequestHandler
+            .handle(request, (hookName, data) -> {
+                if (Objects.equals(hookName, ReservationsHandler.REQUEST_COMMITTED)) {
+                    isCommited.set(true);
                 }
             })
+            .onErrorResume(ex -> Mono.empty())
+            .block()
         ;
+        if (isCommited.get()) {
+            ack.acknowledge();
+            log.info(logTemplate(headers, "Message committed"));
+        } else {
+            log.info(logTemplate(headers, "Did not commit message"));
+            ack.nack(Duration.ofSeconds(RETRY_AFTER_SECONDS));
+        }
     }
 
 
@@ -64,7 +68,7 @@ public class ReservationsListener {
             headers.get(KafkaHeaders.RECEIVED_PARTITION),
             headers.get(KafkaHeaders.GROUP_ID),
             headers.get(KafkaHeaders.OFFSET),
-            hostname
+            HOSTNAME
         );
     }
 }

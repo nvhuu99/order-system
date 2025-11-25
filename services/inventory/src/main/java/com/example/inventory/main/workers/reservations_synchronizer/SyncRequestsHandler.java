@@ -10,6 +10,7 @@ import com.example.inventory.services.product_availabilities.ProductAvailabiliti
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -68,13 +69,17 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
             .then(removeZeroAmountReservations(request, productIds, hook))
             .then(syncReservations(request, productIds, hook))
             .then(syncProductAvailability(request, productIds, hook))
-            .then(releaseLock(request, "order_system:product_reservations", productIds, lockVal, hook))
-            .then(releaseLock(request, "order_system:product_availabilities", productIds, lockVal, hook))
+            .then(Mono.when(
+                releaseLock(request, "order_system:product_reservations", productIds, lockVal, hook),
+                releaseLock(request, "order_system:product_availabilities", productIds, lockVal, hook)
+            ))
             .then(commit)
             .onErrorResume(ex ->
-                releaseLock(request, "order_system:product_reservations", productIds, lockVal, hook)
-                    .then(releaseLock(request, "order_system:product_availabilities", productIds, lockVal, hook))
-                    .then(Mono.error(ex))
+                Mono.when(
+                    releaseLock(request, "order_system:product_reservations", productIds, lockVal, hook),
+                    releaseLock(request, "order_system:product_availabilities", productIds, lockVal, hook)
+                )
+                .then(Mono.error(ex))
             )
             .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
             .doOnSuccess(ok -> log.info(logTemplate(request, "handle sync request successfully")))
@@ -92,58 +97,64 @@ public class SyncRequestsHandler extends SyncRequestsHandlerProperties {
             .collectList()
             .doOnError(ex -> log.error(logTemplate(request, "get product_ids failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ids -> log.debug(logTemplate(request, "get product_ids successfully - totals: {}"), ids.size()))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
-    private Mono<Void> acquireLock(SyncRequest request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
+    private Mono<Boolean> acquireLock(SyncRequest request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
         return locksService
             .tryLock(collection, recordIds, lockValue, Duration.ofSeconds(TIMEOUT_SECONDS))
             .retryWhen(fixedDelayRetrySpec())
             .doOnError(ex -> log.error(logTemplate(request, "lock acquire failed - {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock acquire success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_ACQUIRED, collection, hook))
-            .then()
+            .then(Mono.just(true))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
-    private Mono<Void> releaseLock(SyncRequest request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
+    private Mono<Boolean> releaseLock(SyncRequest request, String collection, List<String> recordIds, String lockValue, BiConsumer<String, String> hook) {
         return locksService
             .unlock(collection, recordIds, lockValue)
             .retryWhen(fixedDelayRetrySpec().filter(ex -> !(ex instanceof LockValueMismatch)))
             .doOnError(ex -> log.error(logTemplate(request, "lock release failed - {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "lock release success - {}"), collection))
             .doOnSuccess(ok -> callHook(LOCK_RELEASED, collection, hook))
-            .then()
+            .then(Mono.just(true))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
-    private Mono<Void> removeZeroAmountReservations(SyncRequest request, List<String> productIds, BiConsumer<String, String> hook) {
+    private Mono<Boolean> removeZeroAmountReservations(SyncRequest request, List<String> productIds, BiConsumer<String, String> hook) {
         return reservationRepo
             .removeZeroAmountReservations(productIds)
             .doOnError(ex -> log.error(logTemplate(request, "remove product_reservations with desired_amount equals zero failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "remove product_reservations with desired_amount equals zero successfully")))
             .doOnSuccess(ok -> callHook(ZERO_AMOUNT_RESERVATIONS_REMOVED, hook))
-            .then()
+            .then(Mono.just(true))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
-    private Mono<Void> syncProductAvailability(SyncRequest request, List<String> productIds, BiConsumer<String, String> hook) {
+    private Mono<Boolean> syncProductAvailability(SyncRequest request, List<String> productIds, BiConsumer<String, String> hook) {
         return productAvailabilitiesService
             .syncAllWithReservations(productIds)
             .doOnError(ex -> log.error(logTemplate(request, "sync product_availability failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "sync product_availability successfully")))
             .doOnSuccess(ok -> callHook(PRODUCT_AVAILABILITY_SYNCED, hook))
-            .then()
+            .then(Mono.just(true))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 
-    private Mono<Void> syncReservations(SyncRequest request, List<String> productIds, BiConsumer<String, String> hook) {
+    private Mono<Boolean> syncReservations(SyncRequest request, List<String> productIds, BiConsumer<String, String> hook) {
         return reservationRepo
             .syncReservations(productIds)
             .doOnError(ex -> log.error(logTemplate(request, "sync product_reservations failed: {}"), exceptionCause(ex).getMessage()))
             .doOnSuccess(ok -> log.debug(logTemplate(request, "sync product_reservations successfully")))
             .doOnSuccess(ok -> callHook(RESERVATIONS_SYNCED, hook))
-            .then()
+            .then(Mono.just(true))
+            .subscribeOn(Schedulers.boundedElastic())
         ;
     }
 }

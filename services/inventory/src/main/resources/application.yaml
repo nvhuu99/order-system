@@ -21,14 +21,16 @@ order-system:
     product-reservation-requests:
       topic-name: "product-reservation-requests"
       topic-partitions: "0"
-      timeout-seconds: 15
       track-max-requests: 1000
+      timeout-seconds: 15
+      retry-after-seconds: 30
     product-reservation-sync-requests:
       topic-name: "product-reservation-sync-requests"
       topic-partitions: "0"
       timeout-seconds: 15
       batch-size: 150
       request-expires-after-ms: 10000
+      retry-after-seconds: 30
 
 
 spring:
@@ -56,7 +58,6 @@ spring:
       group-id: ${HOSTNAME:inventory-service}
       auto-offset-reset: latest
       enable-auto-commit: false
-      max-poll-records: 1
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:

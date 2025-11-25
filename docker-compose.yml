@@ -180,20 +180,20 @@ services:
       - .env.docker
     environment:
       K6_SCRIPT: user-cart/load-test.js
-      SEED_PRODUCTS_TOTAL: 5
-      MAX_PRODUCT_STOCK: 10
       TOTAL_USERS: 3
       TOTAL_REQUESTS_PER_USER: 10
+      SEED_PRODUCTS_TOTAL: 5
+      MAX_PRODUCT_STOCK: 10
       CART_ITEM_MAX_QTY: 3
       CART_MAX_ITEMS: 3
-      INVENTORY_API_ADDR: "http://inventory-service:8083"
-      SHOP_API_ADDR: "http://shop-service:8081"
+      INVENTORY_SVC_DNS: "inventory-service"
+      INVENTORY_SVC_INSTANCES: "inventory-service, inventory-service-1"
+      INVENTORY_SVC_API_PORT: "8083"
+      SHOP_SVC_DNS: "shop-service"
+      SHOP_SVC_API_PORT: "8081"
       MAX_DURATION: "300s"
       PRUNE: false
       VERBOSE: false
-#    volumes:
-#      - ./utils/:/scripts/utils/
-#      - ./load-test.js:/scripts/load-test.js
     deploy:
       resources:
         limits:
